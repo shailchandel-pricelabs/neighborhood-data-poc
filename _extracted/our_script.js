@@ -101,10 +101,14 @@ function selectPillOption(item, pillId, label) {
 }
 
 /* ═══════════════════════════════════════════════════════════════
-   Highcharts setup — trading-app style (Robinhood/Coinbase-inspired):
-   big price header, minimal chrome, gradient line, bottom range
-   segments, tap-and-drag crosshair scrubbing that live-updates the
-   header. ═══════════════════════════════════════════════════════ */
+   Highcharts setup — trading-app style (Robinhood/Coinbase/Upstox-
+   inspired): big price header, tap-and-drag crosshair scrubbing that
+   live-updates the header, bottom range segments, and a switchable
+   axis/interaction style so we can compare options live:
+     A = Classic  — persistent bottom date-axis + right price axis w/ gridlines
+     B = Minimal  — no axis at rest, tags reveal only while scrubbing
+     C = Hybrid   — faint persistent date labels + a pinned live-value tag
+   ═══════════════════════════════════════════════════════════════ */
 
 if (window.Highcharts) {
   Highcharts.setOptions({
@@ -115,6 +119,8 @@ if (window.Highcharts) {
   });
 }
 
+let ndStyle = 'C';
+
 /* ── seeded PRNG so data is stable across reloads/range switches ── */
 function ndSeededRand(seed) {
   let s = seed;
@@ -122,6 +128,54 @@ function ndSeededRand(seed) {
     s = (s * 9301 + 49297) % 233280;
     return s / 233280;
   };
+}
+
+/* ── shared axis-style helpers, reused by all three charts ── */
+function ndChartSpacing(style) {
+  if (style === 'A') return [8, 44, 22, 4];
+  if (style === 'C') return [8, 40, 22, 4];
+  return [8, 0, 4, 0];
+}
+function ndXAxisConfig(style, cats, step) {
+  if (style === 'A') {
+    return {
+      categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
+      labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, step: step },
+      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
+    };
+  }
+  if (style === 'C') {
+    return {
+      categories: cats, lineWidth: 0, tickLength: 0,
+      labels: { enabled: true, style: { fontSize: '9px', color: '#AEAEAE' }, step: step },
+      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
+    };
+  }
+  return {
+    categories: cats, lineWidth: 0, tickLength: 0, labels: { enabled: false },
+    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Solid' }
+  };
+}
+function ndYAxisConfig(style, opts) {
+  opts = opts || {};
+  if (style === 'A') {
+    return {
+      title: { text: null }, opposite: true, gridLineWidth: 0, tickAmount: 3, max: opts.max,
+      labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, formatter: opts.yFormatter },
+      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', format: opts.yCrosshairFormat || '{value:.0f}', style: { color: '#fff', fontSize: '10px' } } }
+    };
+  }
+  if (style === 'C') {
+    const plotLines = (opts.lastValue != null) ? [{
+      value: opts.lastValue, color: '#333333', width: 1, dashStyle: 'Dash', zIndex: 4,
+      label: {
+        useHTML: true, align: 'right', x: 40, y: 5,
+        text: '<span style="background:#333333;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;">' + opts.lastLabel + '</span>'
+      }
+    }] : [];
+    return { title: { text: null }, labels: { enabled: false }, gridLineWidth: 0, max: opts.max, plotLines: plotLines };
+  }
+  return { title: { text: null }, labels: { enabled: false }, gridLineWidth: 0, max: opts.max };
 }
 
 /* ── Future Prices: build arearange + line series for N days ── */
@@ -148,14 +202,18 @@ function fpBuildData(days) {
 }
 
 let fpChart = null;
-function fpInitChart() {
+let fpDays = 30;
+function fpInitChart(days) {
   const el = document.getElementById('fp-hc-chart');
   if (!el || !window.Highcharts) return;
-  const { cats, listing, band5075, band7590 } = fpBuildData(30);
+  if (days) fpDays = days;
+  const { cats, listing, band5075, band7590 } = fpBuildData(fpDays);
+  const lastPrice = listing[listing.length - 1][1];
+  if (fpChart) { fpChart.destroy(); fpChart = null; }
   fpChart = Highcharts.chart('fp-hc-chart', {
     chart: {
       height: 200,
-      spacing: [8, 0, 4, 0],
+      spacing: ndChartSpacing(ndStyle),
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
@@ -163,20 +221,12 @@ function fpInitChart() {
         load: function () { fpUpdateHero(this, this.series[0].points.length - 1); }
       }
     },
-    xAxis: {
-      categories: cats,
-      lineWidth: 0,
-      tickLength: 0,
-      labels: { enabled: false },
-      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Solid' }
-    },
-    yAxis: {
-      title: { text: null },
-      labels: { enabled: false },
-      gridLineWidth: 0,
-      endOnTick: false,
-      startOnTick: false
-    },
+    xAxis: ndXAxisConfig(ndStyle, cats, Math.max(1, Math.round(cats.length / 5))),
+    yAxis: ndYAxisConfig(ndStyle, {
+      lastValue: lastPrice, lastLabel: '$' + lastPrice,
+      yFormatter: function () { return '$' + this.value; },
+      yCrosshairFormat: '${value:.0f}'
+    }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
@@ -248,15 +298,7 @@ function fpUpdateHero(chart, index) {
 function fpSetRange(el, days) {
   el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
-  if (!fpChart) return;
-  const { cats, listing, band5075, band7590 } = fpBuildData(days);
-  fpChart.xAxis[0].setCategories(cats, false);
-  fpChart.series[0].setData(listing.map(p => p[1]), false);
-  fpChart.series[1].setData(band5075.map(p => [p[1], p[2]]), false);
-  fpChart.series[2].setData(band7590.map(p => [p[1], p[2]]), false);
-  fpChart.series[3].setData(band5075.map(p => [p[1] - 20, p[1]]), false);
-  fpChart.redraw();
-  fpUpdateHero(fpChart, listing.length - 1);
+  fpInitChart(days);
 }
 
 /* ── Occupancy: column chart, Booked/Unavailable stacked + Market Occ line ── */
@@ -280,32 +322,29 @@ function occBuildData(days) {
 }
 
 let occChart = null;
-function occInitChart() {
+let occDays = 30;
+function occInitChart(days) {
   const el = document.getElementById('occ-hc-chart');
   if (!el || !window.Highcharts) return;
-  const { cats, booked, unavailable, market } = occBuildData(30);
+  if (days) occDays = days;
+  const { cats, booked, unavailable, market } = occBuildData(occDays);
+  const lastTotal = booked[booked.length - 1] + unavailable[unavailable.length - 1];
+  if (occChart) { occChart.destroy(); occChart = null; }
   occChart = Highcharts.chart('occ-hc-chart', {
     chart: {
       height: 220,
-      spacing: [8, 0, 4, 0],
+      spacing: ndChartSpacing(ndStyle),
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
       events: { load: function () { occUpdateHero(this, this.series[0].points.length - 1); } }
     },
-    xAxis: {
-      categories: cats,
-      lineWidth: 0,
-      tickLength: 0,
-      labels: { enabled: false },
-      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Solid' }
-    },
-    yAxis: {
-      title: { text: null },
-      labels: { enabled: false },
-      gridLineWidth: 0,
-      max: 110
-    },
+    xAxis: ndXAxisConfig(ndStyle, cats, Math.max(1, Math.round(cats.length / 5))),
+    yAxis: ndYAxisConfig(ndStyle, {
+      max: 110, lastValue: lastTotal, lastLabel: lastTotal + '%',
+      yFormatter: function () { return this.value + '%'; },
+      yCrosshairFormat: '{value:.0f}%'
+    }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
@@ -342,14 +381,7 @@ function occUpdateHero(chart, index) {
 function occSetRange(el, days) {
   el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
-  if (!occChart) return;
-  const { cats, booked, unavailable, market } = occBuildData(days);
-  occChart.xAxis[0].setCategories(cats, false);
-  occChart.series[0].setData(booked, false);
-  occChart.series[1].setData(unavailable, false);
-  occChart.series[2].setData(market, false);
-  occChart.redraw();
-  occUpdateHero(occChart, booked.length - 1);
+  occInitChart(days);
 }
 
 /* ── Market History: column chart, swaps metric via metric-card tap ── */
@@ -362,14 +394,26 @@ const histMetricData = {
 const histMonths = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
 
 let histChart = null;
-function histInitChart() {
+let histCurrentKey = 'occ';
+function histInitChart(key) {
   const el = document.getElementById('hist-hc-chart');
   if (!el || !window.Highcharts) return;
-  const m = histMetricData.occ;
+  if (key) histCurrentKey = key;
+  const m = histMetricData[histCurrentKey];
+  const lastVal = m.data[m.data.length - 1];
+  const lastLabel = (m.prefix || '') + lastVal + (m.suffix || '');
+  if (histChart) { histChart.destroy(); histChart = null; }
   histChart = Highcharts.chart('hist-hc-chart', {
-    chart: { height: 190, spacing: [8, 0, 4, 0], backgroundColor: 'transparent' },
-    xAxis: { categories: histMonths, lineWidth: 0, tickLength: 0, labels: { style: { fontSize: '10px', color: '#7A7A7A' } } },
-    yAxis: { title: { text: null }, labels: { enabled: false }, gridLineWidth: 0 },
+    chart: { height: 190, spacing: ndChartSpacing(ndStyle), backgroundColor: 'transparent' },
+    xAxis: {
+      categories: histMonths, lineWidth: ndStyle === 'A' ? 1 : 0, lineColor: '#E0E0E0', tickLength: 0,
+      labels: { style: { fontSize: ndStyle === 'C' ? '9px' : '10px', color: ndStyle === 'C' ? '#AEAEAE' : '#7A7A7A' } }
+    },
+    yAxis: ndYAxisConfig(ndStyle, {
+      lastValue: lastVal, lastLabel: lastLabel,
+      yFormatter: function () { return (m.prefix || '') + this.value; },
+      yCrosshairFormat: (m.prefix || '') + '{value:.0f}' + (m.suffix || '')
+    }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
@@ -381,9 +425,19 @@ function histInitChart() {
 }
 
 function switchHistoryMetric(el, key) {
-  const m = histMetricData[key];
-  if (!m || !histChart) return;
-  histChart.series[0].update({ name: m.name, data: m.data, color: m.color }, true);
+  histInitChart(key);
+}
+
+/* ── Master style switcher: reinitializes all charts with the chosen style,
+   preserving each chart's current range/metric selection ── */
+function ndSetStyle(style) {
+  ndStyle = style;
+  document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('active'));
+  const btn = document.getElementById('style-opt-' + style);
+  if (btn) btn.classList.add('active');
+  fpInitChart();
+  occInitChart();
+  histInitChart();
 }
 
 /* ── Trading-app crosshair scrub: tap-and-drag updates the hero header live ── */
