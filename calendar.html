@@ -1856,19 +1856,19 @@ body { background: #d9dbe0; }
           </div>
         </div>
         <div class="legend" id="fp-legend-daily">
-          <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:3px"></div> Listing Price</div>
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.25)"></div> 25th–50th</div>
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.12)"></div> 50th–75th</div>
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.05)"></div> 75th–90th</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#333333;height:3px"></div> Listing Price</div>
+          <div class="legend-item"><div class="legend-band" style="background:#A8D8FF"></div> 25th–50th</div>
+          <div class="legend-item"><div class="legend-band" style="background:#F69396"></div> 50th–75th</div>
+          <div class="legend-item"><div class="legend-band" style="background:#A15457;opacity:0.4"></div> 75th–90th</div>
           <div class="legend-item"><div class="legend-swatch" style="background:#7A7A7A;height:2px;width:10px;border-top:1px dashed #7A7A7A;background:none"></div> Last Seen</div>
           <div class="legend-item" id="fp-events-legend"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#FE6A35;opacity:0.7"></span> Events</div>
           <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-future-options')">+ More</div>
         </div>
         <div class="legend" id="fp-legend-monthly" style="display:none">
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.35);width:10px;height:12px"></div> 25th–50th</div>
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.18);width:10px;height:12px"></div> 50th–75th</div>
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.08);width:10px;height:12px"></div> 75th–90th</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:3px"></div> Listed Price</div>
+          <div class="legend-item"><div class="legend-band" style="background:#A8D8FF;width:10px;height:12px"></div> 25th–50th</div>
+          <div class="legend-item"><div class="legend-band" style="background:#F69396;width:10px;height:12px"></div> 50th–75th</div>
+          <div class="legend-item"><div class="legend-band" style="background:#A15457;opacity:0.4;width:10px;height:12px"></div> 75th–90th</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#333333;height:3px"></div> Listed Price</div>
           <div class="legend-item"><div class="legend-swatch" style="background:#7A7A7A;height:2px;width:10px;border-top:1px dashed #7A7A7A;background:none"></div> Last Seen</div>
           <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-future-options')">+ More</div>
         </div>
@@ -1885,15 +1885,15 @@ body { background: #d9dbe0; }
             <text x="20" y="144" class="axis-label" text-anchor="end">140</text>
             <text x="20" y="174" class="axis-label" text-anchor="end">70</text>
             <!-- 75th–90th band (lightest) -->
-            <path d="M34,80 L86,75 L138,58 L190,45 L242,62 L294,70 L330,72 L330,95 L294,90 L242,76 L190,58 L138,72 L86,90 L34,95 Z" fill="#2CAFFE" opacity="0.05"/>
+            <path d="M34,80 L86,75 L138,58 L190,45 L242,62 L294,70 L330,72 L330,95 L294,90 L242,76 L190,58 L138,72 L86,90 L34,95 Z" fill="#A15457" opacity="0.12"/>
             <!-- 50th–75th band -->
-            <path d="M34,95 L86,90 L138,72 L190,58 L242,76 L294,82 L330,86 L330,125 L294,120 L242,115 L190,98 L138,110 L86,120 L34,125 Z" fill="#2CAFFE" opacity="0.08"/>
+            <path d="M34,95 L86,90 L138,72 L190,58 L242,76 L294,82 L330,86 L330,125 L294,120 L242,115 L190,98 L138,110 L86,120 L34,125 Z" fill="#F69396" opacity="0.18"/>
             <!-- 25th–50th band (darkest) -->
-            <path d="M34,125 L86,120 L138,110 L190,98 L242,115 L294,120 L330,125 L330,155 L294,148 L242,142 L190,128 L138,138 L86,150 L34,155 Z" fill="#2CAFFE" opacity="0.2"/>
+            <path d="M34,125 L86,120 L138,110 L190,98 L242,115 L294,120 L330,125 L330,155 L294,148 L242,142 L190,128 L138,138 L86,150 L34,155 Z" fill="#A8D8FF" opacity="0.5"/>
             <!-- 50th percentile (median dashed line) -->
             <path d="M34,125 L86,120 L138,110 L190,98 L242,115 L294,120 L330,125" stroke="#2CAFFE" stroke-width="1" stroke-dasharray="4,3" fill="none" opacity="0.4"/>
             <!-- Listing price (solid) -->
-            <path d="M34,148 L86,142 L138,125 L190,115 L242,130 L294,140 L330,142" stroke="#2CAFFE" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <path d="M34,148 L86,142 L138,125 L190,115 L242,130 L294,140 L330,142" stroke="#333333" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
             <!-- Last Seen price (dashed grey) -->
             <path d="M34,152 L86,148 L138,132 L190,120 L242,136 L294,144 L330,148" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="5,4" fill="none" opacity="0.5"/>
             <!-- Event dots -->
@@ -1901,7 +1901,7 @@ body { background: #d9dbe0; }
             <circle cx="242" cy="174" r="3.5" fill="#FE6A35" opacity="0.7"/>
             <!-- Tap tooltip crosshair (mock, shown at one point) -->
             <line x1="190" y1="20" x2="190" y2="170" stroke="#333" stroke-width="0.8" stroke-dasharray="3,2" opacity="0.3"/>
-            <circle cx="190" cy="115" r="5" fill="#2CAFFE" stroke="#fff" stroke-width="2"/>
+            <circle cx="190" cy="115" r="5" fill="#333333" stroke="#fff" stroke-width="2"/>
             <text x="55" y="192" class="axis-label" text-anchor="middle">Oct</text>
             <text x="113" y="192" class="axis-label" text-anchor="middle">Nov</text>
             <text x="170" y="192" class="axis-label" text-anchor="middle">Dec</text>
@@ -1935,37 +1935,37 @@ body { background: #d9dbe0; }
             <text x="26" y="129" class="axis-label" text-anchor="end">140</text>
             <text x="26" y="164" class="axis-label" text-anchor="end">70</text>
             <!-- Oct bars: 25-50 (darkest), 50-75 (mid), 75-90 (lightest) -->
-            <rect x="40" y="110" width="14" height="50" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="54" y="95" width="14" height="15" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="68" y="82" width="14" height="13" rx="2" fill="#2CAFFE" opacity="0.08"/>
+            <rect x="40" y="110" width="14" height="50" rx="2" fill="#A8D8FF" opacity="0.6"/>
+            <rect x="54" y="95" width="14" height="15" rx="2" fill="#F69396" opacity="0.6"/>
+            <rect x="68" y="82" width="14" height="13" rx="2" fill="#F69396" opacity="0.18"/>
             <!-- Nov bars -->
-            <rect x="92" y="105" width="14" height="55" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="106" y="88" width="14" height="17" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="120" y="74" width="14" height="14" rx="2" fill="#2CAFFE" opacity="0.08"/>
+            <rect x="92" y="105" width="14" height="55" rx="2" fill="#A8D8FF" opacity="0.6"/>
+            <rect x="106" y="88" width="14" height="17" rx="2" fill="#F69396" opacity="0.6"/>
+            <rect x="120" y="74" width="14" height="14" rx="2" fill="#F69396" opacity="0.18"/>
             <!-- Dec bars -->
-            <rect x="144" y="90" width="14" height="60" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="158" y="72" width="14" height="18" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="172" y="56" width="14" height="16" rx="2" fill="#2CAFFE" opacity="0.08"/>
+            <rect x="144" y="90" width="14" height="60" rx="2" fill="#A8D8FF" opacity="0.6"/>
+            <rect x="158" y="72" width="14" height="18" rx="2" fill="#F69396" opacity="0.6"/>
+            <rect x="172" y="56" width="14" height="16" rx="2" fill="#F69396" opacity="0.18"/>
             <!-- Jan bars -->
-            <rect x="196" y="98" width="14" height="52" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="210" y="80" width="14" height="18" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="224" y="65" width="14" height="15" rx="2" fill="#2CAFFE" opacity="0.08"/>
+            <rect x="196" y="98" width="14" height="52" rx="2" fill="#A8D8FF" opacity="0.6"/>
+            <rect x="210" y="80" width="14" height="18" rx="2" fill="#F69396" opacity="0.6"/>
+            <rect x="224" y="65" width="14" height="15" rx="2" fill="#F69396" opacity="0.18"/>
             <!-- Feb bars -->
-            <rect x="248" y="108" width="14" height="48" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="262" y="92" width="14" height="16" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="276" y="78" width="14" height="14" rx="2" fill="#2CAFFE" opacity="0.08"/>
+            <rect x="248" y="108" width="14" height="48" rx="2" fill="#A8D8FF" opacity="0.6"/>
+            <rect x="262" y="92" width="14" height="16" rx="2" fill="#F69396" opacity="0.6"/>
+            <rect x="276" y="78" width="14" height="14" rx="2" fill="#F69396" opacity="0.18"/>
             <!-- Mar bars -->
-            <rect x="300" y="112" width="14" height="45" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="314" y="96" width="14" height="16" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="328" y="84" width="14" height="12" rx="2" fill="#2CAFFE" opacity="0.08"/>
+            <rect x="300" y="112" width="14" height="45" rx="2" fill="#A8D8FF" opacity="0.6"/>
+            <rect x="314" y="96" width="14" height="16" rx="2" fill="#F69396" opacity="0.6"/>
+            <rect x="328" y="84" width="14" height="12" rx="2" fill="#F69396" opacity="0.18"/>
             <!-- Listed Price line (solid blue) -->
-            <path d="M55,140 L107,132 L159,115 L211,125 L263,135 L315,138" stroke="#2CAFFE" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="55" cy="140" r="3" fill="#2CAFFE"/>
-            <circle cx="107" cy="132" r="3" fill="#2CAFFE"/>
-            <circle cx="159" cy="115" r="3" fill="#2CAFFE"/>
-            <circle cx="211" cy="125" r="3" fill="#2CAFFE"/>
-            <circle cx="263" cy="135" r="3" fill="#2CAFFE"/>
-            <circle cx="315" cy="138" r="3" fill="#2CAFFE"/>
+            <path d="M55,140 L107,132 L159,115 L211,125 L263,135 L315,138" stroke="#333333" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="55" cy="140" r="3" fill="#333333"/>
+            <circle cx="107" cy="132" r="3" fill="#333333"/>
+            <circle cx="159" cy="115" r="3" fill="#333333"/>
+            <circle cx="211" cy="125" r="3" fill="#333333"/>
+            <circle cx="263" cy="135" r="3" fill="#333333"/>
+            <circle cx="315" cy="138" r="3" fill="#333333"/>
             <!-- Last Seen line (dashed grey) -->
             <path d="M55,144 L107,136 L159,120 L211,130 L263,140 L315,142" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="5,4" fill="none" opacity="0.5"/>
             <!-- X-axis -->
@@ -2025,7 +2025,7 @@ body { background: #d9dbe0; }
         <div class="legend" id="occ-legend-monthly">
           <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:8px;width:8px;border-radius:2px"></div> Booked</div>
           <div class="legend-item"><div class="legend-swatch" style="background:rgba(44,175,254,0.45);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#FE6A35;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-lyf')"><div class="legend-swatch" style="background:#D568FB;height:2px;width:14px"></div> Last Year Final</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-stly')"><div class="legend-swatch" style="background:#544FC5;height:2px;width:14px"></div> Same Time LY</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-pickup')"><div class="legend-swatch" style="background:#00E272;height:2px;width:14px"></div> Pickup</div>
@@ -2034,7 +2034,7 @@ body { background: #d9dbe0; }
         <div class="legend" id="occ-legend-daily" style="display:none">
           <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:8px;width:8px;border-radius:2px"></div> Booked</div>
           <div class="legend-item"><div class="legend-swatch" style="background:rgba(44,175,254,0.45);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#FE6A35;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
           <div class="legend-item"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#FE6A35;opacity:0.7"></span> Events</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-lyf-d')"><div class="legend-swatch" style="background:#D568FB;height:2px;width:14px"></div> Last Year Final</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-stly-d')"><div class="legend-swatch" style="background:#544FC5;height:2px;width:14px"></div> Same Time LY</div>
@@ -2068,18 +2068,18 @@ body { background: #d9dbe0; }
             <rect x="238" y="148" width="22" height="2" rx="1" fill="rgba(44,175,254,0.3)" opacity="0.3"/>
             <rect x="288" y="148" width="22" height="2" rx="1" fill="rgba(44,175,254,0.3)" opacity="0.3"/>
             <!-- Market Occupancy: orange bars -->
-            <rect x="64" y="48" width="16" height="102" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="72" y="44" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">73%</text>
-            <rect x="114" y="42" width="16" height="108" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="122" y="38" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">77%</text>
-            <rect x="164" y="50" width="16" height="100" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="172" y="46" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">71%</text>
-            <rect x="214" y="55" width="16" height="95" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="222" y="51" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">68%</text>
-            <rect x="264" y="45" width="16" height="105" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="272" y="41" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">75%</text>
-            <rect x="314" y="40" width="16" height="110" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="322" y="36" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">79%</text>
+            <rect x="64" y="48" width="16" height="102" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="72" y="44" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">73%</text>
+            <rect x="114" y="42" width="16" height="108" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="122" y="38" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">77%</text>
+            <rect x="164" y="50" width="16" height="100" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="172" y="46" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">71%</text>
+            <rect x="214" y="55" width="16" height="95" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="222" y="51" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">68%</text>
+            <rect x="264" y="45" width="16" height="105" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="272" y="41" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">75%</text>
+            <rect x="314" y="40" width="16" height="110" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="322" y="36" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">79%</text>
             <!-- Last Year Final line (hidden by default) -->
             <path d="M55,52 L105,48 L155,55 L205,62 L255,50 L305,45" stroke="#D568FB" stroke-width="1.5" stroke-dasharray="5,4" fill="none" opacity="0.5" class="occ-lyf-line" style="display:none"/>
             <!-- Same Time Last Year line (hidden by default) -->
@@ -2139,7 +2139,7 @@ body { background: #d9dbe0; }
             <rect x="258" y="86" width="6" height="64" rx="1" fill="rgba(44,175,254,0.45)"/>
             <rect x="266" y="42" width="6" height="108" rx="1" fill="#2CAFFE"/>
             <!-- Market Occ. line overlay -->
-            <path d="M37,48 L61,36 L85,52 L109,40 L133,45 L157,30 L181,42 L205,50 L229,44 L253,32 L269,42" stroke="#FE6A35" stroke-width="1.5" fill="none" opacity="0.5"/>
+            <path d="M37,48 L61,36 L85,52 L109,40 L133,45 L157,30 L181,42 L205,50 L229,44 L253,32 L269,42" stroke="#F37579" stroke-width="1.5" fill="none" opacity="0.5"/>
             <!-- Event dots -->
             <circle cx="157" cy="163" r="3" fill="#FE6A35" opacity="0.6"/>
             <circle cx="253" cy="163" r="3" fill="#FE6A35" opacity="0.6"/>
@@ -2165,7 +2165,7 @@ body { background: #d9dbe0; }
             <button onclick="this.parentElement.style.display='none'" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border:none;background:var(--pl-bg);border-radius:var(--radius-full);font-size:12px;color:var(--pl-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
             <div style="font-weight:600;color:var(--pl-text);margin-bottom:4px">Oct 15, 2026</div>
             <div style="display:flex;align-items:center;gap:5px;font-weight:400;color:var(--pl-text-secondary)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#2CAFFE"></span> Booked: <strong style="color:var(--pl-text)">Yes</strong></div>
-            <div style="display:flex;align-items:center;gap:5px;font-weight:400;color:var(--pl-text-secondary)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#FE6A35"></span> Market Occ: <strong style="color:var(--pl-text)">78%</strong></div>
+            <div style="display:flex;align-items:center;gap:5px;font-weight:400;color:var(--pl-text-secondary)"><span style="display:inline-block;width:8px;height:8px;border-radius:2px;background:#F37579"></span> Market Occ: <strong style="color:var(--pl-text)">78%</strong></div>
             <div style="display:flex;align-items:center;gap:5px;font-weight:400;color:var(--pl-text-secondary)"><span style="display:inline-block;width:8px;height:3px;background:#D568FB"></span> LY Final: <strong style="color:var(--pl-text)">72%</strong></div>
             <div style="display:flex;align-items:center;gap:5px;font-weight:400;color:var(--pl-text-secondary)"><span style="display:inline-block;width:8px;height:3px;background:#544FC5"></span> Same Time LY: <strong style="color:var(--pl-text)">68%</strong></div>
             <div style="display:flex;align-items:center;gap:5px;font-weight:400;color:var(--pl-text-secondary)"><span style="display:inline-block;width:8px;height:3px;background:#00E272"></span> Pickup: <strong style="color:var(--pl-text)">+6%</strong></div>
@@ -2227,29 +2227,29 @@ body { background: #d9dbe0; }
             <text x="26" y="69" class="axis-label" text-anchor="end">60%</text>
             <text x="26" y="94" class="axis-label" text-anchor="end">45%</text>
             <text x="26" y="119" class="axis-label" text-anchor="end">30%</text>
-            <rect x="38" y="72" width="20" height="48" rx="3" fill="#2CAFFE" opacity="0.35"/>
+            <rect x="38" y="72" width="20" height="48" rx="3" fill="#F37579" opacity="0.35"/>
             <text x="48" y="68" class="bar-val-label" text-anchor="middle">52%</text>
-            <rect x="62" y="58" width="20" height="62" rx="3" fill="#2CAFFE" opacity="0.35"/>
+            <rect x="62" y="58" width="20" height="62" rx="3" fill="#F37579" opacity="0.35"/>
             <text x="72" y="54" class="bar-val-label" text-anchor="middle">58%</text>
-            <rect x="86" y="42" width="20" height="78" rx="3" fill="#2CAFFE" opacity="0.40"/>
+            <rect x="86" y="42" width="20" height="78" rx="3" fill="#F37579" opacity="0.40"/>
             <text x="96" y="38" class="bar-val-label" text-anchor="middle">66%</text>
-            <rect x="110" y="28" width="20" height="92" rx="3" fill="#2CAFFE" opacity="0.45"/>
+            <rect x="110" y="28" width="20" height="92" rx="3" fill="#F37579" opacity="0.45"/>
             <text x="120" y="24" class="bar-val-label" text-anchor="middle">75%</text>
-            <rect x="134" y="32" width="20" height="88" rx="3" fill="#2CAFFE" opacity="0.45"/>
+            <rect x="134" y="32" width="20" height="88" rx="3" fill="#F37579" opacity="0.45"/>
             <text x="144" y="28" class="bar-val-label" text-anchor="middle">72%</text>
-            <rect x="158" y="46" width="20" height="74" rx="3" fill="#2CAFFE" opacity="0.40"/>
+            <rect x="158" y="46" width="20" height="74" rx="3" fill="#F37579" opacity="0.40"/>
             <text x="168" y="42" class="bar-val-label" text-anchor="middle">64%</text>
-            <rect x="182" y="55" width="20" height="65" rx="3" fill="#2CAFFE" opacity="0.35"/>
+            <rect x="182" y="55" width="20" height="65" rx="3" fill="#F37579" opacity="0.35"/>
             <text x="192" y="51" class="bar-val-label" text-anchor="middle">59%</text>
-            <rect x="206" y="65" width="20" height="55" rx="3" fill="#2CAFFE" opacity="0.35"/>
+            <rect x="206" y="65" width="20" height="55" rx="3" fill="#F37579" opacity="0.35"/>
             <text x="216" y="61" class="bar-val-label" text-anchor="middle">55%</text>
-            <rect x="230" y="48" width="20" height="72" rx="3" fill="#2CAFFE" opacity="0.40"/>
+            <rect x="230" y="48" width="20" height="72" rx="3" fill="#F37579" opacity="0.40"/>
             <text x="240" y="44" class="bar-val-label" text-anchor="middle">62%</text>
-            <rect x="254" y="35" width="20" height="85" rx="3" fill="#2CAFFE" opacity="0.45"/>
+            <rect x="254" y="35" width="20" height="85" rx="3" fill="#F37579" opacity="0.45"/>
             <text x="264" y="31" class="bar-val-label" text-anchor="middle">70%</text>
-            <rect x="278" y="25" width="20" height="95" rx="3" fill="#2CAFFE" opacity="0.50"/>
+            <rect x="278" y="25" width="20" height="95" rx="3" fill="#F37579" opacity="0.50"/>
             <text x="288" y="21" class="bar-val-label" text-anchor="middle">76%</text>
-            <rect x="302" y="36" width="20" height="84" rx="3" fill="#2CAFFE" opacity="0.50"/>
+            <rect x="302" y="36" width="20" height="84" rx="3" fill="#F37579" opacity="0.50"/>
             <text x="312" y="32" class="bar-val-label" text-anchor="middle">72%</text>
             <text x="48" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Oct</text>
             <text x="96" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Dec</text>
