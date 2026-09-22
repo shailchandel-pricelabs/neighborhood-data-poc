@@ -158,5 +158,20 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
 .phone-frame .css-1wpd4pz { position: static !important; }
 /* Real header wrapper is position:fixed against the full browser viewport in the
    live app (which IS full-viewport-width there). Pin it to the top of our scroll
-   container instead, so it stays the frame's width. */
-.phone-frame .css-1ypn0w { position: sticky !important; top: 0 !important; width: 100% !important; }
+   container instead, so it stays the frame's width. Targeted by structure
+   (header's first div) rather than the opaque per-page Emotion hash, since the
+   dashboard header's wrapper class wasn't captured with a matching CSS rule at all. */
+.phone-frame header > div:first-child {
+  display: flex !important; align-items: center; justify-content: space-between;
+  gap: var(--chakra-space-3); padding: var(--chakra-space-3) var(--chakra-space-4);
+  height: var(--chakra-sizes-16); width: 100% !important;
+  background: var(--chakra-colors-productWhite);
+  box-shadow: var(--chakra-shadows-mobileDrawerHeaderShadow);
+  position: sticky !important; top: 0 !important; z-index: 20;
+}
+.phone-frame header .css-1v6aiw5 { flex: 1 1 auto !important; width: auto !important; min-width: 0; }
+/* Shared header icon-group: captured with matching CSS on the Calendar page but
+   not the Pricing Dashboard page (same component, but its own stylesheet was
+   built from a scan that never saw the header's classes). Same values either way. */
+.css-nwfosv { display: flex !important; gap: var(--chakra-space-1); flex-shrink: 0; }
+.css-79elbk { position: relative; }
