@@ -72,8 +72,8 @@
       <button class="bs-close" onclick="ndCloseSheet('bs-comp-help')">✕</button>
     </div>
     <div class="bs-body">
-      <p>See what your competitors are charging on any given date. Swipe through dates to compare, and scroll the grid to browse all competitors. Tap "View all" to see every competitor in a single list.</p>
-      <p style="margin-top:10px">Use the gear icon to switch between host and guest pricing, or to manage which competitors are in your set.</p>
+      <p>See what your competitors are charging, in three views: <strong>Calendar</strong> browses a tile per competitor and swipes through dates, <strong>Table</strong> compares every competitor and date at once, and <strong>Map</strong> shows them geographically color-coded by price range — tap a pin for details.</p>
+      <p style="margin-top:10px">Use the gear icon to switch between host and guest pricing, or tap "+ Add" to manage which competitors are in your set.</p>
     </div>
   </div>
 </div>
@@ -93,21 +93,7 @@
         <div class="bs-radio" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Guest Prices</span></div>
       </div>
       <div class="bs-section-label">Manage Competitors</div>
-      <p style="font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:8px 0">9 competitors in your set. <a href="#" style="color:var(--pl-blue);font-weight:600;text-decoration:none">Edit competitors →</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ Bottom Sheet: Competitor Map Help ═══ -->
-<div class="bs-overlay" id="bs-map-help" onclick="ndCloseSheet('bs-map-help')">
-  <div class="bottom-sheet" onclick="event.stopPropagation()">
-    <div class="bs-handle"></div>
-    <div class="bs-header">
-      <div class="bs-title">Competitor Map</div>
-      <button class="bs-close" onclick="ndCloseSheet('bs-map-help')">✕</button>
-    </div>
-    <div class="bs-body">
-      <p>A geographic view of nearby listings color-coded by price range. Your listing is the blue square. Tap "Tap to explore" to open the full interactive map.</p>
+      <p style="font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:8px 0"><span class="comp-count-badge" id="comp-options-count">9</span> competitors in your set. <a href="#" style="color:var(--pl-blue);font-weight:600;text-decoration:none" onclick="event.preventDefault();ndCloseSheet('bs-comp-options');ndOpenSheet('bs-add-competitors')">Edit competitors →</a></p>
     </div>
   </div>
 </div>
@@ -134,26 +120,8 @@
       <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;font-weight:600;color:var(--pl-text-disabled);margin-bottom:4px">
         <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
       </div>
-      <!-- Calendar days grid — showing only from today (Sep 18) onward -->
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:12px" id="cc-grid">
-        <!-- Row 3 partial: Sep 18 is Friday (col 6), skip S-Th -->
-        <div style="padding:4px 1px"></div><div style="padding:4px 1px"></div><div style="padding:4px 1px"></div><div style="padding:4px 1px"></div><div style="padding:4px 1px"></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-primary-light);color:var(--pl-primary);font-weight:600;border:1.5px solid var(--pl-primary)"><div>18</div><div style="font-size:8px;font-weight:700">$215</div><div style="font-size:7px;font-weight:400;opacity:0.8">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>19</div><div style="font-size:8px;font-weight:700">$225</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <!-- Row 4 -->
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>20</div><div style="font-size:8px;font-weight:700">$190</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>21</div><div style="font-size:8px;font-weight:700">$190</div><div style="font-size:7px;font-weight:400;opacity:0.85">3n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>22</div><div style="font-size:8px;font-weight:700">$195</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>23</div><div style="font-size:8px;font-weight:700">$195</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-surface-neutral);color:var(--pl-text-disabled)"><div>24</div><div style="font-size:8px">—</div><div style="font-size:7px">—</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>25</div><div style="font-size:8px;font-weight:700">$218</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>26</div><div style="font-size:8px;font-weight:700">$220</div><div style="font-size:7px;font-weight:400;opacity:0.85">3n</div></div>
-        <!-- Row 5 -->
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>27</div><div style="font-size:8px;font-weight:700">$188</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>28</div><div style="font-size:8px;font-weight:700">$188</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>29</div><div style="font-size:8px;font-weight:700">$195</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-surface-neutral);color:var(--pl-text-disabled)"><div>30</div><div style="font-size:8px">—</div><div style="font-size:7px">—</div></div>
-      </div>
+      <!-- Calendar days grid — populated per-competitor by ndBuildCompCalendar() -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:12px" id="cc-grid"></div>
       <!-- Legend for calendar -->
       <div style="display:flex;gap:12px;margin-top:12px;font-size:11px;font-weight:400;color:var(--pl-text-secondary);align-items:center;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);background:#2CAFFE"></span> Available</span>
@@ -165,13 +133,13 @@
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--pl-border-table)">
         <div style="font-size:12px;font-weight:600;color:var(--pl-text);margin-bottom:6px">Estimated Fixed Fees</div>
         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Cleaning Fee</span><strong style="color:var(--pl-text)">$85</strong>
+          <span>Cleaning Fee</span><strong style="color:var(--pl-text)" id="cc-fee-cleaning">$85</strong>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Extra Guest Fee</span><strong style="color:var(--pl-text)">$25</strong>
+          <span>Extra Guest Fee</span><strong style="color:var(--pl-text)" id="cc-fee-guest">$25</strong>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0">
-          <span>Pet Fee</span><strong style="color:var(--pl-text)">$50</strong>
+          <span>Pet Fee</span><strong style="color:var(--pl-text)" id="cc-fee-pet">$50</strong>
         </div>
       </div>
     </div>

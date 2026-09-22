@@ -223,10 +223,10 @@
 
   /* ── Legend ── */
   .legend {
-    display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 400;
-    color: var(--pl-text-secondary); margin-bottom: 10px; flex-wrap: wrap;
+    display: flex; align-items: center; row-gap: 10px; column-gap: 14px; font-size: 12px; font-weight: 400;
+    color: var(--pl-text-secondary); margin-top: 12px; margin-bottom: 4px; flex-wrap: wrap;
   }
-  .legend-item { display: flex; align-items: center; gap: 5px; white-space: nowrap; cursor: default; }
+  .legend-item { display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: default; }
   .legend-swatch { width: 12px; height: 3px; border-radius: 1px; flex-shrink: 0; }
   .legend-band { width: 14px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0; }
 
@@ -234,6 +234,14 @@
   .legend-item.togglable { cursor: pointer; user-select: none; -webkit-user-select: none; }
   .legend-item.togglable.off { text-decoration: line-through; opacity: 0.45; }
   .legend-item.togglable.off .legend-swatch { opacity: 0.3; }
+
+  /* "+ More" chip: was plain inline-styled text that blended into the row;
+     now a small pill with its own tap target so it doesn't get lost among
+     the other legend items when the row wraps. */
+  .legend-more {
+    color: var(--pl-primary); font-weight: 600; cursor: pointer;
+    padding: 3px 8px; border-radius: var(--radius-full); background: var(--pl-primary-light);
+  }
 
   /* ── Chart ── */
   .chart-area { width: 100%; border-radius: var(--radius-card); overflow: hidden; position: relative; }
@@ -496,18 +504,18 @@
   }
   .comp-row-btn.remove:active { background: var(--pl-surface-soft); }
 
-  /* ── Map Preview ── */
+  /* ── Map Preview (Competitor Calendar tab's Map view — full-size &
+     tappable, not the washed-out accordion teaser it used to be) ── */
   .map-preview {
-    width: 100%; height: 150px;
+    width: 100%; height: 260px;
     background: linear-gradient(135deg, #e8edf3 0%, #dde4ec 30%, #d8e8d8 60%, #eee8d8 100%);
-    border-radius: var(--radius-card); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer;
+    border-radius: var(--radius-card); position: relative; overflow: hidden;
   }
-  .map-preview::before { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.45); }
-  .map-preview .map-overlay { position: relative; text-align: center; }
-  .map-preview .map-icon { font-size: 28px; margin-bottom: 4px; }
-  .map-preview .map-text { font-size: 16px; font-weight: 600; color: var(--pl-text); }
-  .map-preview .map-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 2px; }
+  .map-preview svg circle, .map-preview svg rect { cursor: pointer; }
+  .map-caption {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 10px; text-align: center;
+  }
   .map-legend {
     display: flex; gap: 14px; margin-top: 10px; font-size: 11px; font-weight: 400;
     color: var(--pl-text-secondary); align-items: center; flex-wrap: wrap;
@@ -517,6 +525,27 @@
   .map-legend-you {
     display: inline-block; width: 10px; height: 10px; border-radius: var(--radius-base);
     border: 1.5px solid #fff; box-shadow: 0 0 0 1px var(--chart-1); background: var(--chart-1);
+  }
+
+  /* Tap-to-reveal pin info card (positioned dynamically by ndShowMapPin) */
+  .map-pin-tip {
+    position: absolute; z-index: 20; background: var(--pl-card); border: 1px solid var(--pl-border);
+    border-radius: var(--radius-card); box-shadow: var(--shadow-md); padding: 10px 12px;
+    font-size: 12px; line-height: 1.5; width: 168px;
+    opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity 0.12s, transform 0.12s;
+  }
+  .map-pin-tip.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+  .map-pin-tip-name {
+    font-weight: 600; color: var(--pl-text); font-size: 13px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .map-pin-tip-meta { font-weight: 400; color: var(--pl-text-secondary); font-size: 11px; margin-top: 1px; }
+  .map-pin-tip-price { margin-top: 5px; font-weight: 700; color: var(--pl-text); font-size: 16px; }
+  .map-pin-tip-price span { font-size: 11px; font-weight: 400; color: var(--pl-text-disabled); }
+  .map-pin-tip-btn {
+    margin-top: 8px; width: 100%; padding: 7px 0; background: var(--pl-primary); color: #fff;
+    border: none; border-radius: var(--radius-base); font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer;
   }
 
   /* ── Market Overview: Percentile Range Bars ── */

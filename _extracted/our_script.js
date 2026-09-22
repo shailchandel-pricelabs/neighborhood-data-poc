@@ -71,15 +71,15 @@ function toggleViewAll() {
   }
 }
 
-/* ── Competitor Calendar: Calendar / Table view toggle ── */
+/* ── Competitor Calendar: Calendar / Table / Map view toggle ── */
 function ndSetCompView(el, mode) {
   el.closest('.comp-view-toggle').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
-  const calView = document.getElementById('cc-view-calendar');
-  const tableView = document.getElementById('cc-view-table');
-  if (!calView || !tableView) return;
-  calView.style.display = mode === 'calendar' ? '' : 'none';
-  tableView.style.display = mode === 'table' ? '' : 'none';
+  const views = { calendar: 'cc-view-calendar', table: 'cc-view-table', map: 'cc-view-map' };
+  Object.keys(views).forEach(key => {
+    const view = document.getElementById(views[key]);
+    if (view) view.style.display = key === mode ? '' : 'none';
+  });
 }
 
 /* ── Competitor Calendar: add / remove flow (search + suggested list) ── */
@@ -530,12 +530,81 @@ if (document.readyState === 'loading') {
   ndInitCharts();
 }
 
-/* ── Competitor Calendar detail view ── */
+/* ── Competitor Calendar detail view: builds the day-grid + fees from
+   THIS competitor's own price (previously always showed the first
+   competitor's static hardcoded data, regardless of which tile was tapped) ── */
+function ndBuildCompCalendar(basePrice, seed) {
+  const rand = ndSeededRand(seed);
+  const days = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
+  let html = '';
+  for (let i = 0; i < 5; i++) html += '<div style="padding:4px 1px"></div>';
+  days.forEach(d => {
+    const isToday = d === 18;
+    const unavailable = !isToday && rand() < 0.15;
+    const minstay = rand() < 0.5 ? '2n' : '3n';
+    if (unavailable) {
+      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-surface-neutral);color:var(--pl-text-disabled)"><div>' + d + '</div><div style="font-size:8px">—</div><div style="font-size:7px">—</div></div>';
+      return;
+    }
+    const wobble = Math.round((rand() - 0.5) * 24);
+    const price = Math.max(20, basePrice + wobble);
+    if (isToday) {
+      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-primary-light);color:var(--pl-primary);font-weight:600;border:1.5px solid var(--pl-primary)"><div>' + d + '</div><div style="font-size:8px;font-weight:700">$' + price + '</div><div style="font-size:7px;font-weight:400;opacity:0.8">' + minstay + '</div></div>';
+    } else {
+      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>' + d + '</div><div style="font-size:8px;font-weight:700">$' + price + '</div><div style="font-size:7px;font-weight:400;opacity:0.85">' + minstay + '</div></div>';
+    }
+  });
+  document.getElementById('cc-grid').innerHTML = html;
+  document.getElementById('cc-fee-cleaning').textContent = '$' + (Math.round(basePrice * 0.42 / 5) * 5);
+  document.getElementById('cc-fee-guest').textContent = '$' + (Math.round(basePrice * 0.13 / 5) * 5);
+  document.getElementById('cc-fee-pet').textContent = '$' + (Math.round(basePrice * 0.25 / 5) * 5);
+}
+
 function openCompCalendar(name, rating, type, price, min, max) {
   document.getElementById('cc-title').textContent = name;
   document.getElementById('cc-meta').textContent = '★ ' + rating + ' · ' + type;
-  openSheet('bs-comp-calendar');
+  const basePrice = parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 150;
+  let seed = 1;
+  for (let i = 0; i < name.length; i++) seed += name.charCodeAt(i) * (i + 7);
+  ndBuildCompCalendar(basePrice, seed);
+  ndOpenSheet('bs-comp-calendar');
 }
+
+/* ── Competitor Map: tap a pin to reveal its info card (mobile-friendly
+   in-place tap, not a hover tooltip) ── */
+function ndShowMapPin(evt, name, rating, type, price, dist) {
+  evt.stopPropagation();
+  const container = evt.currentTarget.closest('.map-preview');
+  if (!container) return;
+  const rect = container.getBoundingClientRect();
+  const pinRect = evt.currentTarget.getBoundingClientRect();
+  const x = pinRect.left - rect.left + pinRect.width / 2;
+  const y = pinRect.top - rect.top + pinRect.height / 2;
+  let tip = container.querySelector('.map-pin-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.className = 'map-pin-tip';
+    container.appendChild(tip);
+  }
+  tip.innerHTML =
+    '<div class="map-pin-tip-name">' + name + '</div>' +
+    '<div class="map-pin-tip-meta">★ ' + rating + ' · ' + type + ' · ' + dist + '</div>' +
+    '<div class="map-pin-tip-price">' + price + ' <span>/night</span></div>' +
+    '<button class="map-pin-tip-btn" onclick="event.stopPropagation();ndOpenSheet(\'bs-add-competitors\')">+ Add to Comp Calendar</button>';
+  tip.classList.add('visible');
+  const tipW = 168, tipH = tip.offsetHeight || 120;
+  let left = x - tipW / 2;
+  left = Math.max(6, Math.min(left, rect.width - tipW - 6));
+  let top = y - tipH - 14;
+  if (top < 6) top = y + 16;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function ndCloseMapPin(container) {
+  const tip = container.querySelector('.map-pin-tip');
+  if (tip) tip.classList.remove('visible');
+}
+document.querySelectorAll('.map-preview').forEach(m => m.addEventListener('click', () => ndCloseMapPin(m)));
 
 /* ── Bottom Sheet ── */
 function ndOpenSheet(id) {

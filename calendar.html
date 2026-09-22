@@ -1425,10 +1425,10 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
 
   /* ── Legend ── */
   .legend {
-    display: flex; align-items: center; gap: 12px; font-size: 12px; font-weight: 400;
-    color: var(--pl-text-secondary); margin-bottom: 10px; flex-wrap: wrap;
+    display: flex; align-items: center; row-gap: 10px; column-gap: 14px; font-size: 12px; font-weight: 400;
+    color: var(--pl-text-secondary); margin-top: 12px; margin-bottom: 4px; flex-wrap: wrap;
   }
-  .legend-item { display: flex; align-items: center; gap: 5px; white-space: nowrap; cursor: default; }
+  .legend-item { display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: default; }
   .legend-swatch { width: 12px; height: 3px; border-radius: 1px; flex-shrink: 0; }
   .legend-band { width: 14px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0; }
 
@@ -1436,6 +1436,14 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   .legend-item.togglable { cursor: pointer; user-select: none; -webkit-user-select: none; }
   .legend-item.togglable.off { text-decoration: line-through; opacity: 0.45; }
   .legend-item.togglable.off .legend-swatch { opacity: 0.3; }
+
+  /* "+ More" chip: was plain inline-styled text that blended into the row;
+     now a small pill with its own tap target so it doesn't get lost among
+     the other legend items when the row wraps. */
+  .legend-more {
+    color: var(--pl-primary); font-weight: 600; cursor: pointer;
+    padding: 3px 8px; border-radius: var(--radius-full); background: var(--pl-primary-light);
+  }
 
   /* ── Chart ── */
   .chart-area { width: 100%; border-radius: var(--radius-card); overflow: hidden; position: relative; }
@@ -1698,18 +1706,18 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   }
   .comp-row-btn.remove:active { background: var(--pl-surface-soft); }
 
-  /* ── Map Preview ── */
+  /* ── Map Preview (Competitor Calendar tab's Map view — full-size &
+     tappable, not the washed-out accordion teaser it used to be) ── */
   .map-preview {
-    width: 100%; height: 150px;
+    width: 100%; height: 260px;
     background: linear-gradient(135deg, #e8edf3 0%, #dde4ec 30%, #d8e8d8 60%, #eee8d8 100%);
-    border-radius: var(--radius-card); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; position: relative; overflow: hidden; cursor: pointer;
+    border-radius: var(--radius-card); position: relative; overflow: hidden;
   }
-  .map-preview::before { content: ''; position: absolute; inset: 0; background: rgba(255,255,255,0.45); }
-  .map-preview .map-overlay { position: relative; text-align: center; }
-  .map-preview .map-icon { font-size: 28px; margin-bottom: 4px; }
-  .map-preview .map-text { font-size: 16px; font-weight: 600; color: var(--pl-text); }
-  .map-preview .map-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 2px; }
+  .map-preview svg circle, .map-preview svg rect { cursor: pointer; }
+  .map-caption {
+    display: flex; align-items: center; justify-content: center; gap: 6px;
+    font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 10px; text-align: center;
+  }
   .map-legend {
     display: flex; gap: 14px; margin-top: 10px; font-size: 11px; font-weight: 400;
     color: var(--pl-text-secondary); align-items: center; flex-wrap: wrap;
@@ -1719,6 +1727,27 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   .map-legend-you {
     display: inline-block; width: 10px; height: 10px; border-radius: var(--radius-base);
     border: 1.5px solid #fff; box-shadow: 0 0 0 1px var(--chart-1); background: var(--chart-1);
+  }
+
+  /* Tap-to-reveal pin info card (positioned dynamically by ndShowMapPin) */
+  .map-pin-tip {
+    position: absolute; z-index: 20; background: var(--pl-card); border: 1px solid var(--pl-border);
+    border-radius: var(--radius-card); box-shadow: var(--shadow-md); padding: 10px 12px;
+    font-size: 12px; line-height: 1.5; width: 168px;
+    opacity: 0; visibility: hidden; transform: translateY(4px); transition: opacity 0.12s, transform 0.12s;
+  }
+  .map-pin-tip.visible { opacity: 1; visibility: visible; transform: translateY(0); }
+  .map-pin-tip-name {
+    font-weight: 600; color: var(--pl-text); font-size: 13px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .map-pin-tip-meta { font-weight: 400; color: var(--pl-text-secondary); font-size: 11px; margin-top: 1px; }
+  .map-pin-tip-price { margin-top: 5px; font-weight: 700; color: var(--pl-text); font-size: 16px; }
+  .map-pin-tip-price span { font-size: 11px; font-weight: 400; color: var(--pl-text-disabled); }
+  .map-pin-tip-btn {
+    margin-top: 8px; width: 100%; padding: 7px 0; background: var(--pl-primary); color: #fff;
+    border: none; border-radius: var(--radius-base); font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 12px; font-weight: 600; cursor: pointer;
   }
 
   /* ── Market Overview: Percentile Range Bars ── */
@@ -2064,7 +2093,7 @@ body { background: #d9dbe0; }
           <div class="legend-item"><div class="legend-band" style="background:#F69396"></div> 50th–75th</div>
           <div class="legend-item"><div class="legend-band" style="background:#A15457;opacity:0.4"></div> 75th–90th</div>
           <div class="legend-item" id="fp-events-legend"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#FE6A35;opacity:0.7"></span> Events</div>
-          <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-future-options')">+ More</div>
+          <div class="legend-item legend-more" onclick="ndOpenSheet('bs-future-options')">+ More</div>
         </div>
       </div>
     </div>
@@ -2102,7 +2131,7 @@ body { background: #d9dbe0; }
           <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:8px;width:8px;border-radius:2px"></div> Booked</div>
           <div class="legend-item"><div class="legend-swatch" style="background:rgba(44,175,254,0.45);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
           <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
-          <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-occ-help')">+ More</div>
+          <div class="legend-item legend-more" onclick="ndOpenSheet('bs-occ-help')">+ More</div>
         </div>
       </div>
     </div>
@@ -2148,67 +2177,6 @@ body { background: #d9dbe0; }
           </div>
         </div>
         <div id="hist-hc-chart" class="hc-chart" style="height:190px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ──── 5. Competitor Map (collapsed) ──── -->
-  <div class="section" id="sec-map">
-    <div class="section-header" onclick="toggleSection('sec-map')">
-      <div class="chevron">▶</div>
-      <div class="header-text">
-        <div class="title">Competitor Map</div>
-      </div>
-      <div class="header-actions" onclick="event.stopPropagation()">
-        <button class="icon-btn" title="About this view" onclick="ndOpenSheet('bs-map-help')">?</button>
-      </div>
-    </div>
-    <div class="section-body">
-      <div class="section-content">
-        <div class="map-preview" style="height:200px">
-          <svg viewBox="0 0 343 200" style="position:absolute;inset:0;width:100%;height:100%" xmlns="http://www.w3.org/2000/svg">
-            <line x1="0" y1="50" x2="343" y2="50" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="0" y1="100" x2="343" y2="100" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="0" y1="150" x2="343" y2="150" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="80" y1="0" x2="80" y2="200" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="180" y1="0" x2="180" y2="200" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="280" y1="0" x2="280" y2="200" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <circle cx="60" cy="40" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="120" cy="70" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="90" cy="100" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="200" cy="55" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="250" cy="90" r="6" fill="#E63E3D" opacity="0.9" stroke="#fff" stroke-width="2"/>
-            <circle cx="160" cy="120" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="300" cy="50" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="40" cy="140" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="220" cy="145" r="5" fill="#E63E3D" opacity="0.7"/>
-            <circle cx="310" cy="135" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="140" cy="35" r="5" fill="#E63E3D" opacity="0.7"/>
-            <rect x="162" y="76" width="18" height="18" rx="4" fill="#2CAFFE" stroke="#fff" stroke-width="2"/>
-            <text x="171" y="89" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">★</text>
-          </svg>
-          <!-- Map tooltip (mock, shown on one pin) -->
-          <div style="position:absolute;top:22px;left:175px;background:var(--pl-card);border:1px solid var(--pl-border);border-radius:var(--radius-card);box-shadow:var(--shadow-md);padding:10px 12px;font-size:12px;line-height:1.5;pointer-events:none;width:155px;z-index:10">
-            <div style="font-weight:600;color:var(--pl-text);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Trendy East Austin</div>
-            <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px;margin-top:1px">★ 4.88 · 1BR · 0.8 mi</div>
-            <div style="margin-top:5px;font-weight:700;color:var(--pl-text);font-size:16px">$190 <span style="font-size:11px;font-weight:400;color:var(--pl-text-disabled)">/night</span></div>
-            <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">Min stay: 2 nights</div>
-            <button style="margin-top:8px;width:100%;padding:7px 0;background:var(--pl-primary);color:#fff;border:none;border-radius:var(--radius-base);font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer" onclick="event.stopPropagation()">+ Add to Comp Calendar</button>
-            <!-- Tooltip arrow -->
-            <div style="position:absolute;bottom:-6px;left:20px;width:12px;height:12px;background:var(--pl-card);border-right:1px solid var(--pl-border);border-bottom:1px solid var(--pl-border);transform:rotate(45deg)"></div>
-          </div>
-          <div class="map-overlay" style="margin-top:20px">
-            <div class="map-icon">📍</div>
-            <div class="map-text">232 listings near you</div>
-            <div class="map-sub">Tap to explore</div>
-          </div>
-        </div>
-        <div class="map-legend">
-          <span class="map-legend-item"><span class="map-legend-dot" style="background:#31C48D"></span> $76–$120</span>
-          <span class="map-legend-item"><span class="map-legend-dot" style="background:#E29F08"></span> $121–$180</span>
-          <span class="map-legend-item"><span class="map-legend-dot" style="background:#E63E3D"></span> $181+</span>
-          <span class="map-legend-item"><span class="map-legend-you"></span> You</span>
-        </div>
       </div>
     </div>
   </div>
@@ -2309,10 +2277,11 @@ body { background: #d9dbe0; }
   <button class="comp-add-btn" onclick="ndOpenSheet('bs-add-competitors')">+ Add</button>
 </div>
 
-<!-- Calendar / Table view toggle -->
+<!-- Calendar / Table / Map view toggle -->
 <div class="pill-toggles comp-view-toggle">
   <div class="pill active" onclick="ndSetCompView(this,'calendar')">Calendar</div>
   <div class="pill" onclick="ndSetCompView(this,'table')">Table</div>
+  <div class="pill" onclick="ndSetCompView(this,'map')">Map</div>
 </div>
 
 <!-- ── Calendar view (carousel of tiles, tap to open a competitor's calendar) ── -->
@@ -2493,6 +2462,40 @@ body { background: #d9dbe0; }
   </div>
 </div>
 
+<!-- ── Map view (promoted from Neighbourhood Data's old "Competitor Map"
+     accordion; full-size and interactive here instead of a washed-out
+     teaser — tap a pin to see its info card, tap the map to dismiss) ── -->
+<div class="comp-view" id="cc-view-map" style="display:none">
+  <div class="map-preview">
+    <svg viewBox="0 0 343 260" style="position:absolute;inset:0;width:100%;height:100%" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="65" x2="343" y2="65" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="0" y1="130" x2="343" y2="130" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="0" y1="195" x2="343" y2="195" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="80" y1="0" x2="80" y2="260" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="180" y1="0" x2="180" y2="260" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="280" y1="0" x2="280" y2="260" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="60" cy="52" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Modern Studio Apt','4.85','Studio','$142','0.5 mi')"/>
+      <circle cx="120" cy="91" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Quiet Garden Studio','4.70','Studio','$128','0.9 mi')"/>
+      <circle cx="90" cy="130" r="7" fill="#E29F08" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Charming 1BR Loft','4.76','1BR','$178','0.7 mi')"/>
+      <circle cx="200" cy="72" r="7" fill="#E29F08" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Trendy East Austin','4.88','1BR','$190','0.8 mi')"/>
+      <circle cx="250" cy="117" r="8" fill="#E63E3D" opacity="0.9" stroke="#fff" stroke-width="2" onclick="ndShowMapPin(event,'Sunny 2BR Condo','4.91','2BR','$225','0.6 mi')"/>
+      <circle cx="160" cy="156" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Luxe King Suite','4.98','1BR','$195','0.3 mi')"/>
+      <circle cx="300" cy="65" r="7" fill="#E29F08" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'New! 1 Bed Hideaway','—','1BR','$165','0.4 mi')"/>
+      <circle cx="40" cy="182" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Bright Corner 1BR','4.65','1BR','$155','1.1 mi')"/>
+      <circle cx="220" cy="189" r="7" fill="#E63E3D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Central 2BR Flat','4.82','2BR','$210','1.0 mi')"/>
+      <rect x="162" y="99" width="22" height="22" rx="5" fill="#2CAFFE" stroke="#fff" stroke-width="2" onclick="ndShowMapPin(event,'Your Listing','—','—','—','0 mi')"/>
+      <text x="173" y="115" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold" style="pointer-events:none">★</text>
+    </svg>
+  </div>
+  <div class="map-caption">📍 9 competitors shown · tap a pin for details</div>
+  <div class="map-legend">
+    <span class="map-legend-item"><span class="map-legend-dot" style="background:#31C48D"></span> $76–$120</span>
+    <span class="map-legend-item"><span class="map-legend-dot" style="background:#E29F08"></span> $121–$180</span>
+    <span class="map-legend-item"><span class="map-legend-dot" style="background:#E63E3D"></span> $181+</span>
+    <span class="map-legend-item"><span class="map-legend-you"></span> You</span>
+  </div>
+</div>
+
       </div>
     </div>
   </div>
@@ -2572,8 +2575,8 @@ body { background: #d9dbe0; }
       <button class="bs-close" onclick="ndCloseSheet('bs-comp-help')">✕</button>
     </div>
     <div class="bs-body">
-      <p>See what your competitors are charging on any given date. Swipe through dates to compare, and scroll the grid to browse all competitors. Tap "View all" to see every competitor in a single list.</p>
-      <p style="margin-top:10px">Use the gear icon to switch between host and guest pricing, or to manage which competitors are in your set.</p>
+      <p>See what your competitors are charging, in three views: <strong>Calendar</strong> browses a tile per competitor and swipes through dates, <strong>Table</strong> compares every competitor and date at once, and <strong>Map</strong> shows them geographically color-coded by price range — tap a pin for details.</p>
+      <p style="margin-top:10px">Use the gear icon to switch between host and guest pricing, or tap "+ Add" to manage which competitors are in your set.</p>
     </div>
   </div>
 </div>
@@ -2593,21 +2596,7 @@ body { background: #d9dbe0; }
         <div class="bs-radio" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Guest Prices</span></div>
       </div>
       <div class="bs-section-label">Manage Competitors</div>
-      <p style="font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:8px 0">9 competitors in your set. <a href="#" style="color:var(--pl-blue);font-weight:600;text-decoration:none">Edit competitors →</a></p>
-    </div>
-  </div>
-</div>
-
-<!-- ═══ Bottom Sheet: Competitor Map Help ═══ -->
-<div class="bs-overlay" id="bs-map-help" onclick="ndCloseSheet('bs-map-help')">
-  <div class="bottom-sheet" onclick="event.stopPropagation()">
-    <div class="bs-handle"></div>
-    <div class="bs-header">
-      <div class="bs-title">Competitor Map</div>
-      <button class="bs-close" onclick="ndCloseSheet('bs-map-help')">✕</button>
-    </div>
-    <div class="bs-body">
-      <p>A geographic view of nearby listings color-coded by price range. Your listing is the blue square. Tap "Tap to explore" to open the full interactive map.</p>
+      <p style="font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:8px 0"><span class="comp-count-badge" id="comp-options-count">9</span> competitors in your set. <a href="#" style="color:var(--pl-blue);font-weight:600;text-decoration:none" onclick="event.preventDefault();ndCloseSheet('bs-comp-options');ndOpenSheet('bs-add-competitors')">Edit competitors →</a></p>
     </div>
   </div>
 </div>
@@ -2634,26 +2623,8 @@ body { background: #d9dbe0; }
       <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;font-weight:600;color:var(--pl-text-disabled);margin-bottom:4px">
         <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
       </div>
-      <!-- Calendar days grid — showing only from today (Sep 18) onward -->
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:12px" id="cc-grid">
-        <!-- Row 3 partial: Sep 18 is Friday (col 6), skip S-Th -->
-        <div style="padding:4px 1px"></div><div style="padding:4px 1px"></div><div style="padding:4px 1px"></div><div style="padding:4px 1px"></div><div style="padding:4px 1px"></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-primary-light);color:var(--pl-primary);font-weight:600;border:1.5px solid var(--pl-primary)"><div>18</div><div style="font-size:8px;font-weight:700">$215</div><div style="font-size:7px;font-weight:400;opacity:0.8">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>19</div><div style="font-size:8px;font-weight:700">$225</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <!-- Row 4 -->
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>20</div><div style="font-size:8px;font-weight:700">$190</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>21</div><div style="font-size:8px;font-weight:700">$190</div><div style="font-size:7px;font-weight:400;opacity:0.85">3n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>22</div><div style="font-size:8px;font-weight:700">$195</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>23</div><div style="font-size:8px;font-weight:700">$195</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-surface-neutral);color:var(--pl-text-disabled)"><div>24</div><div style="font-size:8px">—</div><div style="font-size:7px">—</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>25</div><div style="font-size:8px;font-weight:700">$218</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>26</div><div style="font-size:8px;font-weight:700">$220</div><div style="font-size:7px;font-weight:400;opacity:0.85">3n</div></div>
-        <!-- Row 5 -->
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>27</div><div style="font-size:8px;font-weight:700">$188</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>28</div><div style="font-size:8px;font-weight:700">$188</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>29</div><div style="font-size:8px;font-weight:700">$195</div><div style="font-size:7px;font-weight:400;opacity:0.85">2n</div></div>
-        <div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-surface-neutral);color:var(--pl-text-disabled)"><div>30</div><div style="font-size:8px">—</div><div style="font-size:7px">—</div></div>
-      </div>
+      <!-- Calendar days grid — populated per-competitor by ndBuildCompCalendar() -->
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);gap:2px;text-align:center;font-size:12px" id="cc-grid"></div>
       <!-- Legend for calendar -->
       <div style="display:flex;gap:12px;margin-top:12px;font-size:11px;font-weight:400;color:var(--pl-text-secondary);align-items:center;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);background:#2CAFFE"></span> Available</span>
@@ -2665,13 +2636,13 @@ body { background: #d9dbe0; }
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--pl-border-table)">
         <div style="font-size:12px;font-weight:600;color:var(--pl-text);margin-bottom:6px">Estimated Fixed Fees</div>
         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Cleaning Fee</span><strong style="color:var(--pl-text)">$85</strong>
+          <span>Cleaning Fee</span><strong style="color:var(--pl-text)" id="cc-fee-cleaning">$85</strong>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Extra Guest Fee</span><strong style="color:var(--pl-text)">$25</strong>
+          <span>Extra Guest Fee</span><strong style="color:var(--pl-text)" id="cc-fee-guest">$25</strong>
         </div>
         <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0">
-          <span>Pet Fee</span><strong style="color:var(--pl-text)">$50</strong>
+          <span>Pet Fee</span><strong style="color:var(--pl-text)" id="cc-fee-pet">$50</strong>
         </div>
       </div>
     </div>
@@ -2912,15 +2883,15 @@ function toggleViewAll() {
   }
 }
 
-/* ── Competitor Calendar: Calendar / Table view toggle ── */
+/* ── Competitor Calendar: Calendar / Table / Map view toggle ── */
 function ndSetCompView(el, mode) {
   el.closest('.comp-view-toggle').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
-  const calView = document.getElementById('cc-view-calendar');
-  const tableView = document.getElementById('cc-view-table');
-  if (!calView || !tableView) return;
-  calView.style.display = mode === 'calendar' ? '' : 'none';
-  tableView.style.display = mode === 'table' ? '' : 'none';
+  const views = { calendar: 'cc-view-calendar', table: 'cc-view-table', map: 'cc-view-map' };
+  Object.keys(views).forEach(key => {
+    const view = document.getElementById(views[key]);
+    if (view) view.style.display = key === mode ? '' : 'none';
+  });
 }
 
 /* ── Competitor Calendar: add / remove flow (search + suggested list) ── */
@@ -3371,12 +3342,81 @@ if (document.readyState === 'loading') {
   ndInitCharts();
 }
 
-/* ── Competitor Calendar detail view ── */
+/* ── Competitor Calendar detail view: builds the day-grid + fees from
+   THIS competitor's own price (previously always showed the first
+   competitor's static hardcoded data, regardless of which tile was tapped) ── */
+function ndBuildCompCalendar(basePrice, seed) {
+  const rand = ndSeededRand(seed);
+  const days = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
+  let html = '';
+  for (let i = 0; i < 5; i++) html += '<div style="padding:4px 1px"></div>';
+  days.forEach(d => {
+    const isToday = d === 18;
+    const unavailable = !isToday && rand() < 0.15;
+    const minstay = rand() < 0.5 ? '2n' : '3n';
+    if (unavailable) {
+      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-surface-neutral);color:var(--pl-text-disabled)"><div>' + d + '</div><div style="font-size:8px">—</div><div style="font-size:7px">—</div></div>';
+      return;
+    }
+    const wobble = Math.round((rand() - 0.5) * 24);
+    const price = Math.max(20, basePrice + wobble);
+    if (isToday) {
+      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-primary-light);color:var(--pl-primary);font-weight:600;border:1.5px solid var(--pl-primary)"><div>' + d + '</div><div style="font-size:8px;font-weight:700">$' + price + '</div><div style="font-size:7px;font-weight:400;opacity:0.8">' + minstay + '</div></div>';
+    } else {
+      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>' + d + '</div><div style="font-size:8px;font-weight:700">$' + price + '</div><div style="font-size:7px;font-weight:400;opacity:0.85">' + minstay + '</div></div>';
+    }
+  });
+  document.getElementById('cc-grid').innerHTML = html;
+  document.getElementById('cc-fee-cleaning').textContent = '$' + (Math.round(basePrice * 0.42 / 5) * 5);
+  document.getElementById('cc-fee-guest').textContent = '$' + (Math.round(basePrice * 0.13 / 5) * 5);
+  document.getElementById('cc-fee-pet').textContent = '$' + (Math.round(basePrice * 0.25 / 5) * 5);
+}
+
 function openCompCalendar(name, rating, type, price, min, max) {
   document.getElementById('cc-title').textContent = name;
   document.getElementById('cc-meta').textContent = '★ ' + rating + ' · ' + type;
-  openSheet('bs-comp-calendar');
+  const basePrice = parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 150;
+  let seed = 1;
+  for (let i = 0; i < name.length; i++) seed += name.charCodeAt(i) * (i + 7);
+  ndBuildCompCalendar(basePrice, seed);
+  ndOpenSheet('bs-comp-calendar');
 }
+
+/* ── Competitor Map: tap a pin to reveal its info card (mobile-friendly
+   in-place tap, not a hover tooltip) ── */
+function ndShowMapPin(evt, name, rating, type, price, dist) {
+  evt.stopPropagation();
+  const container = evt.currentTarget.closest('.map-preview');
+  if (!container) return;
+  const rect = container.getBoundingClientRect();
+  const pinRect = evt.currentTarget.getBoundingClientRect();
+  const x = pinRect.left - rect.left + pinRect.width / 2;
+  const y = pinRect.top - rect.top + pinRect.height / 2;
+  let tip = container.querySelector('.map-pin-tip');
+  if (!tip) {
+    tip = document.createElement('div');
+    tip.className = 'map-pin-tip';
+    container.appendChild(tip);
+  }
+  tip.innerHTML =
+    '<div class="map-pin-tip-name">' + name + '</div>' +
+    '<div class="map-pin-tip-meta">★ ' + rating + ' · ' + type + ' · ' + dist + '</div>' +
+    '<div class="map-pin-tip-price">' + price + ' <span>/night</span></div>' +
+    '<button class="map-pin-tip-btn" onclick="event.stopPropagation();ndOpenSheet(\'bs-add-competitors\')">+ Add to Comp Calendar</button>';
+  tip.classList.add('visible');
+  const tipW = 168, tipH = tip.offsetHeight || 120;
+  let left = x - tipW / 2;
+  left = Math.max(6, Math.min(left, rect.width - tipW - 6));
+  let top = y - tipH - 14;
+  if (top < 6) top = y + 16;
+  tip.style.left = left + 'px';
+  tip.style.top = top + 'px';
+}
+function ndCloseMapPin(container) {
+  const tip = container.querySelector('.map-pin-tip');
+  if (tip) tip.classList.remove('visible');
+}
+document.querySelectorAll('.map-preview').forEach(m => m.addEventListener('click', () => ndCloseMapPin(m)));
 
 /* ── Bottom Sheet ── */
 function ndOpenSheet(id) {

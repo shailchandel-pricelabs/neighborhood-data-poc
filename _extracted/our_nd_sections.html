@@ -37,7 +37,7 @@
           <div class="legend-item"><div class="legend-band" style="background:#F69396"></div> 50th–75th</div>
           <div class="legend-item"><div class="legend-band" style="background:#A15457;opacity:0.4"></div> 75th–90th</div>
           <div class="legend-item" id="fp-events-legend"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#FE6A35;opacity:0.7"></span> Events</div>
-          <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-future-options')">+ More</div>
+          <div class="legend-item legend-more" onclick="ndOpenSheet('bs-future-options')">+ More</div>
         </div>
       </div>
     </div>
@@ -75,7 +75,7 @@
           <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:8px;width:8px;border-radius:2px"></div> Booked</div>
           <div class="legend-item"><div class="legend-swatch" style="background:rgba(44,175,254,0.45);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
           <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
-          <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-occ-help')">+ More</div>
+          <div class="legend-item legend-more" onclick="ndOpenSheet('bs-occ-help')">+ More</div>
         </div>
       </div>
     </div>
@@ -121,67 +121,6 @@
           </div>
         </div>
         <div id="hist-hc-chart" class="hc-chart" style="height:190px"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- ──── 5. Competitor Map (collapsed) ──── -->
-  <div class="section" id="sec-map">
-    <div class="section-header" onclick="toggleSection('sec-map')">
-      <div class="chevron">▶</div>
-      <div class="header-text">
-        <div class="title">Competitor Map</div>
-      </div>
-      <div class="header-actions" onclick="event.stopPropagation()">
-        <button class="icon-btn" title="About this view" onclick="ndOpenSheet('bs-map-help')">?</button>
-      </div>
-    </div>
-    <div class="section-body">
-      <div class="section-content">
-        <div class="map-preview" style="height:200px">
-          <svg viewBox="0 0 343 200" style="position:absolute;inset:0;width:100%;height:100%" xmlns="http://www.w3.org/2000/svg">
-            <line x1="0" y1="50" x2="343" y2="50" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="0" y1="100" x2="343" y2="100" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="0" y1="150" x2="343" y2="150" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="80" y1="0" x2="80" y2="200" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="180" y1="0" x2="180" y2="200" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <line x1="280" y1="0" x2="280" y2="200" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
-            <circle cx="60" cy="40" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="120" cy="70" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="90" cy="100" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="200" cy="55" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="250" cy="90" r="6" fill="#E63E3D" opacity="0.9" stroke="#fff" stroke-width="2"/>
-            <circle cx="160" cy="120" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="300" cy="50" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="40" cy="140" r="5" fill="#31C48D" opacity="0.7"/>
-            <circle cx="220" cy="145" r="5" fill="#E63E3D" opacity="0.7"/>
-            <circle cx="310" cy="135" r="5" fill="#E29F08" opacity="0.7"/>
-            <circle cx="140" cy="35" r="5" fill="#E63E3D" opacity="0.7"/>
-            <rect x="162" y="76" width="18" height="18" rx="4" fill="#2CAFFE" stroke="#fff" stroke-width="2"/>
-            <text x="171" y="89" text-anchor="middle" fill="#fff" font-size="10" font-weight="bold">★</text>
-          </svg>
-          <!-- Map tooltip (mock, shown on one pin) -->
-          <div style="position:absolute;top:22px;left:175px;background:var(--pl-card);border:1px solid var(--pl-border);border-radius:var(--radius-card);box-shadow:var(--shadow-md);padding:10px 12px;font-size:12px;line-height:1.5;pointer-events:none;width:155px;z-index:10">
-            <div style="font-weight:600;color:var(--pl-text);font-size:13px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">Trendy East Austin</div>
-            <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px;margin-top:1px">★ 4.88 · 1BR · 0.8 mi</div>
-            <div style="margin-top:5px;font-weight:700;color:var(--pl-text);font-size:16px">$190 <span style="font-size:11px;font-weight:400;color:var(--pl-text-disabled)">/night</span></div>
-            <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">Min stay: 2 nights</div>
-            <button style="margin-top:8px;width:100%;padding:7px 0;background:var(--pl-primary);color:#fff;border:none;border-radius:var(--radius-base);font-family:'IBM Plex Sans',sans-serif;font-size:12px;font-weight:600;cursor:pointer" onclick="event.stopPropagation()">+ Add to Comp Calendar</button>
-            <!-- Tooltip arrow -->
-            <div style="position:absolute;bottom:-6px;left:20px;width:12px;height:12px;background:var(--pl-card);border-right:1px solid var(--pl-border);border-bottom:1px solid var(--pl-border);transform:rotate(45deg)"></div>
-          </div>
-          <div class="map-overlay" style="margin-top:20px">
-            <div class="map-icon">📍</div>
-            <div class="map-text">232 listings near you</div>
-            <div class="map-sub">Tap to explore</div>
-          </div>
-        </div>
-        <div class="map-legend">
-          <span class="map-legend-item"><span class="map-legend-dot" style="background:#31C48D"></span> $76–$120</span>
-          <span class="map-legend-item"><span class="map-legend-dot" style="background:#E29F08"></span> $121–$180</span>
-          <span class="map-legend-item"><span class="map-legend-dot" style="background:#E63E3D"></span> $181+</span>
-          <span class="map-legend-item"><span class="map-legend-you"></span> You</span>
-        </div>
       </div>
     </div>
   </div>

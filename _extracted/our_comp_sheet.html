@@ -7,10 +7,11 @@
   <button class="comp-add-btn" onclick="ndOpenSheet('bs-add-competitors')">+ Add</button>
 </div>
 
-<!-- Calendar / Table view toggle -->
+<!-- Calendar / Table / Map view toggle -->
 <div class="pill-toggles comp-view-toggle">
   <div class="pill active" onclick="ndSetCompView(this,'calendar')">Calendar</div>
   <div class="pill" onclick="ndSetCompView(this,'table')">Table</div>
+  <div class="pill" onclick="ndSetCompView(this,'map')">Map</div>
 </div>
 
 <!-- ── Calendar view (carousel of tiles, tap to open a competitor's calendar) ── -->
@@ -188,5 +189,39 @@
   <div class="legend" style="margin-top:10px">
     <div class="legend-item"><div class="legend-swatch" style="background:#1976F3;height:8px;width:8px;border-radius:2px"></div> Priced</div>
     <div class="legend-item"><div class="legend-swatch" style="background:var(--pl-text-disabled);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
+  </div>
+</div>
+
+<!-- ── Map view (promoted from Neighbourhood Data's old "Competitor Map"
+     accordion; full-size and interactive here instead of a washed-out
+     teaser — tap a pin to see its info card, tap the map to dismiss) ── -->
+<div class="comp-view" id="cc-view-map" style="display:none">
+  <div class="map-preview">
+    <svg viewBox="0 0 343 260" style="position:absolute;inset:0;width:100%;height:100%" xmlns="http://www.w3.org/2000/svg">
+      <line x1="0" y1="65" x2="343" y2="65" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="0" y1="130" x2="343" y2="130" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="0" y1="195" x2="343" y2="195" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="80" y1="0" x2="80" y2="260" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="180" y1="0" x2="180" y2="260" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <line x1="280" y1="0" x2="280" y2="260" stroke="#ccc" stroke-width="0.5" opacity="0.4"/>
+      <circle cx="60" cy="52" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Modern Studio Apt','4.85','Studio','$142','0.5 mi')"/>
+      <circle cx="120" cy="91" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Quiet Garden Studio','4.70','Studio','$128','0.9 mi')"/>
+      <circle cx="90" cy="130" r="7" fill="#E29F08" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Charming 1BR Loft','4.76','1BR','$178','0.7 mi')"/>
+      <circle cx="200" cy="72" r="7" fill="#E29F08" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Trendy East Austin','4.88','1BR','$190','0.8 mi')"/>
+      <circle cx="250" cy="117" r="8" fill="#E63E3D" opacity="0.9" stroke="#fff" stroke-width="2" onclick="ndShowMapPin(event,'Sunny 2BR Condo','4.91','2BR','$225','0.6 mi')"/>
+      <circle cx="160" cy="156" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Luxe King Suite','4.98','1BR','$195','0.3 mi')"/>
+      <circle cx="300" cy="65" r="7" fill="#E29F08" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'New! 1 Bed Hideaway','—','1BR','$165','0.4 mi')"/>
+      <circle cx="40" cy="182" r="7" fill="#31C48D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Bright Corner 1BR','4.65','1BR','$155','1.1 mi')"/>
+      <circle cx="220" cy="189" r="7" fill="#E63E3D" opacity="0.85" stroke="#fff" stroke-width="1.5" onclick="ndShowMapPin(event,'Central 2BR Flat','4.82','2BR','$210','1.0 mi')"/>
+      <rect x="162" y="99" width="22" height="22" rx="5" fill="#2CAFFE" stroke="#fff" stroke-width="2" onclick="ndShowMapPin(event,'Your Listing','—','—','—','0 mi')"/>
+      <text x="173" y="115" text-anchor="middle" fill="#fff" font-size="12" font-weight="bold" style="pointer-events:none">★</text>
+    </svg>
+  </div>
+  <div class="map-caption">📍 9 competitors shown · tap a pin for details</div>
+  <div class="map-legend">
+    <span class="map-legend-item"><span class="map-legend-dot" style="background:#31C48D"></span> $76–$120</span>
+    <span class="map-legend-item"><span class="map-legend-dot" style="background:#E29F08"></span> $121–$180</span>
+    <span class="map-legend-item"><span class="map-legend-dot" style="background:#E63E3D"></span> $181+</span>
+    <span class="map-legend-item"><span class="map-legend-you"></span> You</span>
   </div>
 </div>
