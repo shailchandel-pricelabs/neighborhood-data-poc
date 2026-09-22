@@ -149,15 +149,31 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
   max-width: 480px;
   margin: 0 auto;
   height: 100vh;
+  /* overflow:hidden still permits *programmatic* scrolling (e.g. a focused
+     button's default scroll-into-view) — which is exactly what was shifting
+     our absolutely-positioned sheets and bottom nav out of place. overflow:clip
+     forbids scrolling outright; the hidden fallback covers older browsers. */
   overflow: hidden;
+  overflow: clip;
   background: var(--chakra-colors-productWhite);
   box-shadow: 0 0 40px rgba(0,0,0,0.15);
   display: flex;
   flex-direction: column;
 }
 .phone-frame .css-d8ne84 { flex: 1 1 auto; min-height: 0; }
-.phone-frame .css-18y2um2 { position: absolute !important; left: 0; right: 0; width: 100% !important; }
-.phone-frame [role="dialog"].chakra-modal__content { position: absolute !important; max-width: 100% !important; margin: 0 !important; }
+/* Real bottom nav uses z-index: var(--chakra-zIndices-modal) = 1400, which is
+   meant to sit above ordinary page content in the live app but ends up ranking
+   above our own bottom sheets too (which we z-index in the 2000s) unless we
+   pin it down explicitly here. */
+.phone-frame .css-18y2um2 { position: absolute !important; left: 0; right: 0; width: 100% !important; z-index: 30 !important; }
+.phone-frame [role="dialog"].chakra-modal__content {
+  position: absolute !important; max-width: 100% !important; margin: 0 !important;
+  /* Real bottom sheets fill down to the screen edge with their own white
+     background regardless of content length (verified live: a 6-item list
+     still renders a 730px-tall sheet on an 812px viewport) — without this,
+     our short sheets left a gap showing the page behind them. */
+  min-height: 60vh; border-radius: 16px 16px 0 0; background: var(--chakra-colors-productWhite);
+}
 .phone-frame #sheet-backdrop { position: absolute !important; }
 .phone-frame #mobile-app-override-button-calendar-container {
   position: absolute !important; top: auto !important; left: auto !important;
@@ -183,6 +199,14 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
    built from a scan that never saw the header's classes). Same values either way. */
 .css-nwfosv { display: flex !important; gap: var(--chakra-space-1); flex-shrink: 0; }
 .css-79elbk { position: relative; }
+
+/* Header icon buttons (.css-1x8iiyz): the real rule's border-width/style
+   sub-properties were captured as empty values (an artifact of how Chakra
+   serializes an unset border), which the browser silently drops — so instead
+   of "no border" these buttons were falling back to the default UA <button>
+   style (a 2px grey outset border), which is what was reported as broken. */
+.chakra-button.css-1x8iiyz { border: 0 none; box-shadow: none; background: var(--chakra-colors-productWhite); }
+.chakra-button.css-1x8iiyz:active { background: var(--chakra-colors-primaryRed-50); }
 
 "
 .chakra-button__group[data-attached][data-orientation="horizontal"] > .css-1x8iiyz:not(:last-of-type) { margin-inline-end: -1px; }
