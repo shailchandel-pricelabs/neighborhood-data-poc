@@ -1186,57 +1186,14 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     --sticky-cta-height: 56px;
   }
 
-  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-  html { -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
-  html, body {
-    background: #E9EAEC;
-    height: 100%;
-  }
-  body {
-    font-family: 'IBM Plex Sans', sans-serif;
-    color: var(--pl-text);
-    font-size: 14px;
-    font-weight: 400;
-    line-height: 1.43;
-    overflow-x: hidden;
-    display: flex;
-    align-items: flex-start;
-    justify-content: center;
-    padding: 40px 16px;
-    min-height: 100%;
-  }
-
-  /* ── Device frame (matches PriceLabs mobile onboarding reference) ── */
-  .device-frame {
-    position: relative;
-    width: 390px;
-    height: 844px;
-    max-width: 100%;
-    background: var(--pl-bg);
-    border-radius: 54px;
-    box-shadow: 0 0 0 12px #1a1a1a, 0 24px 60px 0 rgba(0,0,0,0.5);
-    overflow: hidden;
-    display: flex;
-    flex-direction: column;
-  }
-  .status-bar {
-    flex-shrink: 0;
-    height: 47px;
-    padding: 0 28px 0 24px;
-    display: flex; align-items: center; justify-content: space-between;
-    background: var(--pl-card);
-    font-size: 15px; font-weight: 600; color: var(--pl-text);
-    font-family: 'IBM Plex Sans', sans-serif;
-  }
-  .status-bar .status-icons { display: flex; align-items: center; gap: 5px; }
-  .status-bar .status-icons svg { display: block; }
-  .app-scroll {
-    flex: 1 1 auto;
-    min-height: 0;
-    overflow-y: auto;
-    -webkit-overflow-scrolling: touch;
-    position: relative;
-  }
+  /* NOTE: the old standalone page's universal reset (`* {margin:0;padding:0}`),
+     html/body rules, .device-frame, .status-bar and .app-scroll rules were
+     removed here — they belonged to the earlier standalone phone-mockup harness
+     and conflicted with the real-app .phone-frame harness (in chakra-tokens.css)
+     that now wraps this content, notably a `body { padding: 40px 16px }` rule
+     that was pushing the whole page down and off-screen. The section styles
+     below (accordion, charts, legends, bottom sheets) are unaffected — they're
+     all scoped to their own classes, not html/body. */
 
   /* ── Top Header Bar ── */
   .top-bar {
