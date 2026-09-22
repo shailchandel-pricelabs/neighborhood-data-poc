@@ -235,6 +235,24 @@
   .axis-label { font-size: 11px; fill: var(--pl-text-disabled); font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; }
   .bar-val-label { font-size: 9px; fill: var(--pl-text-secondary); font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; }
 
+  /* ── Highcharts container + trading-app hero price (Robinhood/Coinbase-style) ── */
+  .hc-chart { width: 100%; height: 200px; margin: 4px 0; }
+  .price-hero { padding: 2px 0 10px; }
+  .price-hero-value { font-size: 30px; font-weight: 700; color: var(--pl-text); line-height: 1.1; letter-spacing: -0.5px; }
+  .price-hero-delta { font-size: 13px; font-weight: 600; margin-top: 3px; }
+  .price-hero-delta.up { color: var(--pl-green); }
+  .price-hero-delta.down { color: var(--pl-primary); }
+  .range-seg {
+    display: flex; justify-content: space-between; gap: 4px; margin-top: 8px;
+    padding-top: 10px; border-top: 1px solid var(--pl-border-table);
+  }
+  .range-seg-item {
+    flex: 1; text-align: center; padding: 7px 0; border-radius: var(--radius-full);
+    font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+  }
+  .range-seg-item.active { background: var(--pl-primary-light); color: var(--pl-primary); }
+
   /* ── Links ── */
   .show-more-link {
     font-size: 14px; color: var(--pl-primary); font-weight: 600;

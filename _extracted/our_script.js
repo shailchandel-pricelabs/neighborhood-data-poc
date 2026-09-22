@@ -100,72 +100,334 @@ function selectPillOption(item, pillId, label) {
   }
 }
 
-/* ── Future Prices: time range pills ── */
-function setFPRange(days, clickedPill) {
-  // Update active pill state
-  const controls = clickedPill.closest('.chart-controls');
-  controls.querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  clickedPill.classList.add('active');
-  // Update x-axis labels in the daily chart based on range
-  const dailySvg = document.querySelector('#fp-chart-daily svg');
-  const labels = dailySvg.querySelectorAll('text.axis-label[text-anchor="middle"]');
-  const rangeLabels = {
-    30: ['Sep 20', 'Sep 27', 'Oct 4', 'Oct 11'],
-    60: ['Oct', 'Nov', '', ''],
-    90: ['Oct', 'Nov', 'Dec', 'Jan'],
-    180: ['Oct', 'Dec', 'Feb', 'Apr'],
-    360: ['Nov', 'Feb', 'May', 'Aug']
-  };
-  const newLabels = rangeLabels[days] || rangeLabels[90];
-  labels.forEach((l, i) => { if (i < newLabels.length) l.textContent = newLabels[i]; });
-  // Also update monthly chart labels
-  const monthlySvg = document.querySelector('#fp-chart-monthly svg');
-  const mLabels = monthlySvg.querySelectorAll('text.axis-label[text-anchor="middle"]');
-  const mRangeLabels = {
-    30: ['Oct', '', '', '', '', ''],
-    60: ['Oct', 'Nov', '', '', '', ''],
-    90: ['Oct', 'Nov', 'Dec', '', '', ''],
-    180: ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar'],
-    360: ['Oct', 'Dec', 'Feb', 'Apr', 'Jun', 'Aug']
-  };
-  const mNew = mRangeLabels[days] || mRangeLabels[90];
-  mLabels.forEach((l, i) => { if (i < mNew.length) l.textContent = mNew[i]; });
+/* ═══════════════════════════════════════════════════════════════
+   Highcharts setup — trading-app style (Robinhood/Coinbase-inspired):
+   big price header, minimal chrome, gradient line, bottom range
+   segments, tap-and-drag crosshair scrubbing that live-updates the
+   header. ═══════════════════════════════════════════════════════ */
+
+if (window.Highcharts) {
+  Highcharts.setOptions({
+    chart: { style: { fontFamily: "'IBM Plex Sans', sans-serif" } },
+    credits: { enabled: false },
+    title: { text: null },
+    exporting: { enabled: false }
+  });
 }
 
-/* ── Future Prices: toggle Daily / Monthly view ── */
-function toggleFPView(value) {
-  const isMonthly = value === 'Monthly';
-  document.getElementById('fp-chart-daily').style.display = isMonthly ? 'none' : '';
-  document.getElementById('fp-chart-monthly').style.display = isMonthly ? '' : 'none';
-  document.getElementById('fp-legend-daily').style.display = isMonthly ? 'none' : '';
-  document.getElementById('fp-legend-monthly').style.display = isMonthly ? '' : 'none';
-}
-
-/* ── Occupancy: toggle Daily / Monthly view ── */
-function toggleOccView(value) {
-  const isMonthly = value === 'Monthly';
-  document.getElementById('occ-chart-monthly').style.display = isMonthly ? '' : 'none';
-  document.getElementById('occ-chart-daily').style.display = isMonthly ? 'none' : '';
-  document.getElementById('occ-legend-monthly').style.display = isMonthly ? '' : 'none';
-  document.getElementById('occ-legend-daily').style.display = isMonthly ? 'none' : '';
-}
-
-/* ── Occupancy: legend toggle (show/hide chart lines) ── */
-function toggleOccLegend(el, type) {
-  el.classList.toggle('off');
-  const isOff = el.classList.contains('off');
-  const classMap = {
-    'occ-lyf': '.occ-lyf-line',
-    'occ-lyf-d': '.occ-lyf-line',
-    'occ-stly': '.occ-stly-line',
-    'occ-stly-d': '.occ-stly-line',
-    'occ-pickup': '.occ-pickup-line',
-    'occ-pickup-d': '.occ-pickup-line'
+/* ── seeded PRNG so data is stable across reloads/range switches ── */
+function ndSeededRand(seed) {
+  let s = seed;
+  return function () {
+    s = (s * 9301 + 49297) % 233280;
+    return s / 233280;
   };
-  const selector = classMap[type];
-  if (selector) {
-    document.querySelectorAll(selector).forEach(l => l.style.display = isOff ? 'none' : '');
+}
+
+/* ── Future Prices: build arearange + line series for N days ── */
+function fpBuildData(days) {
+  const rand = ndSeededRand(days * 7 + 1);
+  const base = 228;
+  const cats = [];
+  const listing = [], band5075 = [], band7590 = [];
+  const today = new Date(2026, 8, 22);
+  for (let i = 0; i < days; i++) {
+    const d = new Date(today.getTime() + i * 86400000);
+    cats.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    const wobble = Math.sin(i / (days / 6 || 1)) * 22 + (rand() - 0.5) * 14;
+    const price = Math.round(base + wobble - i * (10 / days));
+    const p25 = Math.round(price - 28 - rand() * 10);
+    const p50 = Math.round(price - 8 - rand() * 6);
+    const p75 = Math.round(price + 14 + rand() * 8);
+    const p90 = Math.round(price + 40 + rand() * 14);
+    listing.push([i, price]);
+    band5075.push([i, p25, p50]);
+    band7590.push([i, p75, p90]);
   }
+  return { cats, listing, band5075, band7590 };
+}
+
+let fpChart = null;
+function fpInitChart() {
+  const el = document.getElementById('fp-hc-chart');
+  if (!el || !window.Highcharts) return;
+  const { cats, listing, band5075, band7590 } = fpBuildData(30);
+  fpChart = Highcharts.chart('fp-hc-chart', {
+    chart: {
+      height: 200,
+      spacing: [8, 0, 4, 0],
+      backgroundColor: 'transparent',
+      zooming: { type: undefined },
+      panning: { enabled: false },
+      events: {
+        load: function () { fpUpdateHero(this, this.series[0].points.length - 1); }
+      }
+    },
+    xAxis: {
+      categories: cats,
+      lineWidth: 0,
+      tickLength: 0,
+      labels: { enabled: false },
+      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Solid' }
+    },
+    yAxis: {
+      title: { text: null },
+      labels: { enabled: false },
+      gridLineWidth: 0,
+      endOnTick: false,
+      startOnTick: false
+    },
+    tooltip: { enabled: false },
+    legend: { enabled: false },
+    plotOptions: {
+      series: {
+        marker: { enabled: false, states: { hover: { enabled: false } } },
+        states: { hover: { enabled: false } },
+        enableMouseTracking: true,
+        animation: { duration: 300 }
+      },
+      arearange: { lineWidth: 0, fillOpacity: 1 }
+    },
+    series: [
+      {
+        type: 'line',
+        name: 'Listing Price',
+        data: listing.map(p => p[1]),
+        color: '#333333',
+        lineWidth: 2.5,
+        zIndex: 5
+      },
+      {
+        type: 'arearange',
+        name: '50th–75th',
+        data: band5075.map(p => [p[1], p[2]]),
+        color: '#F69396',
+        zIndex: 2
+      },
+      {
+        type: 'arearange',
+        name: '75th–90th',
+        data: band7590.map(p => [p[1], p[2]]),
+        color: 'rgba(161,84,87,0.4)',
+        zIndex: 1
+      },
+      {
+        type: 'arearange',
+        name: '25th–50th',
+        data: band5075.map(p => [p[1] - 20, p[1]]),
+        color: '#A8D8FF',
+        zIndex: 3
+      }
+    ]
+  });
+  attachScrub(fpChart, fpUpdateHero);
+}
+
+function fpUpdateHero(chart, index) {
+  const series = chart.series[0];
+  const points = series.points;
+  if (!points || !points.length) return;
+  const i = Math.max(0, Math.min(index, points.length - 1));
+  const price = points[i].y;
+  const bandLow = chart.series[1].points[i].low;
+  const bandHigh = chart.series[1].points[i].high;
+  const median = Math.round((bandLow + bandHigh) / 2);
+  const diff = price - median;
+  const pct = median ? Math.round(Math.abs(diff) / median * 100) : 0;
+  document.getElementById('fp-hero-price').textContent = '$' + price;
+  const deltaEl = document.getElementById('fp-hero-delta');
+  if (diff >= 0) {
+    deltaEl.className = 'price-hero-delta up';
+    deltaEl.textContent = '▲ $' + diff + ' (' + pct + '%) above market median';
+  } else {
+    deltaEl.className = 'price-hero-delta down';
+    deltaEl.textContent = '▼ $' + Math.abs(diff) + ' (' + pct + '%) below market median';
+  }
+}
+
+function fpSetRange(el, days) {
+  el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  if (!fpChart) return;
+  const { cats, listing, band5075, band7590 } = fpBuildData(days);
+  fpChart.xAxis[0].setCategories(cats, false);
+  fpChart.series[0].setData(listing.map(p => p[1]), false);
+  fpChart.series[1].setData(band5075.map(p => [p[1], p[2]]), false);
+  fpChart.series[2].setData(band7590.map(p => [p[1], p[2]]), false);
+  fpChart.series[3].setData(band5075.map(p => [p[1] - 20, p[1]]), false);
+  fpChart.redraw();
+  fpUpdateHero(fpChart, listing.length - 1);
+}
+
+/* ── Occupancy: column chart, Booked/Unavailable stacked + Market Occ line ── */
+function occBuildData(days) {
+  const rand = ndSeededRand(days * 3 + 5);
+  const cats = [];
+  const booked = [], unavailable = [], market = [];
+  const today = new Date(2026, 8, 22);
+  const points = Math.min(days, 30);
+  const step = Math.max(1, Math.round(days / points));
+  for (let i = 0; i < days; i += step) {
+    const d = new Date(today.getTime() + i * 86400000);
+    cats.push(d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
+    const b = Math.round(50 + rand() * 30);
+    const u = Math.round(rand() * 15);
+    booked.push(b);
+    unavailable.push(u);
+    market.push(Math.round(55 + Math.sin(i / 6) * 15 + rand() * 8));
+  }
+  return { cats, booked, unavailable, market };
+}
+
+let occChart = null;
+function occInitChart() {
+  const el = document.getElementById('occ-hc-chart');
+  if (!el || !window.Highcharts) return;
+  const { cats, booked, unavailable, market } = occBuildData(30);
+  occChart = Highcharts.chart('occ-hc-chart', {
+    chart: {
+      height: 220,
+      spacing: [8, 0, 4, 0],
+      backgroundColor: 'transparent',
+      zooming: { type: undefined },
+      panning: { enabled: false },
+      events: { load: function () { occUpdateHero(this, this.series[0].points.length - 1); } }
+    },
+    xAxis: {
+      categories: cats,
+      lineWidth: 0,
+      tickLength: 0,
+      labels: { enabled: false },
+      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Solid' }
+    },
+    yAxis: {
+      title: { text: null },
+      labels: { enabled: false },
+      gridLineWidth: 0,
+      max: 110
+    },
+    tooltip: { enabled: false },
+    legend: { enabled: false },
+    plotOptions: {
+      column: { stacking: 'normal', pointPadding: 0.08, groupPadding: 0.06, borderWidth: 0 },
+      series: { marker: { enabled: false }, states: { hover: { enabled: false } } }
+    },
+    series: [
+      { type: 'column', name: 'Booked', data: booked, color: '#2CAFFE' },
+      { type: 'column', name: 'Unavailable', data: unavailable, color: 'rgba(44,175,254,0.45)' },
+      { type: 'line', name: 'Market Occ.', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 }
+    ]
+  });
+  attachScrub(occChart, occUpdateHero);
+}
+
+function occUpdateHero(chart, index) {
+  const points = chart.series[0].points;
+  if (!points || !points.length) return;
+  const i = Math.max(0, Math.min(index, points.length - 1));
+  const yours = points[i].y + chart.series[1].points[i].y;
+  const marketVal = chart.series[2].points[i].y;
+  const diff = yours - marketVal;
+  document.getElementById('occ-hero-value').textContent = yours + '%';
+  const deltaEl = document.getElementById('occ-hero-delta');
+  if (diff >= 0) {
+    deltaEl.className = 'price-hero-delta up';
+    deltaEl.textContent = '▲ ' + diff + '% above market median';
+  } else {
+    deltaEl.className = 'price-hero-delta down';
+    deltaEl.textContent = '▼ ' + Math.abs(diff) + '% below market median';
+  }
+}
+
+function occSetRange(el, days) {
+  el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  if (!occChart) return;
+  const { cats, booked, unavailable, market } = occBuildData(days);
+  occChart.xAxis[0].setCategories(cats, false);
+  occChart.series[0].setData(booked, false);
+  occChart.series[1].setData(unavailable, false);
+  occChart.series[2].setData(market, false);
+  occChart.redraw();
+  occUpdateHero(occChart, booked.length - 1);
+}
+
+/* ── Market History: column chart, swaps metric via metric-card tap ── */
+const histMetricData = {
+  occ: { name: 'Market Occupancy', color: '#F37579', suffix: '%', data: [58, 61, 65, 70, 68, 72, 75, 74, 72, 69, 66, 72] },
+  adr: { name: 'Market ADR', color: '#2CAFFE', suffix: '', prefix: '$', data: [198, 205, 212, 220, 226, 231, 240, 238, 234, 228, 222, 234] },
+  window: { name: 'Booking Window', color: '#544FC5', suffix: ' days', data: [30, 29, 28, 27, 26, 25, 24, 25, 26, 27, 28, 26] },
+  los: { name: 'Length of Stay', color: '#00E272', suffix: ' nights', data: [2.6, 2.7, 2.8, 2.9, 3.0, 3.1, 3.2, 3.1, 3.0, 2.9, 2.8, 3.0] }
+};
+const histMonths = ['Oct', 'Nov', 'Dec', 'Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep'];
+
+let histChart = null;
+function histInitChart() {
+  const el = document.getElementById('hist-hc-chart');
+  if (!el || !window.Highcharts) return;
+  const m = histMetricData.occ;
+  histChart = Highcharts.chart('hist-hc-chart', {
+    chart: { height: 190, spacing: [8, 0, 4, 0], backgroundColor: 'transparent' },
+    xAxis: { categories: histMonths, lineWidth: 0, tickLength: 0, labels: { style: { fontSize: '10px', color: '#7A7A7A' } } },
+    yAxis: { title: { text: null }, labels: { enabled: false }, gridLineWidth: 0 },
+    tooltip: { enabled: false },
+    legend: { enabled: false },
+    plotOptions: {
+      column: { borderWidth: 0, borderRadius: 3, pointPadding: 0.15, groupPadding: 0.08 },
+      series: { marker: { enabled: false }, states: { hover: { enabled: false } }, animation: { duration: 250 } }
+    },
+    series: [{ type: 'column', name: m.name, data: m.data, color: m.color }]
+  });
+}
+
+function switchHistoryMetric(el, key) {
+  const m = histMetricData[key];
+  if (!m || !histChart) return;
+  histChart.series[0].update({ name: m.name, data: m.data, color: m.color }, true);
+}
+
+/* ── Trading-app crosshair scrub: tap-and-drag updates the hero header live ── */
+function attachScrub(chart, updateFn) {
+  if (!chart || !chart.container) return;
+  const container = chart.container;
+  let dragging = false;
+
+  function pointFromEvent(e) {
+    const evt = chart.pointer.normalize(e);
+    const xAxis = chart.xAxis[0];
+    const x = xAxis.toValue(evt.chartX);
+    const points = chart.series[0].points;
+    let idx = Math.round(x);
+    idx = Math.max(0, Math.min(idx, points.length - 1));
+    return idx;
+  }
+
+  function moveTo(e) {
+    const idx = pointFromEvent(e);
+    chart.xAxis[0].drawCrosshair(null, chart.series[0].points[idx]);
+    chart.tooltip && chart.tooltip.hide && chart.tooltip.hide();
+    updateFn(chart, idx);
+  }
+
+  container.addEventListener('mousedown', e => { dragging = true; moveTo(e); });
+  container.addEventListener('mousemove', e => { if (dragging) moveTo(e); });
+  window.addEventListener('mouseup', () => { dragging = false; });
+
+  container.addEventListener('touchstart', e => { dragging = true; moveTo(e.touches[0]); }, { passive: true });
+  container.addEventListener('touchmove', e => { if (dragging) { moveTo(e.touches[0]); e.preventDefault(); } }, { passive: false });
+  container.addEventListener('touchend', () => { dragging = false; });
+}
+
+/* ── Init all three charts once their containers exist in the DOM ── */
+function ndInitCharts() {
+  if (document.getElementById('fp-hc-chart') && !fpChart) fpInitChart();
+  if (document.getElementById('occ-hc-chart') && !occChart) occInitChart();
+  if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
+}
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', ndInitCharts);
+} else {
+  ndInitCharts();
 }
 
 /* ── Competitor Calendar detail view ── */
