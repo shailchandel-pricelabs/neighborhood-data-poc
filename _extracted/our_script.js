@@ -102,12 +102,9 @@ function selectPillOption(item, pillId, label) {
 
 /* ═══════════════════════════════════════════════════════════════
    Highcharts setup — trading-app style (Robinhood/Coinbase/Upstox-
-   inspired): big price header, tap-and-drag crosshair scrubbing that
-   live-updates the header, bottom range segments, and a switchable
-   axis/interaction style so we can compare options live:
-     A = Classic  — persistent bottom date-axis + right price axis w/ gridlines
-     B = Minimal  — no axis at rest, tags reveal only while scrubbing
-     C = Hybrid   — faint persistent date labels + a pinned live-value tag
+   inspired): big price header, persistent date + price axes, tap-
+   and-drag crosshair scrubbing that live-updates the header and a
+   floating tooltip card with the market range at that point.
    ═══════════════════════════════════════════════════════════════ */
 
 if (window.Highcharts) {
@@ -119,8 +116,6 @@ if (window.Highcharts) {
   });
 }
 
-let ndStyle = 'C';
-
 /* ── seeded PRNG so data is stable across reloads/range switches ── */
 function ndSeededRand(seed) {
   let s = seed;
@@ -130,52 +125,41 @@ function ndSeededRand(seed) {
   };
 }
 
-/* ── shared axis-style helpers, reused by all three charts ── */
-function ndChartSpacing(style) {
-  if (style === 'A') return [8, 44, 22, 4];
-  if (style === 'C') return [8, 40, 22, 4];
-  return [8, 0, 4, 0];
-}
-function ndXAxisConfig(style, cats, step) {
-  if (style === 'A') {
-    return {
-      categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
-      labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, step: step },
-      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
-    };
-  }
-  if (style === 'C') {
-    return {
-      categories: cats, lineWidth: 0, tickLength: 0,
-      labels: { enabled: true, style: { fontSize: '9px', color: '#AEAEAE' }, step: step },
-      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
-    };
-  }
+/* ── shared axis config, reused by all three charts (Classic style) ── */
+const ND_CHART_SPACING = [8, 44, 22, 4];
+function ndXAxisConfig(cats, step) {
   return {
-    categories: cats, lineWidth: 0, tickLength: 0, labels: { enabled: false },
-    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Solid' }
+    categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
+    labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, step: step },
+    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
   };
 }
-function ndYAxisConfig(style, opts) {
+function ndYAxisConfig(opts) {
   opts = opts || {};
-  if (style === 'A') {
-    return {
-      title: { text: null }, opposite: true, gridLineWidth: 0, tickAmount: 3, max: opts.max,
-      labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, formatter: opts.yFormatter },
-      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', format: opts.yCrosshairFormat || '{value:.0f}', style: { color: '#fff', fontSize: '10px' } } }
-    };
-  }
-  if (style === 'C') {
-    const plotLines = (opts.lastValue != null) ? [{
-      value: opts.lastValue, color: '#333333', width: 1, dashStyle: 'Dash', zIndex: 4,
-      label: {
-        useHTML: true, align: 'right', x: 40, y: 5,
-        text: '<span style="background:#333333;color:#fff;font-size:10px;font-weight:700;padding:2px 6px;border-radius:3px;white-space:nowrap;">' + opts.lastLabel + '</span>'
-      }
-    }] : [];
-    return { title: { text: null }, labels: { enabled: false }, gridLineWidth: 0, max: opts.max, plotLines: plotLines };
-  }
-  return { title: { text: null }, labels: { enabled: false }, gridLineWidth: 0, max: opts.max };
+  return {
+    title: { text: null }, opposite: true, gridLineWidth: 0, tickAmount: 3, max: opts.max,
+    labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, formatter: opts.yFormatter },
+    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', format: opts.yCrosshairFormat || '{value:.0f}', style: { color: '#fff', fontSize: '10px' } } }
+  };
+}
+
+/* ── floating tooltip card: shown while scrubbing, positioned at the
+   touch point, content passed in as an HTML string per chart ── */
+function ndShowTooltip(wrapEl, chart, idx, html) {
+  const tt = wrapEl.querySelector('.hc-tooltip');
+  if (!tt) return;
+  tt.innerHTML = html;
+  tt.classList.add('visible');
+  const px = chart.xAxis[0].toPixels(idx);
+  const wrapW = wrapEl.offsetWidth;
+  const ttW = tt.offsetWidth || 170;
+  let left = px - ttW / 2;
+  left = Math.max(4, Math.min(left, wrapW - ttW - 4));
+  tt.style.left = left + 'px';
+}
+function ndHideTooltip(wrapEl) {
+  const tt = wrapEl.querySelector('.hc-tooltip');
+  if (tt) tt.classList.remove('visible');
 }
 
 /* ── Future Prices: build arearange + line series for N days ── */
@@ -183,7 +167,7 @@ function fpBuildData(days) {
   const rand = ndSeededRand(days * 7 + 1);
   const base = 228;
   const cats = [];
-  const listing = [], band5075 = [], band7590 = [];
+  const listing = [], band2550 = [], band5075 = [], band7590 = [];
   const today = new Date(2026, 8, 22);
   for (let i = 0; i < days; i++) {
     const d = new Date(today.getTime() + i * 86400000);
@@ -195,10 +179,11 @@ function fpBuildData(days) {
     const p75 = Math.round(price + 14 + rand() * 8);
     const p90 = Math.round(price + 40 + rand() * 14);
     listing.push([i, price]);
-    band5075.push([i, p25, p50]);
+    band2550.push([i, p25, p50]);
+    band5075.push([i, p50, p75]);
     band7590.push([i, p75, p90]);
   }
-  return { cats, listing, band5075, band7590 };
+  return { cats, listing, band2550, band5075, band7590 };
 }
 
 let fpChart = null;
@@ -207,13 +192,12 @@ function fpInitChart(days) {
   const el = document.getElementById('fp-hc-chart');
   if (!el || !window.Highcharts) return;
   if (days) fpDays = days;
-  const { cats, listing, band5075, band7590 } = fpBuildData(fpDays);
-  const lastPrice = listing[listing.length - 1][1];
+  const { cats, listing, band2550, band5075, band7590 } = fpBuildData(fpDays);
   if (fpChart) { fpChart.destroy(); fpChart = null; }
   fpChart = Highcharts.chart('fp-hc-chart', {
     chart: {
       height: 200,
-      spacing: ndChartSpacing(ndStyle),
+      spacing: ND_CHART_SPACING,
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
@@ -221,11 +205,9 @@ function fpInitChart(days) {
         load: function () { fpUpdateHero(this, this.series[0].points.length - 1); }
       }
     },
-    xAxis: ndXAxisConfig(ndStyle, cats, Math.max(1, Math.round(cats.length / 5))),
-    yAxis: ndYAxisConfig(ndStyle, {
-      lastValue: lastPrice, lastLabel: '$' + lastPrice,
-      yFormatter: function () { return '$' + this.value; },
-      yCrosshairFormat: '${value:.0f}'
+    xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
+    yAxis: ndYAxisConfig({
+      yFormatter: function () { return '$' + this.value; }
     }),
     tooltip: { enabled: false },
     legend: { enabled: false },
@@ -264,13 +246,28 @@ function fpInitChart(days) {
       {
         type: 'arearange',
         name: '25th–50th',
-        data: band5075.map(p => [p[1] - 20, p[1]]),
+        data: band2550.map(p => [p[1], p[2]]),
         color: '#A8D8FF',
         zIndex: 3
       }
     ]
   });
-  attachScrub(fpChart, fpUpdateHero);
+  const fpWrap = el.closest('.hc-chart-wrap');
+  attachScrub(fpChart, fpWrap, fpUpdateHero, fpTooltipHtml);
+}
+
+function fpTooltipHtml(chart, idx) {
+  const date = chart.xAxis[0].categories[idx];
+  const price = chart.series[0].points[idx].y;
+  const b2550 = chart.series[3].points[idx];
+  const b5075 = chart.series[1].points[idx];
+  const b7590 = chart.series[2].points[idx];
+  return '' +
+    '<div class="hc-tt-date">' + date + '</div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#333333"></span>Listing Price: <b>$' + price + '</b></div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A8D8FF"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
 }
 
 function fpUpdateHero(chart, index) {
@@ -328,22 +325,20 @@ function occInitChart(days) {
   if (!el || !window.Highcharts) return;
   if (days) occDays = days;
   const { cats, booked, unavailable, market } = occBuildData(occDays);
-  const lastTotal = booked[booked.length - 1] + unavailable[unavailable.length - 1];
   if (occChart) { occChart.destroy(); occChart = null; }
   occChart = Highcharts.chart('occ-hc-chart', {
     chart: {
       height: 220,
-      spacing: ndChartSpacing(ndStyle),
+      spacing: ND_CHART_SPACING,
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
       events: { load: function () { occUpdateHero(this, this.series[0].points.length - 1); } }
     },
-    xAxis: ndXAxisConfig(ndStyle, cats, Math.max(1, Math.round(cats.length / 5))),
-    yAxis: ndYAxisConfig(ndStyle, {
-      max: 110, lastValue: lastTotal, lastLabel: lastTotal + '%',
-      yFormatter: function () { return this.value + '%'; },
-      yCrosshairFormat: '{value:.0f}%'
+    xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
+    yAxis: ndYAxisConfig({
+      max: 110,
+      yFormatter: function () { return this.value + '%'; }
     }),
     tooltip: { enabled: false },
     legend: { enabled: false },
@@ -357,7 +352,20 @@ function occInitChart(days) {
       { type: 'line', name: 'Market Occ.', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 }
     ]
   });
-  attachScrub(occChart, occUpdateHero);
+  const occWrap = el.closest('.hc-chart-wrap');
+  attachScrub(occChart, occWrap, occUpdateHero, occTooltipHtml);
+}
+
+function occTooltipHtml(chart, idx) {
+  const date = chart.xAxis[0].categories[idx];
+  const booked = chart.series[0].points[idx].y;
+  const unavailable = chart.series[1].points[idx].y;
+  const marketOcc = chart.series[2].points[idx].y;
+  return '' +
+    '<div class="hc-tt-date">' + date + '</div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#2CAFFE"></span>Booked: <b>' + booked + '%</b></div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:rgba(44,175,254,0.45)"></span>Unavailable: <b>' + unavailable + '%</b></div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F37579"></span>Market Occ.: <b>' + marketOcc + '%</b></div>';
 }
 
 function occUpdateHero(chart, index) {
@@ -400,19 +408,15 @@ function histInitChart(key) {
   if (!el || !window.Highcharts) return;
   if (key) histCurrentKey = key;
   const m = histMetricData[histCurrentKey];
-  const lastVal = m.data[m.data.length - 1];
-  const lastLabel = (m.prefix || '') + lastVal + (m.suffix || '');
   if (histChart) { histChart.destroy(); histChart = null; }
   histChart = Highcharts.chart('hist-hc-chart', {
-    chart: { height: 190, spacing: ndChartSpacing(ndStyle), backgroundColor: 'transparent' },
+    chart: { height: 190, spacing: ND_CHART_SPACING, backgroundColor: 'transparent' },
     xAxis: {
-      categories: histMonths, lineWidth: ndStyle === 'A' ? 1 : 0, lineColor: '#E0E0E0', tickLength: 0,
-      labels: { style: { fontSize: ndStyle === 'C' ? '9px' : '10px', color: ndStyle === 'C' ? '#AEAEAE' : '#7A7A7A' } }
+      categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
+      labels: { style: { fontSize: '10px', color: '#7A7A7A' } }
     },
-    yAxis: ndYAxisConfig(ndStyle, {
-      lastValue: lastVal, lastLabel: lastLabel,
-      yFormatter: function () { return (m.prefix || '') + this.value; },
-      yCrosshairFormat: (m.prefix || '') + '{value:.0f}' + (m.suffix || '')
+    yAxis: ndYAxisConfig({
+      yFormatter: function () { return (m.prefix || '') + this.value; }
     }),
     tooltip: { enabled: false },
     legend: { enabled: false },
@@ -428,20 +432,9 @@ function switchHistoryMetric(el, key) {
   histInitChart(key);
 }
 
-/* ── Master style switcher: reinitializes all charts with the chosen style,
-   preserving each chart's current range/metric selection ── */
-function ndSetStyle(style) {
-  ndStyle = style;
-  document.querySelectorAll('.style-opt').forEach(o => o.classList.remove('active'));
-  const btn = document.getElementById('style-opt-' + style);
-  if (btn) btn.classList.add('active');
-  fpInitChart();
-  occInitChart();
-  histInitChart();
-}
-
-/* ── Trading-app crosshair scrub: tap-and-drag updates the hero header live ── */
-function attachScrub(chart, updateFn) {
+/* ── Trading-app crosshair scrub: tap-and-drag updates the hero header live
+   and shows a floating tooltip card with the market range at that point ── */
+function attachScrub(chart, wrapEl, updateFn, tooltipFn) {
   if (!chart || !chart.container) return;
   const container = chart.container;
   let dragging = false;
@@ -461,15 +454,20 @@ function attachScrub(chart, updateFn) {
     chart.xAxis[0].drawCrosshair(null, chart.series[0].points[idx]);
     chart.tooltip && chart.tooltip.hide && chart.tooltip.hide();
     updateFn(chart, idx);
+    if (wrapEl && tooltipFn) ndShowTooltip(wrapEl, chart, idx, tooltipFn(chart, idx));
+  }
+  function release() {
+    dragging = false;
+    if (wrapEl) ndHideTooltip(wrapEl);
   }
 
   container.addEventListener('mousedown', e => { dragging = true; moveTo(e); });
   container.addEventListener('mousemove', e => { if (dragging) moveTo(e); });
-  window.addEventListener('mouseup', () => { dragging = false; });
+  window.addEventListener('mouseup', release);
 
   container.addEventListener('touchstart', e => { dragging = true; moveTo(e.touches[0]); }, { passive: true });
   container.addEventListener('touchmove', e => { if (dragging) { moveTo(e.touches[0]); e.preventDefault(); } }, { passive: false });
-  container.addEventListener('touchend', () => { dragging = false; });
+  container.addEventListener('touchend', release);
 }
 
 /* ── Init all three charts once their containers exist in the DOM ── */

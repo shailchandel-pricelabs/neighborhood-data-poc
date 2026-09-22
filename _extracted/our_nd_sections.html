@@ -19,7 +19,10 @@
           <div class="price-hero-value" id="fp-hero-price">$228</div>
           <div class="price-hero-delta down" id="fp-hero-delta">▼ $17 (7%) below market median</div>
         </div>
-        <div id="fp-hc-chart" class="hc-chart"></div>
+        <div class="hc-chart-wrap">
+          <div id="fp-hc-chart" class="hc-chart"></div>
+          <div class="hc-tooltip"></div>
+        </div>
         <!-- Bottom segmented range control (trading-app placement) -->
         <div class="range-seg" id="fp-range-seg">
           <div class="range-seg-item active" onclick="fpSetRange(this,30)">30D</div>
@@ -57,7 +60,10 @@
           <div class="price-hero-value" id="occ-hero-value">78%</div>
           <div class="price-hero-delta up" id="occ-hero-delta">▲ 6% above market median</div>
         </div>
-        <div id="occ-hc-chart" class="hc-chart" style="height:220px"></div>
+        <div class="hc-chart-wrap">
+          <div id="occ-hc-chart" class="hc-chart" style="height:220px"></div>
+          <div class="hc-tooltip"></div>
+        </div>
         <div class="range-seg" id="occ-range-seg">
           <div class="range-seg-item active" onclick="occSetRange(this,30)">30D</div>
           <div class="range-seg-item" onclick="occSetRange(this,60)">60D</div>

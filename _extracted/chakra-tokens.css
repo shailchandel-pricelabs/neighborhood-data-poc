@@ -138,7 +138,7 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
    this page still works when previewed on a wide desktop browser. ── */
 .phone-frame {
   position: relative;
-  max-width: 480px;
+  max-width: 393px;
   margin: 0 auto;
   height: 100vh;
   /* overflow:hidden still permits *programmatic* scrolling (e.g. a focused
@@ -172,6 +172,54 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
   right: 16px !important; bottom: 96px !important; z-index: 50;
 }
 .phone-frame .css-1wpd4pz { position: static !important; }
+
+/* ── iPhone 16 device frame (POC presentation only, not extracted from the
+   real app): matches the iPhone 16's logical/point resolution — 393×852pt
+   (2556×1179px @3x) — with a titanium bezel, Dynamic Island, status bar,
+   side buttons and home indicator so the mock reads as a real device. ── */
+.device-frame {
+  position: relative;
+  width: 431px; height: 890px;
+  margin: 24px auto;
+  background: linear-gradient(155deg,#3d3d3f,#19191b);
+  border-radius: 68px;
+  padding: 19px;
+  box-shadow: 0 30px 70px rgba(0,0,0,0.45), 0 4px 14px rgba(0,0,0,0.25), inset 0 0 0 1.5px rgba(255,255,255,0.12);
+}
+.device-frame .screen {
+  position: relative; width: 393px; height: 852px;
+  border-radius: 52px; overflow: hidden; background: #fff;
+}
+.device-frame .screen .phone-frame {
+  height: 804px; max-width: 393px; margin-top: 48px; box-shadow: none;
+}
+.device-frame .status-bar {
+  position: absolute; top: 0; left: 0; right: 0; height: 48px; z-index: 500;
+  display: flex; align-items: flex-end; justify-content: space-between;
+  padding: 0 28px 7px; pointer-events: none;
+  font-size: 15px; font-weight: 600; color: #000; letter-spacing: -0.2px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+}
+.device-frame .status-bar .sb-icons { display: flex; align-items: center; gap: 5px; }
+.device-frame .dynamic-island {
+  position: absolute; top: 11px; left: 50%; transform: translateX(-50%);
+  width: 126px; height: 37px; background: #000; border-radius: 20px; z-index: 600;
+}
+.device-frame .home-indicator {
+  position: absolute; bottom: 8px; left: 50%; transform: translateX(-50%);
+  width: 134px; height: 5px; background: #000; border-radius: 3px; z-index: 500; opacity: 0.85;
+}
+.device-frame .side-btn { position: absolute; background: #232325; border-radius: 3px 0 0 3px; }
+.device-frame .btn-action { left: -3px; top: 108px; width: 3px; height: 28px; border-radius: 3px; }
+.device-frame .btn-vol-up { left: -3px; top: 158px; width: 3px; height: 48px; border-radius: 3px; }
+.device-frame .btn-vol-down { left: -3px; top: 214px; width: 3px; height: 48px; border-radius: 3px; }
+.device-frame .btn-power { right: -3px; top: 170px; width: 3px; height: 76px; border-radius: 3px; }
+@media (max-width: 470px) {
+  .device-frame { width: 100vw; height: 100vh; margin: 0; border-radius: 0; padding: 0; box-shadow: none; }
+  .device-frame .screen { width: 100%; height: 100%; border-radius: 0; }
+  .device-frame .screen .phone-frame { height: 100%; max-width: 100%; }
+  .device-frame .side-btn { display: none; }
+}
 /* Real header wrapper is position:fixed against the full browser viewport in the
    live app (which IS full-viewport-width there). Pin it to the top of our scroll
    container instead, so it stays the frame's width. Targeted by structure
