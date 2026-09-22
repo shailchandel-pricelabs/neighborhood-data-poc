@@ -1,0 +1,192 @@
+<!-- ═══ Competitor Calendar — dedicated tab (promoted out of Neighbourhood Data) ═══ -->
+
+<!-- Manage-competitors banner: count + prominent Add action (was a buried
+     "Edit competitors →" link behind a gear icon; now the primary entry point) -->
+<div class="comp-manage-bar">
+  <div class="comp-manage-count"><strong class="comp-count-badge" id="comp-count-badge">9</strong> competitors in your set</div>
+  <button class="comp-add-btn" onclick="ndOpenSheet('bs-add-competitors')">+ Add</button>
+</div>
+
+<!-- Calendar / Table view toggle -->
+<div class="pill-toggles comp-view-toggle">
+  <div class="pill active" onclick="ndSetCompView(this,'calendar')">Calendar</div>
+  <div class="pill" onclick="ndSetCompView(this,'table')">Table</div>
+</div>
+
+<!-- ── Calendar view (carousel of tiles, tap to open a competitor's calendar) ── -->
+<div class="comp-view" id="cc-view-calendar">
+  <div class="date-strip">
+    <div class="date-pill active">Sep 10</div>
+    <div class="date-pill">Sep 11</div>
+    <div class="date-pill">Sep 12</div>
+    <div class="date-pill">Sep 13</div>
+    <div class="date-pill">Sep 14</div>
+    <div class="date-pill">Sep 15</div>
+    <div class="date-pill">Sep 16</div>
+  </div>
+  <div class="comp-grid-scroll" id="comp-grid">
+    <div class="comp-grid-page">
+      <div class="comp-tile" onclick="openCompCalendar('Luxe King Suite','4.98','1BR','$195','$182','$210')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Luxe King Suite</div>
+            <div class="tile-meta">★ 4.98 · 1BR · 0.3 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$195</span><span class="tile-minstay">2 night min</span></div>
+      </div>
+      <div class="comp-tile" onclick="openCompCalendar('New! 1 Bed Hideaway','—','1BR','$165','$158','$172')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">New! 1 Bed Hideaway</div>
+            <div class="tile-meta">★ — · 1BR · 0.4 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$165</span></div>
+      </div>
+      <div class="comp-tile" onclick="openCompCalendar('Modern Studio Apt','4.85','Studio','$142','$135','$155')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Modern Studio Apt</div>
+            <div class="tile-meta">★ 4.85 · Studio · 0.5 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$142</span><span class="tile-minstay">3 night min</span></div>
+      </div>
+      <div class="comp-tile" onclick="openCompCalendar('Sunny 2BR Condo','4.91','2BR','$225','$218','$240')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Sunny 2BR Condo</div>
+            <div class="tile-meta">★ 4.91 · 2BR · 0.6 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$225</span></div>
+      </div>
+    </div>
+    <div class="comp-grid-page">
+      <div class="comp-tile" onclick="openCompCalendar('Charming 1BR Loft','4.76','1BR','$178','$170','$188')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Charming 1BR Loft</div>
+            <div class="tile-meta">★ 4.76 · 1BR · 0.7 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$178</span><span class="tile-minstay">2 night min</span></div>
+      </div>
+      <div class="comp-tile" onclick="openCompCalendar('Trendy East Austin','4.88','1BR','$190','$185','$198')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Trendy East Austin</div>
+            <div class="tile-meta">★ 4.88 · 1BR · 0.8 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$190</span></div>
+      </div>
+      <div class="comp-tile" onclick="openCompCalendar('Quiet Garden Studio','4.70','Studio','$128','$120','$138')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Quiet Garden Studio</div>
+            <div class="tile-meta">★ 4.70 · Studio · 0.9 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$128</span><span class="tile-minstay">2 night min</span></div>
+      </div>
+      <div class="comp-tile" onclick="openCompCalendar('Central 2BR Flat','4.82','2BR','$210','$200','$225')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Central 2BR Flat</div>
+            <div class="tile-meta">★ 4.82 · 2BR · 1.0 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$210</span></div>
+      </div>
+    </div>
+    <div class="comp-grid-page">
+      <div class="comp-tile" onclick="openCompCalendar('Bright Corner 1BR','4.65','1BR','$155','$148','$165')">
+        <div class="tile-top">
+          <div class="tile-info">
+            <div class="tile-name">Bright Corner 1BR</div>
+            <div class="tile-meta">★ 4.65 · 1BR · 1.1 mi</div>
+          </div>
+          <div class="tile-thumb">🏠</div>
+        </div>
+        <div class="tile-bottom"><span class="tile-price">$155</span><span class="tile-minstay">3 night min</span></div>
+      </div>
+    </div>
+  </div>
+  <div class="scroll-dots" id="comp-dots">
+    <div class="dot active"></div>
+    <div class="dot"></div>
+    <div class="dot"></div>
+  </div>
+  <div class="show-more-link" id="comp-view-all" onclick="toggleViewAll()">View all 9 competitors →</div>
+  <div class="comp-all-list" id="comp-all-list">
+    <div class="comp-list-tile" onclick="openCompCalendar('Luxe King Suite','4.98','1BR','$195','$182','$210')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Luxe King Suite</div><div class="list-meta">★ 4.98 · 1BR · 0.3 mi</div><div class="list-pricing"><span class="list-price">$195</span><span class="list-minstay">2 night min</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('New! 1 Bed Hideaway','—','1BR','$165','$158','$172')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">New! 1 Bed Hideaway</div><div class="list-meta">★ — · 1BR · 0.4 mi</div><div class="list-pricing"><span class="list-price">$165</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('Modern Studio Apt','4.85','Studio','$142','$135','$155')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Modern Studio Apt</div><div class="list-meta">★ 4.85 · Studio · 0.5 mi</div><div class="list-pricing"><span class="list-price">$142</span><span class="list-minstay">3 night min</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('Sunny 2BR Condo','4.91','2BR','$225','$218','$240')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Sunny 2BR Condo</div><div class="list-meta">★ 4.91 · 2BR · 0.6 mi</div><div class="list-pricing"><span class="list-price">$225</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('Charming 1BR Loft','4.76','1BR','$178','$170','$188')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Charming 1BR Loft</div><div class="list-meta">★ 4.76 · 1BR · 0.7 mi</div><div class="list-pricing"><span class="list-price">$178</span><span class="list-minstay">2 night min</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('Trendy East Austin','4.88','1BR','$190','$185','$198')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Trendy East Austin</div><div class="list-meta">★ 4.88 · 1BR · 0.8 mi</div><div class="list-pricing"><span class="list-price">$190</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('Quiet Garden Studio','4.70','Studio','$128','$120','$138')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Quiet Garden Studio</div><div class="list-meta">★ 4.70 · Studio · 0.9 mi</div><div class="list-pricing"><span class="list-price">$128</span><span class="list-minstay">2 night min</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('Central 2BR Flat','4.82','2BR','$210','$200','$225')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Central 2BR Flat</div><div class="list-meta">★ 4.82 · 2BR · 1.0 mi</div><div class="list-pricing"><span class="list-price">$210</span></div></div>
+    </div>
+    <div class="comp-list-tile" onclick="openCompCalendar('Bright Corner 1BR','4.65','1BR','$155','$148','$165')">
+      <div class="list-thumb">🏠</div>
+      <div class="list-body"><div class="list-name">Bright Corner 1BR</div><div class="list-meta">★ 4.65 · 1BR · 1.1 mi</div><div class="list-pricing"><span class="list-price">$155</span><span class="list-minstay">3 night min</span></div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ── Table view (mobile-friendly rate grid: sticky competitor column,
+     horizontally-scrolling dates — tap a row to open that competitor's
+     calendar, same as tapping a tile) ── -->
+<div class="comp-view" id="cc-view-table" style="display:none">
+  <div class="comp-table-hint">Scroll to compare dates · tap a row for details</div>
+  <div class="comp-table-wrap">
+<div class="comp-table-header-row"><div class="comp-table-cell comp-table-name-cell sticky">Competitor</div><div class="comp-table-cell">Sep 10</div><div class="comp-table-cell">Sep 11</div><div class="comp-table-cell">Sep 12</div><div class="comp-table-cell">Sep 13</div><div class="comp-table-cell">Sep 14</div><div class="comp-table-cell">Sep 15</div><div class="comp-table-cell">Sep 16</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Luxe King Suite','4.98','1BR','$195','$182','$210')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Luxe King Suite</div><div class="comp-table-meta">★ 4.98 · 1BR · 0.3 mi</div></div></div><div class="comp-table-cell price avail">$185</div><div class="comp-table-cell price avail">$192</div><div class="comp-table-cell price avail">$208</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$202</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$185</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('New! 1 Bed Hideaway','—','1BR','$165','$152','$180')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">New! 1 Bed Hideaway</div><div class="comp-table-meta">★ — · 1BR · 0.4 mi</div></div></div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$174</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$175</div><div class="comp-table-cell price avail">$168</div><div class="comp-table-cell price avail">$173</div><div class="comp-table-cell price avail">$155</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Modern Studio Apt','4.85','Studio','$142','$129','$157')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Modern Studio Apt</div><div class="comp-table-meta">★ 4.85 · Studio · 0.5 mi</div></div></div><div class="comp-table-cell price avail">$137</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price avail">$138</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$143</div><div class="comp-table-cell price avail">$151</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Sunny 2BR Condo','4.91','2BR','$225','$212','$240')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Sunny 2BR Condo</div><div class="comp-table-meta">★ 4.91 · 2BR · 0.6 mi</div></div></div><div class="comp-table-cell price avail">$216</div><div class="comp-table-cell price avail">$232</div><div class="comp-table-cell price avail">$227</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$235</div><div class="comp-table-cell price avail">$226</div><div class="comp-table-cell price avail">$237</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Charming 1BR Loft','4.76','1BR','$178','$165','$193')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Charming 1BR Loft</div><div class="comp-table-meta">★ 4.76 · 1BR · 0.7 mi</div></div></div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$192</div><div class="comp-table-cell price avail">$170</div><div class="comp-table-cell price avail">$171</div><div class="comp-table-cell price avail">$182</div><div class="comp-table-cell price avail">$179</div><div class="comp-table-cell price avail">$179</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Trendy East Austin','4.88','1BR','$190','$177','$205')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Trendy East Austin</div><div class="comp-table-meta">★ 4.88 · 1BR · 0.8 mi</div></div></div><div class="comp-table-cell price avail">$188</div><div class="comp-table-cell price avail">$201</div><div class="comp-table-cell price avail">$199</div><div class="comp-table-cell price avail">$197</div><div class="comp-table-cell price avail">$185</div><div class="comp-table-cell price avail">$188</div><div class="comp-table-cell price avail">$200</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Quiet Garden Studio','4.70','Studio','$128','$115','$143')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Quiet Garden Studio</div><div class="comp-table-meta">★ 4.70 · Studio · 0.9 mi</div></div></div><div class="comp-table-cell price avail">$125</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price avail">$125</div><div class="comp-table-cell price avail">$128</div><div class="comp-table-cell price avail">$120</div><div class="comp-table-cell price avail">$136</div><div class="comp-table-cell price avail">$128</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Central 2BR Flat','4.82','2BR','$210','$197','$225')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Central 2BR Flat</div><div class="comp-table-meta">★ 4.82 · 2BR · 1.0 mi</div></div></div><div class="comp-table-cell price avail">$215</div><div class="comp-table-cell price avail">$220</div><div class="comp-table-cell price avail">$208</div><div class="comp-table-cell price avail">$223</div><div class="comp-table-cell price avail">$208</div><div class="comp-table-cell price avail">$213</div><div class="comp-table-cell price avail">$212</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Bright Corner 1BR','4.65','1BR','$155','$142','$170')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb">🏠</div><div class="comp-table-name-text"><div class="comp-table-name">Bright Corner 1BR</div><div class="comp-table-meta">★ 4.65 · 1BR · 1.1 mi</div></div></div><div class="comp-table-cell price avail">$149</div><div class="comp-table-cell price avail">$147</div><div class="comp-table-cell price avail">$148</div><div class="comp-table-cell price avail">$150</div><div class="comp-table-cell price avail">$158</div><div class="comp-table-cell price avail">$157</div><div class="comp-table-cell price avail">$159</div></div>
+  </div>
+  <div class="legend" style="margin-top:10px">
+    <div class="legend-item"><div class="legend-swatch" style="background:#1976F3;height:8px;width:8px;border-radius:2px"></div> Priced</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--pl-text-disabled);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
+  </div>
+</div>

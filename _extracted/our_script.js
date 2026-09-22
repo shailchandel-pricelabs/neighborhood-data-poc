@@ -71,6 +71,54 @@ function toggleViewAll() {
   }
 }
 
+/* ── Competitor Calendar: Calendar / Table view toggle ── */
+function ndSetCompView(el, mode) {
+  el.closest('.comp-view-toggle').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  const calView = document.getElementById('cc-view-calendar');
+  const tableView = document.getElementById('cc-view-table');
+  if (!calView || !tableView) return;
+  calView.style.display = mode === 'calendar' ? '' : 'none';
+  tableView.style.display = mode === 'table' ? '' : 'none';
+}
+
+/* ── Competitor Calendar: add / remove flow (search + suggested list) ── */
+function updateCompCounts() {
+  const count = document.querySelectorAll('#add-comp-current-list .comp-row').length;
+  document.querySelectorAll('.comp-count-badge').forEach(el => { el.textContent = count; });
+  const link = document.getElementById('comp-view-all');
+  if (link && !document.getElementById('comp-all-list').classList.contains('visible')) {
+    link.textContent = 'View all ' + count + ' competitors →';
+  }
+}
+function addCompetitorRow(btn) {
+  const row = btn.closest('.comp-row');
+  const list = document.getElementById('add-comp-current-list');
+  btn.textContent = '✕';
+  btn.classList.remove('add');
+  btn.classList.add('remove');
+  btn.setAttribute('onclick', 'removeCompetitorRow(this)');
+  list.insertBefore(row, list.firstChild);
+  updateCompCounts();
+}
+function removeCompetitorRow(btn) {
+  const row = btn.closest('.comp-row');
+  const list = document.getElementById('add-comp-suggested-list');
+  btn.textContent = '+ Add';
+  btn.classList.remove('remove');
+  btn.classList.add('add');
+  btn.setAttribute('onclick', 'addCompetitorRow(this)');
+  list.appendChild(row);
+  updateCompCounts();
+}
+function filterCompSuggestions(query) {
+  const q = query.trim().toLowerCase();
+  document.querySelectorAll('#add-comp-current-list .comp-row, #add-comp-suggested-list .comp-row').forEach(row => {
+    const name = (row.getAttribute('data-name') || '').toLowerCase();
+    row.style.display = !q || name.includes(q) ? '' : 'none';
+  });
+}
+
 /* ── Pill dropdown menu ── */
 function togglePillMenu(id) {
   const dd = document.getElementById(id);

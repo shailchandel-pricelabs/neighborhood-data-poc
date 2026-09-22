@@ -401,6 +401,101 @@
     font-size: 11px; font-weight: 400; color: var(--pl-text-disabled);
   }
 
+  /* ── Competitor Calendar tab (dedicated top-level sheet) ── */
+  .comp-sheet-content { padding: 10px 12px 20px; }
+  .comp-manage-bar {
+    background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
+    padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
+  }
+  .comp-manage-count { font-size: 14px; font-weight: 400; color: var(--pl-text-secondary); }
+  .comp-manage-count strong { color: var(--pl-text); font-weight: 700; }
+  .comp-add-btn {
+    background: var(--pl-primary); color: #fff; border: none; border-radius: var(--radius-full);
+    padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif; flex-shrink: 0; transition: background 0.15s;
+  }
+  .comp-add-btn:active { background: var(--pl-primary-hover); }
+  .comp-view-toggle {
+    background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
+    padding: 6px; margin: 0; justify-content: stretch;
+  }
+  .comp-view-toggle .pill { flex: 1; justify-content: center; min-height: 38px; }
+  .comp-view {
+    background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
+    padding: 14px 16px;
+  }
+
+  /* ── Competitor rate table (mobile-friendly: sticky name column,
+     horizontally-scrolling dates) ── */
+  .comp-table-hint { font-size: 11px; color: var(--pl-text-disabled); margin-bottom: 8px; }
+  .comp-table-wrap {
+    overflow-x: auto; -webkit-overflow-scrolling: touch;
+    border: 1px solid var(--pl-border-table); border-radius: var(--radius-md);
+  }
+  .comp-table-header-row, .comp-table-row { display: flex; }
+  .comp-table-header-row {
+    background: var(--pl-bg); font-size: 11px; font-weight: 700; color: var(--pl-text-secondary);
+  }
+  .comp-table-row { border-top: 1px solid var(--pl-border-table); cursor: pointer; transition: background 0.1s; }
+  .comp-table-row:active { background: var(--pl-bg); }
+  .comp-table-cell {
+    flex: 0 0 60px; width: 60px; padding: 9px 4px; text-align: center;
+    font-size: 12px; font-weight: 600; color: var(--pl-text);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .comp-table-cell.price.avail { color: var(--pl-blue); }
+  .comp-table-cell.price.unavail { color: var(--pl-text-disabled); font-weight: 400; }
+  .comp-table-name-cell {
+    flex: 0 0 140px; width: 140px; justify-content: flex-start; text-align: left; gap: 8px;
+    position: sticky; left: 0; background: #fff; z-index: 2;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.05);
+  }
+  .comp-table-header-row .comp-table-name-cell { background: var(--pl-bg); z-index: 3; }
+  .comp-table-thumb {
+    width: 26px; height: 26px; border-radius: 6px; background: var(--pl-bg);
+    display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
+  }
+  .comp-table-name-text { min-width: 0; }
+  .comp-table-name {
+    font-size: 12px; font-weight: 600; color: var(--pl-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 96px;
+  }
+  .comp-table-meta { font-size: 10px; font-weight: 400; color: var(--pl-text-secondary); white-space: nowrap; }
+
+  /* ── Manage Competitors sheet: search + add/remove rows ── */
+  .comp-search-input {
+    width: 100%; padding: 10px 14px; border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; color: var(--pl-text);
+    background: var(--pl-bg); margin-bottom: 4px;
+  }
+  .comp-search-input:focus { outline: none; border-color: var(--pl-primary); background: var(--pl-card); }
+  .comp-row-list { display: flex; flex-direction: column; gap: 6px; }
+  .comp-row {
+    display: flex; align-items: center; gap: 10px; padding: 8px;
+    border: 1px solid var(--pl-border-table); border-radius: var(--radius-md);
+  }
+  .comp-row-thumb {
+    width: 34px; height: 34px; border-radius: var(--radius-base); background: var(--pl-bg);
+    display: flex; align-items: center; justify-content: center; font-size: 16px; flex-shrink: 0;
+  }
+  .comp-row-body { flex: 1; min-width: 0; }
+  .comp-row-name {
+    font-size: 13px; font-weight: 600; color: var(--pl-text);
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+  }
+  .comp-row-meta { font-size: 11px; font-weight: 400; color: var(--pl-text-secondary); }
+  .comp-row-btn {
+    flex-shrink: 0; border: none; border-radius: var(--radius-full); cursor: pointer;
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 700;
+    padding: 7px 14px; transition: background 0.15s, color 0.15s;
+  }
+  .comp-row-btn.add { background: var(--pl-primary-light); color: var(--pl-primary); }
+  .comp-row-btn.add:active { background: var(--pl-primary-100); }
+  .comp-row-btn.remove {
+    background: var(--pl-bg); color: var(--pl-text-secondary); padding: 7px 10px;
+  }
+  .comp-row-btn.remove:active { background: var(--pl-surface-soft); }
+
   /* ── Map Preview ── */
   .map-preview {
     width: 100%; height: 150px;
@@ -477,7 +572,7 @@
 
   /* ── Bottom Sheet Modal ── */
   .bs-overlay {
-    display: none; position: absolute; inset: 0; z-index: 200;
+    display: none; position: absolute; inset: 0; z-index: 2100;
     background: rgba(0,0,0,0.35); backdrop-filter: blur(2px); -webkit-backdrop-filter: blur(2px);
   }
   .bs-overlay.open { display: flex; align-items: flex-end; justify-content: center; }
