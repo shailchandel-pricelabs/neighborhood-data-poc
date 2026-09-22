@@ -1,0 +1,381 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Neighbourhood Data — IA Options</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --pl-primary: #F37579; --pl-primary-hover: #D66B6F; --pl-primary-light: #FEF1F2;
+    --pl-text: #333333; --pl-text-secondary: #7A7A7A; --pl-text-disabled: #AEAEAE;
+    --pl-bg: #F4F5F7; --pl-card: #FFFFFF; --pl-border: #E0E0E0; --pl-border-table: #EDF2F7;
+    --pl-blue: #1976F3; --pl-green: #31C48D;
+    --radius-base: 4px; --radius-md: 5px; --radius-card: 8px; --radius-lg: 10px; --radius-full: 9999px;
+    --shadow-base: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+    --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+    --ink: #1F2430; --page-bg: #E8E9ED; --accent-ink: #A15457; --line: #D8D9DE;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--page-bg); color: var(--ink);
+    font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+    padding: 28px 16px 60px;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  .eyebrow {
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; letter-spacing: 0.08em;
+    text-transform: uppercase; color: var(--accent-ink); margin: 0 0 8px; text-align: center;
+  }
+  h1 { font-size: 26px; font-weight: 700; margin: 0 0 8px; text-align: center; letter-spacing: -0.01em; }
+  .lede { font-size: 14.5px; color: var(--pl-text-secondary); text-align: center; max-width: 60ch; margin: 0 auto 28px; }
+
+  /* ── Option switcher ── */
+  .switcher {
+    display: flex; gap: 6px; overflow-x: auto; padding: 4px; margin: 0 auto 20px;
+    max-width: 720px; -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .switcher::-webkit-scrollbar { display: none; }
+  .opt-btn {
+    flex-shrink: 0; font-family: 'IBM Plex Sans', sans-serif; font-size: 12.5px; font-weight: 600;
+    color: var(--pl-text-secondary); background: var(--pl-card); border: 1px solid var(--pl-border);
+    border-radius: var(--radius-full); padding: 8px 14px; cursor: pointer; transition: all 0.15s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .opt-btn .num {
+    font-family: 'IBM Plex Mono', monospace; font-size: 10px; font-weight: 700;
+    background: var(--pl-bg); border-radius: 4px; padding: 1px 5px; color: var(--pl-text-secondary);
+  }
+  .opt-btn.active { background: var(--pl-primary); border-color: var(--pl-primary); color: #fff; }
+  .opt-btn.active .num { background: rgba(255,255,255,0.25); color: #fff; }
+
+  /* ── Device frame (matches the POC's iPhone 16 shell) ── */
+  .device-frame {
+    position: relative; width: 355px; height: 733px; margin: 0 auto;
+    background: linear-gradient(155deg,#3d3d3f,#19191b); border-radius: 56px; padding: 16px;
+    box-shadow: 0 24px 56px rgba(0,0,0,0.35), 0 4px 14px rgba(0,0,0,0.2), inset 0 0 0 1.5px rgba(255,255,255,0.12);
+  }
+  .screen { position: relative; width: 100%; height: 100%; border-radius: 42px; overflow: hidden; background: #fff; }
+  .status-bar {
+    position: absolute; top: 0; left: 0; right: 0; height: 40px; z-index: 500;
+    display: flex; align-items: flex-end; justify-content: space-between; padding: 0 22px 6px;
+    pointer-events: none; font-size: 13px; font-weight: 600; color: #000;
+    font-family: -apple-system, sans-serif;
+  }
+  .status-bar .sb-icons { display: flex; align-items: center; gap: 4px; }
+  .dynamic-island {
+    position: absolute; top: 9px; left: 50%; transform: translateX(-50%);
+    width: 104px; height: 30px; background: #000; border-radius: 16px; z-index: 600;
+  }
+  .home-indicator {
+    position: absolute; bottom: 7px; left: 50%; transform: translateX(-50%);
+    width: 112px; height: 4px; background: #000; border-radius: 3px; z-index: 500; opacity: 0.85;
+  }
+  .mock-screen {
+    position: absolute; top: 40px; left: 0; right: 0; bottom: 0; overflow-y: auto;
+    background: var(--pl-bg); -webkit-overflow-scrolling: touch;
+  }
+  .mock-screen[hidden] { display: none; }
+
+  /* ── caption under phone ── */
+  .caption-card {
+    max-width: 520px; margin: 22px auto 0; background: var(--pl-card); border: 1px solid var(--pl-border);
+    border-radius: var(--radius-lg); box-shadow: var(--shadow-base); padding: 16px 18px;
+  }
+  .caption-title { font-size: 15px; font-weight: 700; margin-bottom: 4px; }
+  .caption-body { font-size: 13.5px; color: var(--pl-text-secondary); line-height: 1.55; }
+  .caption-tap { display: inline-flex; align-items: center; gap: 5px; margin-top: 10px;
+    font-family: 'IBM Plex Mono', monospace; font-size: 11px; font-weight: 600; color: var(--accent-ink);
+    background: var(--pl-primary-light); border-radius: var(--radius-full); padding: 3px 9px; }
+  .caption-trade { font-size: 12.5px; color: var(--pl-text-secondary); border-top: 1px dashed var(--pl-border);
+    margin-top: 10px; padding-top: 9px; }
+  .caption-trade b { color: var(--pl-text); }
+
+  /* ── shared mini-app chrome used inside mocks ── */
+  .app-header {
+    display: flex; align-items: center; gap: 10px; padding: 12px 16px; background: #fff;
+    border-bottom: 1px solid var(--pl-border); position: sticky; top: 0; z-index: 20;
+  }
+  .app-header .back { font-size: 18px; color: var(--pl-text-secondary); }
+  .app-header .title { font-size: 16px; font-weight: 700; flex: 1; }
+  .app-header .icon { width: 26px; height: 26px; border-radius: 50%; border: 1px solid var(--pl-border);
+    display: flex; align-items: center; justify-content: center; font-size: 11px; color: var(--pl-text-secondary); flex-shrink: 0; }
+
+  .price-card {
+    margin: 12px 14px 0; background: #fff; border: 1px solid var(--pl-border); border-radius: var(--radius-card);
+    padding: 12px 14px; display: flex; justify-content: space-between; box-shadow: var(--shadow-base);
+  }
+  .price-card .pc-item .l { font-size: 10px; color: var(--pl-text-secondary); }
+  .price-card .pc-item .v { font-size: 15px; font-weight: 700; }
+
+  .mini-cal { margin: 12px 14px 0; background: #fff; border: 1px solid var(--pl-border); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-base); padding: 10px 12px 14px; }
+  .mini-cal .mc-head { font-size: 12px; font-weight: 700; text-align: center; margin-bottom: 8px; color: var(--pl-text-secondary); }
+  .mini-cal .mc-grid { display: grid; grid-template-columns: repeat(7,1fr); gap: 3px; }
+  .mini-cal .mc-cell { aspect-ratio: 1; border-radius: 3px; background: var(--pl-bg); }
+  .mini-cal .mc-cell.hit { background: #A9D6FF; }
+
+  /* bottom tab bar */
+  .tab-bar {
+    position: sticky; bottom: 0; left: 0; right: 0; background: #fff; border-top: 1px solid var(--pl-border);
+    display: flex; padding: 8px 4px 6px; z-index: 40;
+  }
+  .tab-item { flex: 1; display: flex; flex-direction: column; align-items: center; gap: 3px; position: relative; }
+  .tab-item .ti-ic { font-size: 16px; color: var(--pl-text-disabled); }
+  .tab-item .ti-label { font-size: 9px; color: var(--pl-text-disabled); font-weight: 500; }
+  .tab-item.active .ti-ic, .tab-item.active .ti-label { color: var(--pl-primary); }
+  .tab-item .dot { position: absolute; top: -1px; right: 22%; width: 7px; height: 7px; border-radius: 50%; background: var(--pl-primary); border: 1.5px solid #fff; }
+  .tab-item.new .ti-ic, .tab-item.new .ti-label { color: var(--pl-blue); }
+
+  /* select view rows (used in mock 1) */
+  .sv-sheet { margin: 14px 14px 0; background: #fff; border: 1px solid var(--pl-border); border-radius: var(--radius-card);
+    box-shadow: var(--shadow-md); overflow: hidden; }
+  .sv-row { padding: 12px 14px; font-size: 13px; font-weight: 600; color: var(--pl-text-secondary); border-bottom: 1px solid var(--pl-border-table); }
+  .sv-row:last-child { border-bottom: none; }
+  .sv-row.hit { color: var(--accent-ink); background: var(--pl-primary-light); }
+
+  .annot {
+    margin: 10px 14px 0; background: #FFF8E1; border: 1px dashed #E0B84A; border-radius: var(--radius-md);
+    padding: 8px 10px; font-size: 11px; color: #7A5C00; line-height: 1.4;
+  }
+
+  /* section card (Neighbourhood Data style) */
+  .sec-card { margin: 10px 14px 0; background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-base); padding: 14px 16px; }
+  .sec-card .sc-title { font-size: 14.5px; font-weight: 700; margin-bottom: 6px; }
+  .price-hero-value { font-size: 24px; font-weight: 700; }
+  .price-hero-delta { font-size: 12px; font-weight: 600; color: var(--pl-primary); margin-top: 2px; }
+  .price-hero-delta.up { color: var(--pl-green); }
+
+  .pill-toggle-row { display: flex; gap: 6px; margin: 12px 14px 0; background: #fff; border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-base); padding: 5px; }
+  .pill-toggle-row .p { flex: 1; text-align: center; padding: 7px 0; border-radius: var(--radius-full); font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); }
+  .pill-toggle-row .p.active { background: var(--pl-primary-light); color: var(--accent-ink); }
+
+  /* card grid dashboard (mock 5) */
+  .card-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin: 12px 14px 0; }
+  .grid-card { background: #fff; border-radius: var(--radius-lg); box-shadow: var(--shadow-base); padding: 12px 12px 10px; }
+  .grid-card .gc-label { font-size: 11px; color: var(--pl-text-secondary); font-weight: 600; margin-bottom: 4px; }
+  .grid-card .gc-value { font-size: 19px; font-weight: 700; }
+  .grid-card .gc-delta { font-size: 10.5px; font-weight: 600; margin-top: 2px; }
+  .grid-card .gc-delta.up { color: var(--pl-green); }
+  .grid-card .gc-delta.down { color: var(--pl-primary); }
+  .spark { width: 100%; height: 24px; margin-top: 6px; display: block; }
+  .grid-card.full { grid-column: 1 / -1; display: flex; align-items: center; justify-content: space-between; }
+
+  /* segmented header (mock 3) */
+  .seg-row { display: flex; gap: 4px; margin: 10px 14px 0; background: #fff; border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-base); padding: 4px; }
+  .seg-row .s { flex: 1; text-align: center; padding: 7px 2px; border-radius: var(--radius-full); font-size: 10.5px; font-weight: 600; color: var(--pl-text-secondary); }
+  .seg-row .s.active { background: var(--pl-primary); color: #fff; }
+
+  .pulse-card { margin: 8px 14px 0; background: #fff; border: 1.5px solid var(--pl-primary-light); border-left: 4px solid var(--pl-primary);
+    border-radius: var(--radius-md); padding: 10px 12px; display: flex; align-items: center; justify-content: space-between;
+    box-shadow: var(--shadow-base); }
+  .pulse-card .pc-l { font-size: 12.5px; font-weight: 600; }
+  .pulse-card .pc-l b { color: var(--pl-primary); }
+  .pulse-card .pc-r { font-size: 16px; color: var(--pl-text-disabled); }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <p class="eyebrow">Neighbourhood Data · IA Options</p>
+  <h1>Five ways to rethink where it lives</h1>
+  <p class="lede">Same five ideas from the journey map, now live inside the actual phone shell. Tap through them below — each swaps the screen so you can judge how it'd actually feel, not just read about it.</p>
+
+  <div class="switcher" id="switcher">
+    <div class="opt-btn active" data-n="1"><span class="num">01</span> Badge entry</div>
+    <div class="opt-btn" data-n="2"><span class="num">02</span> Tab bar slot</div>
+    <div class="opt-btn" data-n="3"><span class="num">03</span> Market Intel hub</div>
+    <div class="opt-btn" data-n="4"><span class="num">04</span> Calendar pulse</div>
+    <div class="opt-btn" data-n="5"><span class="num">05</span> Dashboard cards</div>
+  </div>
+
+  <div class="device-frame">
+    <div class="screen">
+      <div class="status-bar">
+        <div>9:41</div>
+        <div class="sb-icons">
+          <svg width="15" height="10" viewBox="0 0 18 12" fill="none"><rect x="0" y="7" width="3" height="5" rx="0.5" fill="#000"/><rect x="4.5" y="5" width="3" height="7" rx="0.5" fill="#000"/><rect x="9" y="3" width="3" height="9" rx="0.5" fill="#000"/><rect x="13.5" y="0" width="3" height="12" rx="0.5" fill="#000"/></svg>
+          <svg width="21" height="10" viewBox="0 0 25 12" fill="none"><rect x="0.5" y="0.5" width="21" height="11" rx="2.5" stroke="#000" opacity="0.4"/><rect x="2" y="2" width="18" height="8" rx="1.5" fill="#000"/><rect x="22.5" y="4" width="1.5" height="4" rx="0.7" fill="#000" opacity="0.4"/></svg>
+        </div>
+      </div>
+      <div class="dynamic-island"></div>
+
+      <!-- ═══ MOCK 1: Badge the entry point ═══ -->
+      <div class="mock-screen" id="mock-1">
+        <div class="app-header"><span class="back">&larr;</span><span class="title">Calendar</span>
+          <div class="icon">&#128276;</div><div class="icon">&#9881;</div><div class="icon">?</div>
+        </div>
+        <div class="price-card">
+          <div class="pc-item"><div class="l">MIN PRICE</div><div class="v">€88</div></div>
+          <div class="pc-item"><div class="l">BASE PRICE</div><div class="v">€125</div></div>
+          <div class="pc-item"><div class="l">MAX PRICE</div><div class="v">-</div></div>
+        </div>
+        <div class="mini-cal">
+          <div class="mc-head">September 2026</div>
+          <div class="mc-grid" id="mc-grid-1"></div>
+        </div>
+        <div class="annot">Bottom tab renamed "More" → "Insights", with a dot the first few times competitor prices move — same 3-tap path, but people actually notice it's there.</div>
+        <div style="height:150px"></div>
+        <div class="tab-bar">
+          <div class="tab-item active"><div class="ti-ic">&#128197;</div><div class="ti-label">Calendar</div></div>
+          <div class="tab-item"><div class="ti-ic">&#9881;</div><div class="ti-label">Customize</div></div>
+          <div class="tab-item"><div class="ti-ic">&#128203;</div><div class="ti-label">Details</div></div>
+          <div class="tab-item new"><div class="dot"></div><div class="ti-ic">&#8942;</div><div class="ti-label">Insights</div></div>
+        </div>
+      </div>
+
+      <!-- ═══ MOCK 2: Tab bar slot ═══ -->
+      <div class="mock-screen" id="mock-2" hidden>
+        <div class="app-header"><span class="back">&larr;</span><span class="title">Calendar</span>
+          <div class="icon">&#128276;</div><div class="icon">&#9881;</div><div class="icon">?</div>
+        </div>
+        <div class="price-card">
+          <div class="pc-item"><div class="l">MIN PRICE</div><div class="v">€88</div></div>
+          <div class="pc-item"><div class="l">BASE PRICE</div><div class="v">€125</div></div>
+          <div class="pc-item"><div class="l">MAX PRICE</div><div class="v">-</div></div>
+        </div>
+        <div class="mini-cal">
+          <div class="mc-head">September 2026</div>
+          <div class="mc-grid" id="mc-grid-2"></div>
+        </div>
+        <div class="annot">"Market" becomes a first-class tab — 1 tap from anywhere in the app. But the bar goes from 4 icons to 5, and they're now noticeably tighter.</div>
+        <div style="height:150px"></div>
+        <div class="tab-bar">
+          <div class="tab-item active"><div class="ti-ic">&#128197;</div><div class="ti-label">Calendar</div></div>
+          <div class="tab-item new"><div class="ti-ic">&#128200;</div><div class="ti-label">Market</div></div>
+          <div class="tab-item"><div class="ti-ic">&#9881;</div><div class="ti-label">Customize</div></div>
+          <div class="tab-item"><div class="ti-ic">&#128203;</div><div class="ti-label">Details</div></div>
+          <div class="tab-item"><div class="ti-ic">&#8942;</div><div class="ti-label">More</div></div>
+        </div>
+      </div>
+
+      <!-- ═══ MOCK 3: Market Intel hub ═══ -->
+      <div class="mock-screen" id="mock-3" hidden>
+        <div class="app-header"><span class="back">&larr;</span><span class="title">Market Intel</span>
+          <div class="icon">&#9881;</div><div class="icon">?</div>
+        </div>
+        <div class="seg-row">
+          <div class="s active">Prices</div><div class="s">Occupancy</div><div class="s">Competitors</div><div class="s">Map</div>
+        </div>
+        <div class="sec-card" style="margin-top:12px">
+          <div class="price-hero-value">$228</div>
+          <div class="price-hero-delta">▼ $17 (7%) below market median</div>
+        </div>
+        <div class="sec-card">
+          <div class="sc-title">Future Prices</div>
+          <svg viewBox="0 0 300 60" class="spark" style="height:60px" preserveAspectRatio="none"><polyline points="0,40 30,32 60,38 90,20 120,28 150,15 180,25 210,18 240,30 270,22 300,26" fill="none" stroke="#333" stroke-width="2"/></svg>
+        </div>
+        <div class="annot">Neighbourhood Data and Competitor Calendar merge into one destination, entered once, browsed via segments — instead of two siblings to separately discover in the menu.</div>
+      </div>
+
+      <!-- ═══ MOCK 4: Calendar pulse ═══ -->
+      <div class="mock-screen" id="mock-4" hidden>
+        <div class="app-header"><span class="back">&larr;</span><span class="title">Calendar</span>
+          <div class="icon">&#128276;</div><div class="icon">&#9881;</div><div class="icon">?</div>
+        </div>
+        <div class="price-card">
+          <div class="pc-item"><div class="l">MIN PRICE</div><div class="v">€88</div></div>
+          <div class="pc-item"><div class="l">BASE PRICE</div><div class="v">€125</div></div>
+          <div class="pc-item"><div class="l">MAX PRICE</div><div class="v">-</div></div>
+        </div>
+        <div class="pulse-card">
+          <div class="pc-l">$228 · <b>▼ 7% below market</b></div>
+          <div class="pc-r">›</div>
+        </div>
+        <div class="mini-cal">
+          <div class="mc-head">September 2026</div>
+          <div class="mc-grid" id="mc-grid-4"></div>
+        </div>
+        <div class="annot">A compact market-pulse strip sits right where the pricing decision happens — visible with 0 taps. Tapping it drills into the full Neighbourhood Data screen.</div>
+      </div>
+
+      <!-- ═══ MOCK 5: Dashboard cards ═══ -->
+      <div class="mock-screen" id="mock-5" hidden>
+        <div class="app-header"><span class="back">&larr;</span><span class="title">Neighbourhood Data</span>
+          <div class="icon">&#9881;</div><div class="icon">?</div>
+        </div>
+        <div class="card-grid">
+          <div class="grid-card">
+            <div class="gc-label">Future Prices</div>
+            <div class="gc-value">$228</div>
+            <div class="gc-delta down">▼ 7% vs market</div>
+            <svg viewBox="0 0 120 24" class="spark" preserveAspectRatio="none"><polyline points="0,16 15,13 30,15 45,8 60,11 75,6 90,10 105,7 120,10" fill="none" stroke="#333" stroke-width="1.5"/></svg>
+          </div>
+          <div class="grid-card">
+            <div class="gc-label">Occupancy</div>
+            <div class="gc-value">69%</div>
+            <div class="gc-delta up">▲ 22% vs market</div>
+            <svg viewBox="0 0 120 24" class="spark" preserveAspectRatio="none"><rect x="2" y="10" width="6" height="14" fill="#2CAFFE"/><rect x="12" y="6" width="6" height="18" fill="#2CAFFE"/><rect x="22" y="12" width="6" height="12" fill="#2CAFFE"/><rect x="32" y="4" width="6" height="20" fill="#2CAFFE"/><rect x="42" y="9" width="6" height="15" fill="#2CAFFE"/><rect x="52" y="2" width="6" height="22" fill="#2CAFFE"/><rect x="62" y="8" width="6" height="16" fill="#2CAFFE"/></svg>
+          </div>
+          <div class="grid-card">
+            <div class="gc-label">Market History</div>
+            <div class="gc-value">72%</div>
+            <div class="gc-delta up">▲ 8% YoY</div>
+          </div>
+          <div class="grid-card">
+            <div class="gc-label">Competitors</div>
+            <div class="gc-value">9</div>
+            <div class="gc-delta">tracked nearby</div>
+          </div>
+          <div class="grid-card full">
+            <div class="gc-label" style="margin:0">Market Overview</div>
+            <div class="gc-value" style="font-size:13px;color:var(--pl-text-secondary);font-weight:600">$140–$350 range ›</div>
+          </div>
+        </div>
+        <div class="annot">Same destination, still 3 taps to arrive — but once you're there it's a scannable grid instead of one long scroll. Pairs with any option above.</div>
+      </div>
+
+      <div class="home-indicator"></div>
+    </div>
+  </div>
+
+  <div class="caption-card" id="caption">
+    <!-- filled by JS -->
+  </div>
+</div>
+
+<script>
+  const captions = {
+    1: { title: '01 · Badge the entry point', body: 'Rename the generic "More" icon to something legible, and add a small dot the first few times there\'s new competitor movement. Cheapest possible fix — ships without touching navigation structure.', tap: '3 taps, same as today', trade: 'Doesn\'t shorten the path — just makes people notice it exists.' },
+    2: { title: '02 · Give it a tab bar slot', body: 'Promote Neighbourhood Data to a persistent bottom-nav destination, a sibling of Calendar rather than an item buried inside it.', tap: '1 tap from anywhere', trade: 'The tab bar is already carrying 4 items — a 5th makes every icon smaller, or something else has to fold into "More."' },
+    3: { title: '03 · Merge into one Market Intel hub', body: 'Neighbourhood Data and Competitor Calendar both answer "what\'s the market doing." Combine them into one destination with top-level segments instead of two siblings to separately discover.', tap: '2 taps', trade: 'One bigger screen to design well; loses the clean split between pricing context and competitor tracking.' },
+    4: { title: '04 · Put a pulse on the Calendar itself', body: 'Surface a compact "$228 · 7% below market" strip right on the Calendar\'s price card, where the pricing decision actually happens. Tap it to drill into the full screen.', tap: '0 taps to glance, 1 to drill in', trade: 'Adds density to a screen that\'s already carrying the price card and calendar grid.' },
+    5: { title: '05 · Trade the accordion for a dashboard', body: 'Once inside Neighbourhood Data, replace the single long scroll with a card grid — Future Prices, Occupancy, Competitors, each showing a live number — tap a card to drill in.', tap: '3 taps, shorter scroll once there', trade: 'Doesn\'t fix getting there — fixes what happens once you\'ve arrived. Pairs well with any option above.' }
+  };
+
+  function buildMiniCal(id, seed) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    let s = seed;
+    const rand = () => { s = (s * 9301 + 49297) % 233280; return s / 233280; };
+    let html = '';
+    for (let i = 0; i < 35; i++) {
+      html += '<div class="mc-cell' + (rand() < 0.4 ? ' hit' : '') + '"></div>';
+    }
+    el.innerHTML = html;
+  }
+  buildMiniCal('mc-grid-1', 3);
+  buildMiniCal('mc-grid-2', 7);
+  buildMiniCal('mc-grid-4', 11);
+
+  function showMock(n) {
+    for (let i = 1; i <= 5; i++) {
+      document.getElementById('mock-' + i).hidden = (i !== n);
+    }
+    document.querySelectorAll('.opt-btn').forEach(b => b.classList.toggle('active', b.dataset.n == n));
+    const c = captions[n];
+    document.getElementById('caption').innerHTML =
+      '<div class="caption-title">' + c.title + '</div>' +
+      '<div class="caption-body">' + c.body + '</div>' +
+      '<span class="caption-tap">' + c.tap + '</span>' +
+      '<div class="caption-trade"><b>Trade-off:</b> ' + c.trade + '</div>';
+  }
+  document.getElementById('switcher').addEventListener('click', e => {
+    const btn = e.target.closest('.opt-btn');
+    if (btn) showMock(parseInt(btn.dataset.n, 10));
+  });
+  showMock(1);
+</script>
+</body>
+</html>
