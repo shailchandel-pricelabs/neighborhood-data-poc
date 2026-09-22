@@ -80,11 +80,83 @@
 
   --chakra-borders-container: 1px solid #E0E0E0;
   --chakra-borders-datePickerDayHover: 1px solid #F37579;
+  --chakra-borders-default: 1px solid rgba(0,0,0,0.1);
+  --chakra-borders-none: 0;
   --chakra-transition-property-common: background-color,border-color,color,fill,stroke,opacity,box-shadow,transform;
   --chakra-transition-duration-normal: 200ms;
+  --chakra-transition-duration-fast: 100ms;
+
+  --chakra-colors-black: #000000;
+  --chakra-colors-white: #FFFFFF;
+  --chakra-colors-blue: #1976F3;
+  --chakra-colors-green: #31C48D;
+  --chakra-colors-transparent: transparent;
+  --chakra-colors-chakra-body-bg: #FFFFFF;
+  --chakra-colors-chakra-body-text: #1A202C;
+  --chakra-colors-inputBg: #F4F5F7;
+  --chakra-colors-cellSelection: rgba(0,0,0,0.2);
+  --chakra-colors-whiteAlpha-300: rgba(255,255,255,0.16);
+
+  --chakra-sizes-4: 1rem;
+  --chakra-sizes-4-5: 1.125rem;
+  --chakra-sizes-8: 2rem;
+  --chakra-sizes-10-5: 2.625rem;
+  --chakra-sizes-16: 4rem;
+  --chakra-sizes-20: 5rem;
+  --chakra-sizes-24: 6rem;
+  --chakra-sizes-25: 6.25rem;
+
+  --chakra-space-0-5: 0.125rem;
+  --chakra-space-1-5: 0.375rem;
+  --chakra-space-5: 1.25rem;
+  --chakra-space-9: 2.25rem;
+  --chakra-space-16: 4rem;
+  --chakra-space-18: 4.5rem;
+  --chakra-space-20: 5rem;
+
+  --chakra-fontSizes-2xs: 0.625rem;
+  --chakra-fontSizes-sm: 0.75rem;
+  --chakra-lineHeights-1: 1;
+  --chakra-radii-none: 0;
+
+  --chakra-zIndices-banner: 1200;
+  --chakra-zIndices-dropdown: 1000;
+  --chakra-zIndices-modal: 1400;
+
+  --chakra-shadows-bottomSheetShadow: 0px -2px 2px 0px rgba(51,51,51,0.1);
+  --chakra-shadows-mobileDrawerHeaderShadow: 0px 2px 2px 0px rgba(51,51,51,0.1);
+  --chakra-shadows-popoverDark: 0px 2px 4px 0px rgba(0,0,0,0.25), 0px 8px 24px 0px rgba(0,0,0,0.35);
 }
 
 html, body { background: var(--chakra-colors-backgroundGrey); }
 body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primaryBlack); margin: 0; }
 * { box-sizing: border-box; }
 .chakra-text { margin: 0; }
+
+/* ── Phone-frame harness: real extracted elements use position:fixed against the
+   live app's full-screen mobile viewport. We scope those to a centered frame so
+   this page still works when previewed on a wide desktop browser. ── */
+.phone-frame {
+  position: relative;
+  max-width: 480px;
+  margin: 0 auto;
+  height: 100vh;
+  overflow: hidden;
+  background: var(--chakra-colors-productWhite);
+  box-shadow: 0 0 40px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+}
+.phone-frame .css-d8ne84 { flex: 1 1 auto; min-height: 0; }
+.phone-frame .css-18y2um2 { position: absolute !important; left: 0; right: 0; width: 100% !important; }
+.phone-frame [role="dialog"].chakra-modal__content { position: absolute !important; max-width: 100% !important; margin: 0 !important; }
+.phone-frame #sheet-backdrop { position: absolute !important; }
+.phone-frame #mobile-app-override-button-calendar-container {
+  position: absolute !important; top: auto !important; left: auto !important;
+  right: 16px !important; bottom: 96px !important; z-index: 50;
+}
+.phone-frame .css-1wpd4pz { position: static !important; }
+/* Real header wrapper is position:fixed against the full browser viewport in the
+   live app (which IS full-viewport-width there). Pin it to the top of our scroll
+   container instead, so it stays the frame's width. */
+.phone-frame .css-1ypn0w { position: sticky !important; top: 0 !important; width: 100% !important; }

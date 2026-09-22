@@ -459,7 +459,7 @@ a.fc-event, a.fc-event:hover { text-decoration: none; }
 .chakra-button__group[data-attached][data-orientation="vertical"] > .css-wypnyl:not(:last-of-type) { margin-bottom: -1px; }
 .css-wypnyl .chakra-button__spinner { width: 1.5rem; height: 1.5rem; font-size: 1.5rem; }
 .css-wypnyl[data-loading], .css-wypnyl[aria-busy="true"] { border: var(--chakra-borders-none); }
-.css-11g1bkc { height: 633px; overflow-y: hidden; overflow-x: initial; }
+.css-11g1bkc { height: 900px; overflow-y: auto; overflow-x: initial; }
 .css-11g1bkc .fc-multimonth-month { width: 100% !important; }
 .css-11g1bkc .fc-multimonth-singlecol .fc-multimonth-month:last-child .fc-multimonth-daygrid-table { border-bottom: 1px solid rgba(0, 0, 0, 0.1) !important; }
 .css-11g1bkc .fc-col-header-cell { border-right: 2px solid white !important; }
