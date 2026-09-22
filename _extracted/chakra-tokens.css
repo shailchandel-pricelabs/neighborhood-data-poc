@@ -1,0 +1,90 @@
+/* Real Chakra theme tokens, extracted live from sagar.app.pricelabs.co (getComputedStyle on :root).
+   Same custom-property names the production app uses — nothing renamed. */
+:root {
+  --chakra-colors-primaryRed-50: #FEF1F2;
+  --chakra-colors-primaryRed-100: #FCDCDD;
+  --chakra-colors-primaryRed-200: #F69396;
+  --chakra-colors-primaryRed-600: #F37579;
+  --chakra-colors-primaryRed-700: #D66B6F;
+  --chakra-colors-primaryRed-800: #C36568;
+  --chakra-colors-primaryRed-900: #A15457;
+  --chakra-colors-primaryBlack: #333333;
+  --chakra-colors-secondaryBlack: #7A7A7A;
+  --chakra-colors-productWhite: #FFFFFF;
+  --chakra-colors-backgroundGrey: #F4F5F7;
+  --chakra-colors-disabledGrey: #AEAEAE;
+  --chakra-colors-borderColor: #E0E0E0;
+  --chakra-colors-blackOverlay10: rgba(0, 0, 0, 0.1);
+  --chakra-colors-highlightRed: #FEF1F2;
+  --chakra-colors-highlightBlue: #F3F8FE;
+  --chakra-colors-highlightGreen: #F5FBF9;
+  --chakra-colors-highlightYellow: #FEFAF3;
+  --chakra-colors-error: #E63E3D;
+  --chakra-colors-gray-100: #EDF2F7;
+  --chakra-colors-gray-200: #E2E8F0;
+  --chakra-colors-gray-300: #CBD5E0;
+  --chakra-colors-gray-400: #A0AEC0;
+  --chakra-colors-gray-500: #718096;
+  --chakra-colors-gray-600: #4A5568;
+  --chakra-colors-gray-700: #2D3748;
+  --chakra-colors-gray-800: #1A202C;
+
+  --chakra-fontWeights-normal: 400;
+  --chakra-fontWeights-medium: 500;
+  --chakra-fontWeights-semibold: 600;
+  --chakra-fontWeights-bold: 700;
+  --chakra-lineHeights-normal: normal;
+  --chakra-lineHeights-short: 1.375;
+  --chakra-lineHeights-base: 1.5;
+  --chakra-lineHeights-tall: 1.625;
+  --chakra-fonts-body: 'IBM Plex Sans', sans-serif;
+  --chakra-fonts-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --chakra-fontSizes-mobile-xs: 0.75rem;
+  --chakra-fontSizes-mobile-sm: 0.875rem;
+  --chakra-fontSizes-mobile-md: 1rem;
+  --chakra-fontSizes-mobile-lg: 1.25rem;
+  --chakra-fontSizes-mobile-xl: 1.5rem;
+  --chakra-fontSizes-lg: 1.125rem;
+
+  --chakra-space-1: 0.25rem;
+  --chakra-space-2: 0.5rem;
+  --chakra-space-2-5: 0.625rem;
+  --chakra-space-3: 0.75rem;
+  --chakra-space-4: 1rem;
+  --chakra-space-6: 1.5rem;
+  --chakra-space-8: 2rem;
+  --chakra-space-10: 2.5rem;
+  --chakra-space-12: 3rem;
+  --chakra-space-13: 3.25rem;
+  --chakra-sizes-full: 100%;
+  --chakra-sizes-1: 0.25rem;
+  --chakra-sizes-6: 1.5rem;
+  --chakra-sizes-10: 2.5rem;
+  --chakra-sizes-12: 3rem;
+  --chakra-sizes-13: 3.25rem;
+  --chakra-sizes-30: 7.5rem;
+
+  --chakra-radii-full: 50rem;
+  --chakra-radii-xl: 0.75rem;
+  --chakra-radii-lg: 0.625rem;
+  --chakra-radii-md: 0.313rem;
+  --chakra-radii-sm: 0.125rem;
+
+  --chakra-shadows-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --chakra-shadows-base: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+  --chakra-shadows-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --chakra-shadows-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --chakra-shadows-outline: 0 0 0 3px rgba(66,153,225,0.6);
+  --chakra-shadows-none: none;
+
+  --chakra-borders-container: 1px solid #E0E0E0;
+  --chakra-borders-datePickerDayHover: 1px solid #F37579;
+  --chakra-transition-property-common: background-color,border-color,color,fill,stroke,opacity,box-shadow,transform;
+  --chakra-transition-duration-normal: 200ms;
+}
+
+html, body { background: var(--chakra-colors-backgroundGrey); }
+body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primaryBlack); margin: 0; }
+* { box-sizing: border-box; }
+.chakra-text { margin: 0; }

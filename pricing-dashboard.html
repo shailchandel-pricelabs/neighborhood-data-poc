@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Pricing Dashboard — PriceLabs Mobile (real app shell)</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* Real Chakra theme tokens, extracted live from sagar.app.pricelabs.co (getComputedStyle on :root).
+   Same custom-property names the production app uses — nothing renamed. */
+:root {
+  --chakra-colors-primaryRed-50: #FEF1F2;
+  --chakra-colors-primaryRed-100: #FCDCDD;
+  --chakra-colors-primaryRed-200: #F69396;
+  --chakra-colors-primaryRed-600: #F37579;
+  --chakra-colors-primaryRed-700: #D66B6F;
+  --chakra-colors-primaryRed-800: #C36568;
+  --chakra-colors-primaryRed-900: #A15457;
+  --chakra-colors-primaryBlack: #333333;
+  --chakra-colors-secondaryBlack: #7A7A7A;
+  --chakra-colors-productWhite: #FFFFFF;
+  --chakra-colors-backgroundGrey: #F4F5F7;
+  --chakra-colors-disabledGrey: #AEAEAE;
+  --chakra-colors-borderColor: #E0E0E0;
+  --chakra-colors-blackOverlay10: rgba(0, 0, 0, 0.1);
+  --chakra-colors-highlightRed: #FEF1F2;
+  --chakra-colors-highlightBlue: #F3F8FE;
+  --chakra-colors-highlightGreen: #F5FBF9;
+  --chakra-colors-highlightYellow: #FEFAF3;
+  --chakra-colors-error: #E63E3D;
+  --chakra-colors-gray-100: #EDF2F7;
+  --chakra-colors-gray-200: #E2E8F0;
+  --chakra-colors-gray-300: #CBD5E0;
+  --chakra-colors-gray-400: #A0AEC0;
+  --chakra-colors-gray-500: #718096;
+  --chakra-colors-gray-600: #4A5568;
+  --chakra-colors-gray-700: #2D3748;
+  --chakra-colors-gray-800: #1A202C;
+
+  --chakra-fontWeights-normal: 400;
+  --chakra-fontWeights-medium: 500;
+  --chakra-fontWeights-semibold: 600;
+  --chakra-fontWeights-bold: 700;
+  --chakra-lineHeights-normal: normal;
+  --chakra-lineHeights-short: 1.375;
+  --chakra-lineHeights-base: 1.5;
+  --chakra-lineHeights-tall: 1.625;
+  --chakra-fonts-body: 'IBM Plex Sans', sans-serif;
+  --chakra-fonts-heading: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+
+  --chakra-fontSizes-mobile-xs: 0.75rem;
+  --chakra-fontSizes-mobile-sm: 0.875rem;
+  --chakra-fontSizes-mobile-md: 1rem;
+  --chakra-fontSizes-mobile-lg: 1.25rem;
+  --chakra-fontSizes-mobile-xl: 1.5rem;
+  --chakra-fontSizes-lg: 1.125rem;
+
+  --chakra-space-1: 0.25rem;
+  --chakra-space-2: 0.5rem;
+  --chakra-space-2-5: 0.625rem;
+  --chakra-space-3: 0.75rem;
+  --chakra-space-4: 1rem;
+  --chakra-space-6: 1.5rem;
+  --chakra-space-8: 2rem;
+  --chakra-space-10: 2.5rem;
+  --chakra-space-12: 3rem;
+  --chakra-space-13: 3.25rem;
+  --chakra-sizes-full: 100%;
+  --chakra-sizes-1: 0.25rem;
+  --chakra-sizes-6: 1.5rem;
+  --chakra-sizes-10: 2.5rem;
+  --chakra-sizes-12: 3rem;
+  --chakra-sizes-13: 3.25rem;
+  --chakra-sizes-30: 7.5rem;
+
+  --chakra-radii-full: 50rem;
+  --chakra-radii-xl: 0.75rem;
+  --chakra-radii-lg: 0.625rem;
+  --chakra-radii-md: 0.313rem;
+  --chakra-radii-sm: 0.125rem;
+
+  --chakra-shadows-sm: 0 1px 2px 0 rgba(0,0,0,0.05);
+  --chakra-shadows-base: 0 1px 3px 0 rgba(0,0,0,0.1), 0 1px 2px 0 rgba(0,0,0,0.06);
+  --chakra-shadows-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+  --chakra-shadows-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
+  --chakra-shadows-outline: 0 0 0 3px rgba(66,153,225,0.6);
+  --chakra-shadows-none: none;
+
+  --chakra-borders-container: 1px solid #E0E0E0;
+  --chakra-borders-datePickerDayHover: 1px solid #F37579;
+  --chakra-transition-property-common: background-color,border-color,color,fill,stroke,opacity,box-shadow,transform;
+  --chakra-transition-duration-normal: 200ms;
+}
+
+html, body { background: var(--chakra-colors-backgroundGrey); }
+body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primaryBlack); margin: 0; }
+* { box-sizing: border-box; }
+.chakra-text { margin: 0; }
+
+"
+.chakra-button__group[data-attached][data-orientation="horizontal"] > .css-1x8iiyz:not(:last-of-type) { margin-inline-end: -1px; }
+.chakra-button__group[data-attached][data-orientation="vertical"] > .css-1x8iiyz:not(:last-of-type) { margin-bottom: -1px; }
+.css-1x8iiyz .chakra-button__spinner { width: 1.5rem; height: 1.5rem; font-size: 1.5rem; }
+@-webkit-keyframes animation-b7n1on { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@keyframes animation-b7n1on { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+@-webkit-keyframes animation-14pkoxc { 
+  0% { border-color: var(--skeleton-start-color); background: var(--skeleton-start-color); }
+  100% { border-color: var(--skeleton-end-color); background: var(--skeleton-end-color); }
+}
+@keyframes animation-14pkoxc { 
+  0% { border-color: var(--skeleton-start-color); background: var(--skeleton-start-color); }
+  100% { border-color: var(--skeleton-end-color); background: var(--skeleton-end-color); }
+}
+.css-1iraaq8 { padding: var(--chakra-space-3); flex: 1 1 0%; width: var(--chakra-sizes-full); margin: 0px; }
+.css-1vakbk4 { display: flex; gap: var(--chakra-space-2); }
+@-webkit-keyframes animation-1kqbx5h { 
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+@keyframes animation-1kqbx5h { 
+  0% { transform: translateX(-100%); }
+  100% { transform: translateX(100%); }
+}
+.css-2o0llq { position: relative; top: 0px; }
+.css-95ar3t { width: 100%; display: flex; position: relative; isolation: isolate; --input-font-size: var(--chakra-fontSizes-sm); --input-padding: var(--chakra-space-3); --input-border-radius: var(--chakra-radii-sm); --input-height: var(--chakra-sizes-8); height: fit-content; }
+.css-95ar3t .chakra-input__left-element svg { width: var(--chakra-sizes-4); height: var(--chakra-sizes-4); max-width: var(--chakra-sizes-4); max-height: var(--chakra-sizes-4); font-size: var(--chakra-fontSizes-mobile-md); color: var(--chakra-colors-secondaryBlack); }
+.css-95ar3t .chakra-input__left-element + input, .css-95ar3t .chakra-input__left-element + textarea { padding-inline-start: var(--chakra-space-9); }
+.css-95ar3t.multiline .chakra-input__left-element, .css-95ar3t.multiline .chakra-input__right-element { height: var(--chakra-sizes-12); }
+.css-95ar3t .chakra-textarea { border-radius: 0.75rem; font-size: var(--chakra-fontSizes-mobile-md); min-height: var(--chakra-sizes-30); padding-top: var(--chakra-space-3); padding-bottom: var(--chakra-space-3); }
+.css-95ar3t .chakra-textarea::-webkit-input-placeholder { font-size: var(--chakra-fontSizes-mobile-md); color: var(--chakra-colors-disabledGrey); }
+.css-95ar3t .chakra-textarea::placeholder, .css-95ar3t .chakra-textarea[data-placeholder] { font-size: var(--chakra-fontSizes-mobile-md); color: var(--chakra-colors-disabledGrey); }
+.css-95ar3t .chakra-textarea:active, .css-95ar3t .chakra-textarea[data-active] { border-color: var(--chakra-colors-primaryRed-600); box-shadow: var(--chakra-shadows-none); transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+.css-95ar3t .chakra-textarea:active:hover, .css-95ar3t .chakra-textarea[data-active]:hover, .css-95ar3t .chakra-textarea:active[data-hover], .css-95ar3t .chakra-textarea[data-active][data-hover] { border-color: var(--chakra-colors-primaryRed-600); }
+.css-95ar3t .chakra-textarea:focus, .css-95ar3t .chakra-textarea[data-focus] { border-color: var(--chakra-colors-primaryRed-600); box-shadow: var(--chakra-shadows-none); transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+.css-95ar3t .chakra-textarea:focus:hover, .css-95ar3t .chakra-textarea[data-focus]:hover, .css-95ar3t .chakra-textarea:focus[data-hover], .css-95ar3t .chakra-textarea[data-focus][data-hover] { border-color: var(--chakra-colors-primaryRed-600); }
+.css-95ar3t .chakra-textarea[aria-invalid="true"], .css-95ar3t .chakra-textarea[data-invalid] { border-color: var(--chakra-colors-error); box-shadow: var(--chakra-shadows-none); background: var(--chakra-colors-productWhite); }
+.css-95ar3t .chakra-textarea:hover, .css-95ar3t .chakra-textarea[data-hover] { border-color: var(--chakra-colors-borderColor); }
+.css-95ar3t .chakra-textarea:disabled, .css-95ar3t .chakra-textarea[disabled], .css-95ar3t .chakra-textarea[aria-disabled="true"], .css-95ar3t .chakra-textarea[data-disabled] { background: var(--chakra-colors-backgroundGrey); border-color: var(--chakra-colors-borderColor); opacity: 1; }
+.css-95ar3t .chakra-textarea:disabled:hover, .css-95ar3t .chakra-textarea[disabled]:hover, .css-95ar3t .chakra-textarea[aria-disabled="true"]:hover, .css-95ar3t .chakra-textarea[data-disabled]:hover, .css-95ar3t .chakra-textarea:disabled[data-hover], .css-95ar3t .chakra-textarea[disabled][data-hover], .css-95ar3t .chakra-textarea[aria-disabled="true"][data-hover], .css-95ar3t .chakra-textarea[data-disabled][data-hover] { border-color: var(--chakra-colors-borderColor); }
+.css-95ar3t .chakra-textarea:disabled::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-95ar3t .chakra-textarea[disabled]::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-95ar3t .chakra-textarea[aria-disabled="true"]::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-95ar3t .chakra-textarea[data-disabled]::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-95ar3t .chakra-textarea:disabled::placeholder, .css-95ar3t .chakra-textarea[disabled]::placeholder, .css-95ar3t .chakra-textarea[aria-disabled="true"]::placeholder, .css-95ar3t .chakra-textarea[data-disabled]::placeholder, .css-95ar3t .chakra-textarea:disabled[data-placeholder], .css-95ar3t .chakra-textarea[disabled][data-placeholder], .css-95ar3t .chakra-textarea[aria-disabled="true"][data-placeholder], .css-95ar3t .chakra-textarea[data-disabled][data-placeholder] { color: var(--chakra-colors-disabledGrey); }
+.css-zohf4a .chakra-button__spinner { width: 1.5rem; height: 1.5rem; font-size: 1.5rem; }
+.css-8fcd4v { overflow: auto; max-height: 100dvh; min-height: 100dvh; padding-top: var(--chakra-space-18); touch-action: pan-x pan-y; }
+.css-um13ib { display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: end; justify-content: flex-end; flex-direction: row; gap: var(--chakra-space-2); width: 100%; padding: var(--chakra-space-3); background: var(--chakra-colors-backgroundGrey); border-radius: var(--chakra-radii-md); }
+.css-1gylthm { display: flex; -webkit-box-pack: justify; justify-content: space-between; width: var(--chakra-sizes-full); -webkit-box-align: center; align-items: center; column-gap: var(--chakra-space-3); }
+.css-1ki54i { width: var(--chakra-sizes-full); }
+.css-f3cbvq { display: flex; flex-direction: column; position: relative; gap: var(--chakra-space-1); }
+.css-v5vb7d { left: var(--chakra-space-3); width: fit-content; height: var(--chakra-sizes-full); font-size: var(--chakra-fontSizes-mobile-md); display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; position: absolute; top: 0px; z-index: 2; pointer-events: none; }
+.css-14aix0t { width: 100%; height: var(--chakra-sizes-12); font-size: var(--chakra-fontSizes-mobile-md); padding-inline-start: var(--input-height); padding-inline-end: var(--chakra-space-4); border-radius: 0.75rem; min-width: 100px; outline: transparent solid 2px; outline-offset: 2px; position: relative; appearance: none; transition-property: var(--chakra-transition-property-common); transition-duration: var(--chakra-transition-duration-normal); line-height: var(--chakra-lineHeights-base); color: var(--chakra-colors-primaryBlack); font-weight: var(--chakra-fontWeights-normal); background: var(--chakra-colors-white); border-top-style: ; border-top-width: ; border-right-style: ; border-right-width: ; border-bottom-style: ; border-bottom-width: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-color: var(--chakra-colors-gray-200); }
+.css-14aix0t:disabled, .css-14aix0t[disabled], .css-14aix0t[aria-disabled="true"], .css-14aix0t[data-disabled] { opacity: 1; cursor: not-allowed; background: var(--chakra-colors-backgroundGrey); border-color: var(--chakra-colors-borderColor); }
+.css-14aix0t:disabled:hover, .css-14aix0t[disabled]:hover, .css-14aix0t[aria-disabled="true"]:hover, .css-14aix0t[data-disabled]:hover, .css-14aix0t:disabled[data-hover], .css-14aix0t[disabled][data-hover], .css-14aix0t[aria-disabled="true"][data-hover], .css-14aix0t[data-disabled][data-hover] { border-color: var(--chakra-colors-borderColor); }
+.css-14aix0t:disabled::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-14aix0t[disabled]::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-14aix0t[aria-disabled="true"]::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-14aix0t[data-disabled]::-webkit-input-placeholder { color: var(--chakra-colors-disabledGrey); }
+.css-14aix0t:disabled::placeholder, .css-14aix0t[disabled]::placeholder, .css-14aix0t[aria-disabled="true"]::placeholder, .css-14aix0t[data-disabled]::placeholder, .css-14aix0t:disabled[data-placeholder], .css-14aix0t[disabled][data-placeholder], .css-14aix0t[aria-disabled="true"][data-placeholder], .css-14aix0t[data-disabled][data-placeholder] { color: var(--chakra-colors-disabledGrey); }
+.chakra-ui-dark .css-14aix0t:not([data-theme]), [data-theme="dark"] .css-14aix0t:not([data-theme]), .css-14aix0t[data-theme="dark"] { background: var(--chakra-colors-inputBg); }
+.css-14aix0t::-webkit-input-placeholder { font-weight: 400; font-size: var(--chakra-fontSizes-mobile-md); color: var(--chakra-colors-disabledGrey); }
+.css-14aix0t::placeholder, .css-14aix0t[data-placeholder] { font-weight: 400; font-size: var(--chakra-fontSizes-mobile-md); color: var(--chakra-colors-disabledGrey); }
+.css-14aix0t:hover, .css-14aix0t[data-hover] { border-color: var(--chakra-colors-borderColor); }
+.css-14aix0t:focus, .css-14aix0t[data-focus] { border-color: var(--chakra-colors-primaryRed-600); box-shadow: var(--chakra-shadows-none); transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+.css-14aix0t:active, .css-14aix0t[data-active] { border-color: var(--chakra-colors-primaryRed-600); box-shadow: var(--chakra-shadows-none); transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out; }
+.css-14aix0t[aria-invalid="true"], .css-14aix0t[data-invalid] { background: var(--chakra-colors-productWhite); border-top-style: ; border-top-width: ; border-right-style: ; border-right-width: ; border-bottom-style: ; border-bottom-width: ; border-left-style: ; border-left-width: ; border-image-source: ; border-image-slice: ; border-image-width: ; border-image-outset: ; border-image-repeat: ; border-color: var(--chakra-colors-error); box-shadow: var(--chakra-shadows-none); }
+.css-1p2ioqj { display: inline-flex; appearance: none; -webkit-box-align: center; align-items: center; -webkit-box-pack: center; justify-content: center; user-select: none; position: relative; white-space: nowrap; vertical-align: middle; outline: transparent solid 2px; outline-offset: 2px; line-height: var(--chakra-lineHeights-normal); border-radius: 36px; font-weight: var(--chakra-fontWeights-semibold); transition-property: var(--chakra-transition-property-common); transition-duration: var(--chakra-transition-duration-normal); cursor: pointer; font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-xl); height: var(--chakra-sizes-12); width: var(--chakra-sizes-12); min-width: var(--chakra-sizes-12); border-width: 1px; border-style: solid; border-image: none; border-color: var(--chakra-colors-borderColor); color: var(--chakra-colors-primaryBlack); background: var(--chakra-colors-productWhite); padding-inline: 0px; padding-top: 0px; padding-bottom: 0px; }
+.css-1p2ioqj:focus-visible, .css-1p2ioqj[data-focus-visible] { box-shadow: var(--chakra-shadows-outline); }
+.css-1p2ioqj:disabled, .css-1p2ioqj[disabled], .css-1p2ioqj[aria-disabled="true"], .css-1p2ioqj[data-disabled] { opacity: 0.4; cursor: not-allowed; box-shadow: var(--chakra-shadows-none); color: var(--chakra-colors-disabledGrey); background: var(--chakra-colors-backgroundGrey); border-color: var(--chakra-colors-borderColor); }
+.css-1p2ioqj:hover, .css-1p2ioqj[data-hover] { background: var(--chakra-colors-primaryRed-50); border-color: var(--chakra-colors-primaryRed-50); color: var(--chakra-colors-primaryRed-600); }
+.css-1p2ioqj:hover:disabled, .css-1p2ioqj[data-hover]:disabled, .css-1p2ioqj:hover[disabled], .css-1p2ioqj[data-hover][disabled], .css-1p2ioqj:hover[aria-disabled="true"], .css-1p2ioqj[data-hover][aria-disabled="true"], .css-1p2ioqj:hover[data-disabled], .css-1p2ioqj[data-hover][data-disabled] { background: var(--chakra-colors-backgroundGrey); color: var(--chakra-colors-disabledGrey); border-color: var(--chakra-colors-borderColor); }
+.css-1p2ioqj:focus, .css-1p2ioqj[data-focus] { outline: transparent solid 2px; outline-offset: 2px; }
+.css-1p2ioqj:active, .css-1p2ioqj[data-active] { border-color: var(--chakra-colors-primaryRed-600); background: var(--chakra-colors-primaryRed-50); color: var(--chakra-colors-primaryRed-600); }
+.css-1p2ioqj svg { max-height: var(--chakra-sizes-6); max-width: var(--chakra-sizes-6); }
+.chakra-button__group[data-attached][data-orientation="horizontal"] > .css-1p2ioqj:not(:last-of-type) { margin-inline-end: -1px; }
+.chakra-button__group[data-attached][data-orientation="vertical"] > .css-1p2ioqj:not(:last-of-type) { margin-bottom: -1px; }
+.css-1p2ioqj .chakra-button__spinner { width: 1.5rem; height: 1.5rem; font-size: 1.5rem; }
+.css-1p2ioqj[data-loading], .css-1p2ioqj[aria-busy="true"] { color: var(--chakra-colors-primaryRed-600); background: var(--chakra-colors-backgroundGrey); border-color: var(--chakra-colors-borderColor); }
+.css-sqaypy { display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: start; justify-content: flex-start; flex-direction: column; column-gap: 0.5rem; padding-right: ; padding-bottom: ; padding-left: ; padding-top: 0px; background-color: var(--chakra-colors-backgroundGrey); row-gap: var(--chakra-space-4); overflow-y: scroll; width: 100%; min-height: calc(100dvh - 13.5rem); }
+.css-8atqhb { width: 100%; }
+.css-11qswiv { display: flex; flex-direction: column; position: relative; min-width: 0px; overflow-wrap: break-word; --card-bg: var(--chakra-colors-chakra-body-bg); background-color: var(--card-bg); color: var(--chakra-colors-chakra-body-text); --card-radius: var(--chakra-radii-md); --card-padding: var(--chakra-space-5); --card-shadow: var(--chakra-shadows-base); border-width: 1px; border-style: solid; border-image: none; border-color: var(--chakra-colors-borderColor); border-radius: var(--chakra-radii-xl); width: var(--chakra-sizes-full); }
+.chakra-ui-dark .css-11qswiv:not([data-theme]), [data-theme="dark"] .css-11qswiv:not([data-theme]), .css-11qswiv[data-theme="dark"] { background: var(--chakra-colors-productWhite); --card-bg: var(--chakra-colors-gray-700); }
+.css-a7c8e1 { display: flex; -webkit-box-align: start; align-items: start; gap: var(--chakra-space-3); }
+.css-1b14x9g { flex: 1 1 0%; min-width: 0px; }
+.css-1ftze1e { font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-xs); font-weight: var(--chakra-fontWeights-normal); line-height: var(--chakra-lineHeights-normal); color: var(--chakra-colors-secondaryBlack); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--chakra-line-clamp); --chakra-line-clamp: 1; }
+.css-g8on1u { text-transform: uppercase; font-weight: var(--chakra-fontWeights-semibold); color: var(--chakra-colors-primaryRed-600); }
+.css-4q9k7x { font-weight: var(--chakra-fontWeights-normal); color: var(--chakra-colors-secondaryBlack); }
+.css-kmvlkf { font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-md); font-weight: var(--chakra-fontWeights-semibold); line-height: var(--chakra-lineHeights-normal); color: var(--chakra-colors-primaryBlack); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--chakra-line-clamp); --chakra-line-clamp: 1; word-break: break-all; }
+.css-1hn8wb5 { font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-md); font-weight: var(--chakra-fontWeights-semibold); line-height: var(--chakra-lineHeights-normal); color: var(--chakra-colors-primaryBlack); overflow: hidden; text-overflow: ellipsis; display: -webkit-box; -webkit-box-orient: vertical; -webkit-line-clamp: var(--chakra-line-clamp); --chakra-line-clamp: 1; white-space: nowrap; margin-bottom: var(--chakra-space-1); }
+.css-qxbhgb { display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: justify; justify-content: space-between; padding-bottom: var(--chakra-space-3); }
+.css-zqfmaf { font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-sm); font-weight: var(--chakra-fontWeights-normal); line-height: 1.125rem; color: var(--chakra-colors-secondaryBlack); }
+.css-j09xmg { font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-xs); font-weight: var(--chakra-fontWeights-normal); line-height: var(--chakra-lineHeights-normal); color: var(--chakra-colors-primaryBlack); }
+.css-1un89po { opacity: 0.6; border-width: 0px 0px 1px; border-image: none; width: 100%; border-color: var(--chakra-colors-borderColor); border-style: dashed; padding-top: 0px; }
+.css-1qxkkss { display: flex; padding-right: ; padding-left: ; width: var(--chakra-sizes-full); margin: 0px; padding-inline-start: var(--chakra-space-3); padding-inline-end: var(--chakra-space-3); padding-top: 0px; padding-bottom: 0px; -webkit-box-align: center; align-items: center; }
+.css-1hgcv7h { display: flex; -webkit-box-align: center; align-items: center; width: var(--chakra-sizes-full); -webkit-box-pack: justify; justify-content: space-between; gap: var(--chakra-space-2-5); padding-top: var(--chakra-space-2-5); padding-bottom: var(--chakra-space-2-5); flex-wrap: wrap; }
+.css-rc5mpm { display: flex; -webkit-box-align: center; align-items: center; gap: var(--chakra-space-1); min-width: 0px; }
+.css-1k2cff { display: inline-block; position: relative; vertical-align: middle; line-height: 0; --switch-track-diff: calc(var(--switch-track-width) - var(--switch-track-height)); --switch-thumb-x: var(--switch-track-diff); --switch-track-width: 4rem; --switch-track-height: 1.75rem; padding: 0px; }
+[dir="rtl"] .css-1k2cff, .css-1k2cff[dir="rtl"] { --switch-thumb-x: calc(var(--switch-track-diff) * -1); }
+.css-1i7du2g { display: inline-flex; flex-shrink: 0; -webkit-box-pack: start; justify-content: flex-start; box-sizing: content-box; cursor: pointer; border-radius: 6.25rem; padding: 0px; width: 4rem; height: 1.75rem; transition-property: var(--chakra-transition-property-common); transition-duration: var(--chakra-transition-duration-fast); --switch-bg: borderColor; background: var(--chakra-colors-disabledGrey); }
+.chakra-ui-dark .css-1i7du2g:not([data-theme]), [data-theme="dark"] .css-1i7du2g:not([data-theme]), .css-1i7du2g[data-theme="dark"] { --switch-bg: whiteAlpha.400; }
+.css-1i7du2g:focus-visible, .css-1i7du2g[data-focus-visible] { box-shadow: var(--chakra-shadows-outline); }
+.css-1i7du2g:disabled, .css-1i7du2g[disabled], .css-1i7du2g[aria-disabled="true"], .css-1i7du2g[data-disabled] { opacity: 1; cursor: not-allowed; background: var(--chakra-colors-borderColor); }
+.css-1i7du2g[aria-checked="true"], .css-1i7du2g[data-checked], .css-1i7du2g[data-state="checked"] { --switch-bg: colors.blue.500; background: var(--chakra-colors-green); border-color: var(--chakra-colors-green); }
+.chakra-ui-dark .css-1i7du2g[aria-checked="true"]:not([data-theme]), .chakra-ui-dark .css-1i7du2g[data-checked]:not([data-theme]), .chakra-ui-dark .css-1i7du2g[data-state="checked"]:not([data-theme]), [data-theme="dark"] .css-1i7du2g[aria-checked="true"]:not([data-theme]), [data-theme="dark"] .css-1i7du2g[data-checked]:not([data-theme]), [data-theme="dark"] .css-1i7du2g[data-state="checked"]:not([data-theme]), .css-1i7du2g[aria-checked="true"][data-theme="dark"], .css-1i7du2g[data-checked][data-theme="dark"], .css-1i7du2g[data-state="checked"][data-theme="dark"] { --switch-bg: colors.blue.200; }
+.css-1i7du2g[aria-checked="true"]:disabled, .css-1i7du2g[data-checked]:disabled, .css-1i7du2g[data-state="checked"]:disabled, .css-1i7du2g[aria-checked="true"][disabled], .css-1i7du2g[data-checked][disabled], .css-1i7du2g[data-state="checked"][disabled], .css-1i7du2g[aria-checked="true"][aria-disabled="true"], .css-1i7du2g[data-checked][aria-disabled="true"], .css-1i7du2g[data-state="checked"][aria-disabled="true"], .css-1i7du2g[aria-checked="true"][data-disabled], .css-1i7du2g[data-checked][data-disabled], .css-1i7du2g[data-state="checked"][data-disabled] { background: var(--chakra-colors-borderColor); }
+.css-1hwc03m { background: var(--chakra-colors-productWhite); transition-property: transform; transition-duration: var(--chakra-transition-duration-normal); border-radius: 6.25rem; width: 2.438rem; height: 1.5rem; margin-inline: 4px; margin: var(--chakra-space-0-5); }
+.css-1hwc03m[aria-checked="true"], .css-1hwc03m[data-checked], .css-1hwc03m[data-state="checked"] { transform: translateX(21.2px); margin-inline: 4px; margin: var(--chakra-space-0-5); }
+.css-1hwc03m[aria-checked="true"]:disabled, .css-1hwc03m[data-checked]:disabled, .css-1hwc03m[data-state="checked"]:disabled, .css-1hwc03m[aria-checked="true"][disabled], .css-1hwc03m[data-checked][disabled], .css-1hwc03m[data-state="checked"][disabled], .css-1hwc03m[aria-checked="true"][aria-disabled="true"], .css-1hwc03m[data-checked][aria-disabled="true"], .css-1hwc03m[data-state="checked"][aria-disabled="true"], .css-1hwc03m[aria-checked="true"][data-disabled], .css-1hwc03m[data-checked][data-disabled], .css-1hwc03m[data-state="checked"][data-disabled] { background: var(--chakra-colors-backgroundGrey); }
+.chakra-ui-dark .css-1hwc03m:not([data-theme]), [data-theme="dark"] .css-1hwc03m:not([data-theme]), .css-1hwc03m[data-theme="dark"] { background: var(--chakra-colors-black); }
+.css-1hwc03m:disabled, .css-1hwc03m[disabled], .css-1hwc03m[aria-disabled="true"], .css-1hwc03m[data-disabled] { background: var(--chakra-colors-backgroundGrey); opacity: 1; }
+.css-3uvxsn { color: var(--chakra-colors-secondaryBlack); font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-sm); font-weight: var(--chakra-fontWeights-normal); line-height: 1.125rem; }
+.css-6su6fj { flex-shrink: 0; }
+.css-1fryiu4 { display: inline-flex; -webkit-box-align: center; align-items: center; padding: 0px; margin: 0px; border: var(--chakra-borders-none); background: var(--chakra-colors-transparent); cursor: pointer; line-height: var(--chakra-lineHeights-1); }
+.css-zhhbpn { color: var(--chakra-colors-badge-warning); }
+.css-1qq679y { z-index: 10; }
+.css-1wo0eix { position: relative; display: flex; flex-direction: column; --popper-bg: var(--chakra-colors-productWhite); --popper-arrow-bg: var(--popper-bg); --popper-arrow-shadow-color: var(--chakra-colors-gray-200); width: auto; z-index: inherit; background: var(--chakra-colors-primaryBlack); max-width: 20rem; border: var(--chakra-borders-none); border-radius: var(--chakra-radii-md); box-shadow: var(--chakra-shadows-md); margin-right: var(--chakra-space-2); }
+.chakra-ui-dark .css-1wo0eix:not([data-theme]), [data-theme="dark"] .css-1wo0eix:not([data-theme]), .css-1wo0eix[data-theme="dark"] { --popper-bg: var(--chakra-colors-productWhite); --popper-arrow-shadow-color: var(--chakra-colors-whiteAlpha-300); box-shadow: var(--chakra-shadows-popoverDark); }
+.css-1wo0eix:focus-visible, .css-1wo0eix[data-focus-visible] { outline: transparent solid 2px; outline-offset: 2px; box-shadow: var(--chakra-shadows-outline); }
+.css-1jke4yk { position: relative; width: 100%; }
+.css-aj6q9d { position: absolute; top: -1rem; left: 0.75rem; height: calc(50% + 1rem); border-left-width: 1px; border-left-style: dashed; border-left-color: var(--chakra-colors-secondaryBlack); pointer-events: none; }
+.css-mazbh3 { position: relative; margin-left: 1rem; width: calc(100% - 1.2rem); }
+.css-kmityi { display: flex; -webkit-box-align: center; align-items: center; position: absolute; left: calc(-0.6rem); top: 50%; transform: translateY(-50%); }
+.css-1f0gx85 { width: 0.375rem; height: 0.375rem; border-radius: var(--chakra-radii-full); background: var(--chakra-colors-secondaryBlack); flex-shrink: 0; transform: translateX(50%); }
+.css-1032aog { width: 1.2rem; border-top-width: 1px; border-top-style: dashed; border-top-color: var(--chakra-colors-secondaryBlack); flex-shrink: 0; }
+.css-1etwb3r { padding-left: 1rem; }
+.css-1icxvso { text-transform: uppercase; font-weight: var(--chakra-fontWeights-semibold); color: var(--chakra-colors-primaryRed-600); padding-left: var(--chakra-space-1); }
+.css-1l5wcrg { display: flex; -webkit-box-align: center; align-items: center; -webkit-box-pack: justify; justify-content: space-between; padding-bottom: 0px; }
+.css-16hiwmb { position: absolute; top: -1rem; left: 0.75rem; height: calc(100% + 1rem); border-left-width: 1px; border-left-style: dashed; border-left-color: var(--chakra-colors-secondaryBlack); pointer-events: none; }
+.css-tky84q { width: 100%; background: var(--chakra-colors-productWhite); border-top-left-radius: var(--chakra-radii-xl); border-top-right-radius: var(--chakra-radii-xl); border-bottom-left-radius: var(--chakra-radii-none); border-bottom-right-radius: var(--chakra-radii-none); box-shadow: var(--chakra-shadows-bottomSheetShadow); z-index: var(--chakra-zIndices-dropdown); padding-top: var(--chakra-space-3); padding-inline-start: var(--chakra-space-4); padding-inline-end: var(--chakra-space-4); padding-bottom: var(--chakra-space-4); overscroll-behavior: none; }
+.css-69i1ev { display: flex; -webkit-box-pack: justify; justify-content: space-between; -webkit-box-align: center; align-items: center; }
+.css-1fl3mp2-container { position: relative; box-sizing: border-box; cursor: pointer; width: 100%; }
+.css-7pg0cj-a11yText { z-index: 9999; border: 0px; clip: rect(1px, 1px, 1px, 1px); height: 1px; width: 1px; position: absolute; overflow: hidden; padding: 0px; white-space: nowrap; }
+.css-jv9jhq-control { -webkit-box-align: center; align-items: center; cursor: pointer; display: flex; flex-wrap: wrap; -webkit-box-pack: justify; justify-content: space-between; min-height: 40px; position: relative; transition: background-color 150ms cubic-bezier(0.4, 0, 0.2, 1), border-color, color, fill, stroke, opacity, box-shadow, transform; background-color: var(--chakra-colors-productWhite); border-color: var(--chakra-colors-borderColor); border-radius: 0.75rem; border-style: solid; border-width: 1px; box-shadow: none; box-sizing: border-box; height: 3rem; width: 100%; padding: 0px; min-width: auto; outline: 0px !important; }
+.css-jv9jhq-control:hover { border-color: var(--chakra-colors-secondaryBlack); }
+.css-jv9jhq-control input { position: absolute; }
+.css-1c80u9f { -webkit-box-align: center; align-items: center; display: grid; flex: 1 1 0%; flex-wrap: wrap; position: relative; overflow: hidden; padding: 3px 8px 3px 0.75rem; box-sizing: border-box; }
+.css-bhv3c3-singleValue { grid-area: 1 / 1 / 2 / 3; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; margin-left: 2px; margin-right: 2px; box-sizing: border-box; padding-left: 0px; padding-right: 0px; font-family: "IBM Plex Sans", sans-serif; font-size: 1rem; font-weight: normal; line-height: 1.125rem; }
+.css-9b0yao { min-width: 0px; max-width: 100%; width: 100%; overflow: hidden; display: flex; -webkit-box-align: center; align-items: center; gap: var(--chakra-space-2); }
+.css-i6bazn { overflow: hidden; }
+.css-1fv07yx { position: relative; overflow: hidden; text-overflow: ellipsis; display: block; -webkit-box-orient: vertical; -webkit-line-clamp: var(--chakra-line-clamp); --chakra-line-clamp: 1; word-break: break-all; font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-mobile-md); font-weight: var(--chakra-fontWeights-normal); line-height: 1.125rem; color: inherit; min-width: 0px; max-width: 100%; width: 100%; }
+.css-1hac4vs-dummyInput { background: 0px center; border: 0px; caret-color: transparent; font-size: inherit; grid-area: 1 / 1 / 2 / 3; outline: 0px; padding: 0px; width: 1px; color: transparent; left: -100px; opacity: 0; position: relative; transform: scale(0.01); }
+.css-1wy0on6 { -webkit-box-align: center; align-items: center; align-self: stretch; display: flex; flex-shrink: 0; box-sizing: border-box; }
+.css-1hyfx7x { display: none; }
+.css-1wuv8sl-indicatorContainer { display: flex; transition: color 150ms; color: rgb(204, 204, 204); box-sizing: border-box; padding: 0px 0.75rem 0px 0.375rem; }
+.css-1wuv8sl-indicatorContainer:hover { color: rgb(153, 153, 153); }
+.css-1wuv8sl-indicatorContainer svg { font-size: 0.875rem; color: var(--chakra-colors-primaryBlack); }
+.css-15be8lz { font-family: var(--chakra-fonts-body); font-size: var(--chakra-fontSizes-sm); font-weight: var(--chakra-fontWeights-normal); line-height: 1.125rem; color: var(--chakra-colors-secondaryBlack); }
+svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible; box-sizing: initial; }
+.svg-inline--fa { display: var(--fa-display,inline-block); height: 1em; overflow: visible; vertical-align: -0.125em; }
+.svg-inline--fa.fa-2xs { vertical-align: 0.1em; }
+.svg-inline--fa.fa-xs { vertical-align: 0px; }
+.svg-inline--fa.fa-sm { vertical-align: -0.07143em; }
+.svg-inline--fa.fa-lg { vertical-align: -0.2em; }
+.svg-inline--fa.fa-xl { vertical-align: -0.25em; }
+.svg-inline--fa.fa-2xl { vertical-align: -0.3125em; }
+.svg-inline--fa.fa-pull-left { margin-right: var(--fa-pull-margin,.3em); width: auto; }
+.svg-inline--fa.fa-pull-right { margin-left: var(--fa-pull-margin,.3em); width: auto; }
+.svg-inline--fa.fa-li { width: var(--fa-li-width,2em); top: 0.25em; }
+.svg-inline--fa.fa-fw { width: var(--fa-fw-width,1.25em); }
+.fa-layers svg.svg-inline--fa { inset: 0px; margin: auto; position: absolute; }
+.fa-layers svg.svg-inline--fa { transform-origin: center center; }
+.fa-sm { font-size: 0.875em; line-height: 0.07143em; vertical-align: 0.05357em; }
+@keyframes fa-beat { 
+  0%, 90% { transform: scale(1); }
+  45% { transform: scale(var(--fa-beat-scale,1.25)); }
+}
+@keyframes fa-bounce { 
+  0% { transform: scale(1) translateY(0px); }
+  10% { transform: scale(var(--fa-bounce-start-scale-x,1.1),var(--fa-bounce-start-scale-y,.9)) translateY(0); }
+  30% { transform: scale(var(--fa-bounce-jump-scale-x,.9),var(--fa-bounce-jump-scale-y,1.1)) translateY(var(--fa-bounce-height,-.5em)); }
+  50% { transform: scale(var(--fa-bounce-land-scale-x,1.05),var(--fa-bounce-land-scale-y,.95)) translateY(0); }
+  57% { transform: scale(1) translateY(var(--fa-bounce-rebound,-.125em)); }
+  64% { transform: scale(1) translateY(0px); }
+  100% { transform: scale(1) translateY(0px); }
+}
+@keyframes fa-fade { 
+  50% { opacity: var(--fa-fade-opacity,.4); }
+}
+@keyframes fa-beat-fade { 
+  0%, 100% { opacity: var(--fa-beat-fade-opacity,.4); transform: scale(1); }
+  50% { opacity: 1; transform: scale(var(--fa-beat-fade-scale,1.125)); }
+}
+@keyframes fa-flip { 
+  50% { transform: rotate3d(var(--fa-flip-x,0),var(--fa-flip-y,1),var(--fa-flip-z,0),var(--fa-flip-angle,-180deg)); }
+}
+@keyframes fa-shake { 
+  0% { transform: rotate(-15deg); }
+  4% { transform: rotate(15deg); }
+  24%, 8% { transform: rotate(-18deg); }
+  12%, 28% { transform: rotate(18deg); }
+  16% { transform: rotate(-22deg); }
+  20% { transform: rotate(22deg); }
+  32% { transform: rotate(-12deg); }
+  36% { transform: rotate(12deg); }
+  40%, 100% { transform: rotate(0deg); }
+}
+@keyframes fa-spin { 
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(1turn); }
+}
+.svg-inline--fa.fa-stack-1x { height: 1em; width: 1.25em; }
+.svg-inline--fa.fa-stack-2x { height: 2em; width: 2.5em; }
+.svg-inline--fa .fa-primary { fill: var(--fa-primary-color,currentColor); opacity: var(--fa-primary-opacity,1); }
+.svg-inline--fa .fa-secondary { fill: var(--fa-secondary-color,currentColor); }
+.svg-inline--fa .fa-secondary, .svg-inline--fa.fa-swap-opacity .fa-primary { opacity: var(--fa-secondary-opacity,.4); }
+.svg-inline--fa.fa-swap-opacity .fa-secondary { opacity: var(--fa-primary-opacity,1); }
+.svg-inline--fa mask .fa-primary, .svg-inline--fa mask .fa-secondary { fill: black; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 300; src: url("/_next/static/media/ibm-plex-sans-cyrillic-ext-300-normal.eb278c9c.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-ext-300-normal.949dc0c1.woff") format("woff"); unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 300; src: url("/_next/static/media/ibm-plex-sans-cyrillic-300-normal.2697e1bb.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-300-normal.d772a787.woff") format("woff"); unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 300; src: url("/_next/static/media/ibm-plex-sans-greek-300-normal.59f9421c.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-greek-300-normal.84a79373.woff") format("woff"); unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 300; src: url("/_next/static/media/ibm-plex-sans-vietnamese-300-normal.6bad10c1.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-vietnamese-300-normal.8ed6ab07.woff") format("woff"); unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 300; src: url("/_next/static/media/ibm-plex-sans-latin-ext-300-normal.cb67f57b.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-ext-300-normal.71604702.woff") format("woff"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 300; src: url("/_next/static/media/ibm-plex-sans-latin-300-normal.5d8f97bc.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-300-normal.5d9f75ee.woff") format("woff"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/ibm-plex-sans-cyrillic-ext-400-normal.fe77cf74.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-ext-400-normal.c53594e1.woff") format("woff"); unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/ibm-plex-sans-cyrillic-400-normal.03c3c250.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-400-normal.f9650ffc.woff") format("woff"); unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/ibm-plex-sans-greek-400-normal.5f160bba.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-greek-400-normal.bedb8549.woff") format("woff"); unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/ibm-plex-sans-vietnamese-400-normal.7f721ef5.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-vietnamese-400-normal.072f5433.woff") format("woff"); unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/ibm-plex-sans-latin-ext-400-normal.20dd57fa.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-ext-400-normal.40b9fc05.woff") format("woff"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/ibm-plex-sans-latin-400-normal.13a15bcd.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-400-normal.48b78688.woff") format("woff"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 500; src: url("/_next/static/media/ibm-plex-sans-cyrillic-ext-500-normal.926ddd5b.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-ext-500-normal.cfe07773.woff") format("woff"); unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 500; src: url("/_next/static/media/ibm-plex-sans-cyrillic-500-normal.8f83abe5.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-500-normal.b36047ca.woff") format("woff"); unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 500; src: url("/_next/static/media/ibm-plex-sans-greek-500-normal.e5c8b350.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-greek-500-normal.0f811c39.woff") format("woff"); unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 500; src: url("/_next/static/media/ibm-plex-sans-vietnamese-500-normal.4e93e369.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-vietnamese-500-normal.7649f465.woff") format("woff"); unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 500; src: url("/_next/static/media/ibm-plex-sans-latin-ext-500-normal.91b576dd.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-ext-500-normal.e617d40b.woff") format("woff"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 500; src: url("/_next/static/media/ibm-plex-sans-latin-500-normal.4cdcd386.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-500-normal.f8dd458c.woff") format("woff"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 600; src: url("/_next/static/media/ibm-plex-sans-cyrillic-ext-600-normal.399ec1c9.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-ext-600-normal.a53cdf56.woff") format("woff"); unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 600; src: url("/_next/static/media/ibm-plex-sans-cyrillic-600-normal.015f312d.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-600-normal.fdcd15f2.woff") format("woff"); unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 600; src: url("/_next/static/media/ibm-plex-sans-greek-600-normal.6cd27d8b.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-greek-600-normal.30fba19a.woff") format("woff"); unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 600; src: url("/_next/static/media/ibm-plex-sans-vietnamese-600-normal.4aa57cdf.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-vietnamese-600-normal.ea0cd549.woff") format("woff"); unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 600; src: url("/_next/static/media/ibm-plex-sans-latin-ext-600-normal.cb6ca6c6.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-ext-600-normal.73c474de.woff") format("woff"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 600; src: url("/_next/static/media/ibm-plex-sans-latin-600-normal.1cdb9a2c.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-600-normal.0eddcd6d.woff") format("woff"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/ibm-plex-sans-cyrillic-ext-700-normal.3de7e69d.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-ext-700-normal.9f15a15a.woff") format("woff"); unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/ibm-plex-sans-cyrillic-700-normal.1751131f.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-cyrillic-700-normal.d1f2c6c1.woff") format("woff"); unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/ibm-plex-sans-greek-700-normal.7d64268c.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-greek-700-normal.3ffd49df.woff") format("woff"); unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/ibm-plex-sans-vietnamese-700-normal.b561afbd.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-vietnamese-700-normal.4e5ef43e.woff") format("woff"); unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/ibm-plex-sans-latin-ext-700-normal.92d72317.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-ext-700-normal.c831a1e2.woff") format("woff"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: "IBM Plex Sans"; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/ibm-plex-sans-latin-700-normal.45cdbe8d.woff2") format("woff2"), url("/_next/static/media/ibm-plex-sans-latin-700-normal.ce08404e.woff") format("woff"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+.chakra-popover__popper[data-popper-placement^="bottom"] .smart-presets-popover-content .chakra-popover__arrow { background: rgb(255, 246, 222) !important; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/inter-cyrillic-ext-400-normal.f572b170.woff2") format("woff2"), url("/_next/static/media/inter-cyrillic-ext-400-normal.2a31c04b.woff") format("woff"); unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/inter-cyrillic-400-normal.372704ff.woff2") format("woff2"), url("/_next/static/media/inter-cyrillic-400-normal.a6b6ef6f.woff") format("woff"); unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/inter-greek-ext-400-normal.4ce1df5d.woff2") format("woff2"), url("/_next/static/media/inter-greek-ext-400-normal.88ede1ea.woff") format("woff"); unicode-range: U+1F00-1FFF; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/inter-greek-400-normal.d7020e3c.woff2") format("woff2"), url("/_next/static/media/inter-greek-400-normal.cc58c11b.woff") format("woff"); unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/inter-vietnamese-400-normal.de4fc44f.woff2") format("woff2"), url("/_next/static/media/inter-vietnamese-400-normal.a9dd2faf.woff") format("woff"); unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/inter-latin-ext-400-normal.32a25442.woff2") format("woff2"), url("/_next/static/media/inter-latin-ext-400-normal.4edcaace.woff") format("woff"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 400; src: url("/_next/static/media/inter-latin-400-normal.ef6d3f52.woff2") format("woff2"), url("/_next/static/media/inter-latin-400-normal.2c7a775c.woff") format("woff"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/inter-cyrillic-ext-700-normal.74b516d2.woff2") format("woff2"), url("/_next/static/media/inter-cyrillic-ext-700-normal.4b4022a6.woff") format("woff"); unicode-range: U+460-52F, U+1C80-1C8A, U+20B4, U+2DE0-2DFF, U+A640-A69F, U+FE2E-FE2F; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/inter-cyrillic-700-normal.e9e5b2dc.woff2") format("woff2"), url("/_next/static/media/inter-cyrillic-700-normal.93eba3c3.woff") format("woff"); unicode-range: U+301, U+400-45F, U+490-491, U+4B0-4B1, U+2116; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/inter-greek-ext-700-normal.827cd618.woff2") format("woff2"), url("/_next/static/media/inter-greek-ext-700-normal.31f1075d.woff") format("woff"); unicode-range: U+1F00-1FFF; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/inter-greek-700-normal.97f0eeeb.woff2") format("woff2"), url("/_next/static/media/inter-greek-700-normal.5ec6c758.woff") format("woff"); unicode-range: U+370-377, U+37A-37F, U+384-38A, U+38C, U+38E-3A1, U+3A3-3FF; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/inter-vietnamese-700-normal.faf12809.woff2") format("woff2"), url("/_next/static/media/inter-vietnamese-700-normal.bc68b199.woff") format("woff"); unicode-range: U+102-103, U+110-111, U+128-129, U+168-169, U+1A0-1A1, U+1AF-1B0, U+300-301, U+303-304, U+308-309, U+323, U+329, U+1EA0-1EF9, U+20AB; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/inter-latin-ext-700-normal.b63daa1a.woff2") format("woff2"), url("/_next/static/media/inter-latin-ext-700-normal.93534b50.woff") format("woff"); unicode-range: U+100-2BA, U+2BD-2C5, U+2C7-2CC, U+2CE-2D7, U+2DD-2FF, U+304, U+308, U+329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF, U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF; }
+@font-face { font-family: Inter; font-style: normal; font-display: swap; font-weight: 700; src: url("/_next/static/media/inter-latin-700-normal.953b7aa5.woff2") format("woff2"), url("/_next/static/media/inter-latin-700-normal.9c21d4dc.woff") format("woff"); unicode-range: U+0-FF, U+131, U+152-153, U+2BB-2BC, U+2C6, U+2DA, U+2DC, U+304, U+308, U+329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD; }"
+body { max-width: 480px; margin: 0 auto; background: var(--chakra-colors-backgroundGrey); }
+#mobile-app-pricing-listing-card-click { cursor: pointer; }
+</style>
+</head>
+<body>
+<header><div class="css-1f4wdhc"><div class="css-1v6aiw5"><button type="button" class="chakra-button css-1x8iiyz" aria-label="Open navigation drawer" id="mobile-app-navbar-open-drawer-button" qa-id="mobile-app-open-mobile-nav" aria-controls="sidebar-mobile-drawer" aria-expanded="false"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="bars" class="svg-inline--fa fa-bars " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M0 88C0 74.7 10.7 64 24 64l400 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 112C10.7 112 0 101.3 0 88zM0 248c0-13.3 10.7-24 24-24l400 0c13.3 0 24 10.7 24 24s-10.7 24-24 24L24 272c-13.3 0-24-10.7-24-24zM448 408c0 13.3-10.7 24-24 24L24 432c-13.3 0-24-10.7-24-24s10.7-24 24-24l400 0c13.3 0 24 10.7 24 24z"></path></svg></button><p class="chakra-text css-1u6fvt8">Pricing Dashboard</p></div><div class="css-nwfosv"><div class="css-79elbk"><button type="button" class="chakra-button css-1x8iiyz" aria-label="Open action center" id="mobile-app-components-mobile-header-bell" qa-id="mobile-header-alerts-bell" aria-busy="false"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="bell" class="svg-inline--fa fa-bell " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M224 0c-17.7 0-32 14.3-32 32l0 19.2C119 66 64 130.6 64 208l0 25.4c0 45.4-15.5 89.5-43.8 124.9L5.3 377c-5.8 7.2-6.9 17.1-2.9 25.4S14.8 416 24 416l400 0c9.2 0 17.6-5.3 21.6-13.6s2.9-18.2-2.9-25.4l-14.9-18.6C399.5 322.9 384 278.8 384 233.4l0-25.4c0-77.4-55-142-128-156.8L256 32c0-17.7-14.3-32-32-32zm0 96c61.9 0 112 50.1 112 112l0 25.4c0 47.9 13.9 94.6 39.7 134.6L72.3 368C98.1 328 112 281.3 112 233.4l0-25.4c0-61.9 50.1-112 112-112zm64 352l-64 0-64 0c0 17 6.7 33.3 18.7 45.3s28.3 18.7 45.3 18.7s33.3-6.7 45.3-18.7s18.7-28.3 18.7-45.3z"></path></svg></button><div aria-hidden="false" class="css-nbi1af"><p class="chakra-text css-1o5vxgd">6</p></div></div><button type="button" class="chakra-button css-1x8iiyz" aria-label="settings" id="mobile-app-components-mobile-header-click-2" qa-id="mobile-app-pricing-header-filter-btn"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="gear" class="svg-inline--fa fa-gear " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 0c17 0 33.6 1.7 49.8 4.8c7.9 1.5 21.8 6.1 29.4 20.1c2 3.7 3.6 7.6 4.6 11.8l9.3 38.5C350.5 81 360.3 86.7 366 85l38-11.2c4-1.2 8.1-1.8 12.2-1.9c16.1-.5 27 9.4 32.3 15.4c22.1 25.1 39.1 54.6 49.9 86.3c2.6 7.6 5.6 21.8-2.7 35.4c-2.2 3.6-4.9 7-8 10L459 246.3c-4.2 4-4.2 15.5 0 19.5l28.7 27.3c3.1 3 5.8 6.4 8 10c8.2 13.6 5.2 27.8 2.7 35.4c-10.8 31.7-27.8 61.1-49.9 86.3c-5.3 6-16.3 15.9-32.3 15.4c-4.1-.1-8.2-.8-12.2-1.9L366 427c-5.7-1.7-15.5 4-16.9 9.8l-9.3 38.5c-1 4.2-2.6 8.2-4.6 11.8c-7.7 14-21.6 18.5-29.4 20.1C289.6 510.3 273 512 256 512s-33.6-1.7-49.8-4.8c-7.9-1.5-21.8-6.1-29.4-20.1c-2-3.7-3.6-7.6-4.6-11.8l-9.3-38.5c-1.4-5.8-11.2-11.5-16.9-9.8l-38 11.2c-4 1.2-8.1 1.8-12.2 1.9c-16.1 .5-27-9.4-32.3-15.4c-22-25.1-39.1-54.6-49.9-86.3c-2.6-7.6-5.6-21.8 2.7-35.4c2.2-3.6 4.9-7 8-10L53 265.7c4.2-4 4.2-15.5 0-19.5L24.2 218.9c-3.1-3-5.8-6.4-8-10C8 195.3 11 181.1 13.6 173.6c10.8-31.7 27.8-61.1 49.9-86.3c5.3-6 16.3-15.9 32.3-15.4c4.1 .1 8.2 .8 12.2 1.9L146 85c5.7 1.7 15.5-4 16.9-9.8l9.3-38.5c1-4.2 2.6-8.2 4.6-11.8c7.7-14 21.6-18.5 29.4-20.1C222.4 1.7 239 0 256 0zM218.1 51.4l-8.5 35.1c-7.8 32.3-45.3 53.9-77.2 44.6L97.9 120.9c-16.5 19.3-29.5 41.7-38 65.7l26.2 24.9c24 22.8 24 66.2 0 89L59.9 325.4c8.5 24 21.5 46.4 38 65.7l34.6-10.2c31.8-9.4 69.4 12.3 77.2 44.6l8.5 35.1c24.6 4.5 51.3 4.5 75.9 0l8.5-35.1c7.8-32.3 45.3-53.9 77.2-44.6l34.6 10.2c16.5-19.3 29.5-41.7 38-65.7l-26.2-24.9c-24-22.8-24-66.2 0-89l26.2-24.9c-8.5-24-21.5-46.4-38-65.7l-34.6 10.2c-31.8 9.4-69.4-12.3-77.2-44.6l-8.5-35.1c-24.6-4.5-51.3-4.5-75.9 0zM208 256a48 48 0 1 0 96 0 48 48 0 1 0 -96 0zm48 96a96 96 0 1 1 0-192 96 96 0 1 1 0 192z"></path></svg></button><div class="css-0"><button type="button" class="chakra-button css-1x8iiyz" aria-label="Open help section" id="mobile-app-components-mobile-header-click-3" qa-id="mobile-app-help-button"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="circle-question" class="svg-inline--fa fa-circle-question " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></button></div></div></div></header>
+
+<div id="app-root">
+<div class="css-2o0llq"><div qa-id="mobile-app-pricing-dashboard-container" class="css-8fcd4v"><div class="chakra-stack css-um13ib"><div class="css-1gylthm"><div class="css-1ki54i"><div class="css-f3cbvq"><div class="chakra-input__group css-95ar3t" data-group="true"><div class="chakra-input__left-element css-v5vb7d" id="undefined-left-input-element" qa-id="undefined-left-input-element" variant="mobile"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="magnifying-glass" class="svg-inline--fa fa-magnifying-glass fa-sm " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" color=""><path fill="currentColor" d="M368 208A160 160 0 1 0 48 208a160 160 0 1 0 320 0zM337.1 371.1C301.7 399.2 256.8 416 208 416C93.1 416 0 322.9 0 208S93.1 0 208 0S416 93.1 416 208c0 48.8-16.8 93.7-44.9 129.1L505 471c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0L337.1 371.1z"></path></svg></div><input placeholder="Search room types, IDs, cities, and tags" id="mobile-app-pricing-search-input-change" class="chakra-input css-14aix0t" value=""></div></div></div></div><button type="button" class="chakra-button css-1p2ioqj" aria-label="Filters" id="mobile-app-ml-listings-filters-btn" qa-id="mobile-app-ml-listings-filters-btn"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="filter" class="svg-inline--fa fa-filter " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M0 73.7C0 50.7 18.7 32 41.7 32l428.6 0c23 0 41.7 18.7 41.7 41.7c0 9.6-3.3 18.9-9.4 26.3L336 304.5l0 143.2c0 17.8-14.5 32.3-32.3 32.3c-7.3 0-14.4-2.5-20.1-7l-92.5-73.4c-9.6-7.6-15.1-19.1-15.1-31.3l0-63.7L9.4 100C3.3 92.6 0 83.3 0 73.7zM55 80L218.6 280.8c3.5 4.3 5.4 9.6 5.4 15.2l0 68.4 64 50.8L288 296c0-5.5 1.9-10.9 5.4-15.2L457 80 55 80z"></path></svg></button><button type="button" class="chakra-button css-1p2ioqj" aria-label="Map Room Types" id="mobile-app-components-map-listings-click" qa-id="mobile-app-map-listings-btn"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="network-wired" class="svg-inline--fa fa-network-wired " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 640 512"><path fill="currentColor" d="M400 48l0 96-160 0 0-96 160 0zM240 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l56 0 0 40L24 232c-13.3 0-24 10.7-24 24s10.7 24 24 24l112 0 0 40-56 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l160 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48l-56 0 0-40 272 0 0 40-56 0c-26.5 0-48 21.5-48 48l0 96c0 26.5 21.5 48 48 48l160 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48l-56 0 0-40 112 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-272 0 0-40 56 0c26.5 0 48-21.5 48-48l0-96c0-26.5-21.5-48-48-48L240 0zM80 368l160 0 0 96L80 464l0-96zm480 0l0 96-160 0 0-96 160 0z"></path></svg></button></div><div class="chakra-stack css-sqaypy">
+<!-- Listing card (repeatable) -->
+<div class="css-8atqhb">
+  <div class="chakra-card css-11qswiv" id="mobile-app-pricing-listing-card-click">
+    <div class="chakra-card__body css-1iraaq8">
+      <div class="css-a7c8e1">
+        <div class="css-1b14x9g">
+          <p class="chakra-text css-1ftze1e">SabeeApp | 8524___59654</p>
+          <p class="chakra-text css-kmvlkf"></p>
+          <p class="chakra-text css-1hn8wb5">Demo account for Pricelabs-Test PL</p>
+          <div class="css-0">
+            <div class="css-1l5wcrg">
+              <div class="css-0"><p class="chakra-text css-zqfmaf">88 €</p><p class="chakra-text css-j09xmg">Minimum</p></div>
+              <div class="css-0"><p class="chakra-text css-zqfmaf">125 €</p><p class="chakra-text css-j09xmg">Base</p></div>
+              <div class="css-0"><p class="chakra-text css-zqfmaf">-</p><p class="chakra-text css-j09xmg">Maximum</p></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <hr aria-orientation="horizontal" class="chakra-divider css-1un89po">
+    <div class="chakra-card__footer css-1qxkkss">
+      <div class="css-1hgcv7h">
+        <div class="css-rc5mpm">
+          <div id="mobile-app-pricing-listing-card-footer-click" class="css-0">
+            <label qa-id="mobile-app-sync-toggle" data-checked="" class="chakra-switch css-1k2cff">
+              <input class="chakra-switch__input" id="mobile-app-sync-toggle" aria-label="Enable price sync for Demo account for Pricelabs-Test PL" aria-checked="true" type="checkbox" checked="" style="border: 0px; clip: rect(0px, 0px, 0px, 0px); height: 1px; width: 1px; margin: -1px; padding: 0px; overflow: hidden; white-space: nowrap; position: absolute;">
+              <span data-checked="" aria-hidden="true" class="chakra-switch__track css-1i7du2g"><span class="chakra-switch__thumb css-1hwc03m" data-checked=""></span></span>
+            </label>
+          </div>
+          <p class="chakra-text css-3uvxsn">Last Synced:  10 hours ago</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<!-- /Listing card -->
+<div class="css-tky84q"><div class="css-69i1ev"><div class="css-0"><div class="css-1ki54i"><div class="css-1fl3mp2-container" id="mobile-app-page-size-select-pagination-bottom-sheet"><div class="css-jv9jhq-control"><div class="css-1c80u9f"><div class="css-bhv3c3-singleValue"><div class="css-9b0yao"><div class="css-i6bazn"><p class="chakra-text css-1fv07yx">10 Room Types</p></div></div></div></div><div class="css-1wy0on6"><div class="css-1wuv8sl-indicatorContainer" aria-hidden="true"><svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="caret-down" class="svg-inline--fa fa-caret-down " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M137.4 374.6c12.5 12.5 32.8 12.5 45.3 0l128-128c9.2-9.2 11.9-22.9 6.9-34.9s-16.6-19.8-29.6-19.8L32 192c-12.9 0-24.6 7.8-29.6 19.8s-2.2 25.7 6.9 34.9l128 128z"></path></svg></div></div></div></div></div></div><p class="chakra-text css-15be8lz">1/28</p><div class="css-1vakbk4"><button disabled type="button" class="chakra-button css-1p2ioqj" aria-label="mobile-icon-button" id="mobile-app-pricing-pagination-bottom-sheet-click" qa-id="mobile-app-mobile-icon-button"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="chevron-left" class="svg-inline--fa fa-chevron-left " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M15 239c-9.4 9.4-9.4 24.6 0 33.9L207 465c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9L65.9 256 241 81c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L15 239z"></path></svg></button><button type="button" class="chakra-button css-1p2ioqj" aria-label="mobile-icon-button" id="mobile-app-pricing-pagination-bottom-sheet-click-2" qa-id="mobile-app-mobile-icon-button"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="chevron-right" class="svg-inline--fa fa-chevron-right " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M305 239c9.4 9.4 9.4 24.6 0 33.9L113 465c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l175-175L79 81c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0L305 239z"></path></svg></button></div></div></div></div></div>
+
+</div>
+<script>
+document.getElementById('mobile-app-pricing-listing-card-click').addEventListener('click', () => {
+  window.location.href = 'calendar.html';
+});
+</script>
+</body>
+</html>
