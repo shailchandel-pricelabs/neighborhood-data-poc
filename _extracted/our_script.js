@@ -38,32 +38,6 @@ document.querySelectorAll('.metric-card').forEach(c => {
   });
 });
 
-/* ── Market History: tap a metric tile to swap the trend chart (matches desktop) ── */
-const HISTORY_DATASETS = {
-  occ:    { fmt: v => v + '%',     vals: [38,50,57,57,70,82,80,68,58,53,53,41] },
-  window: { fmt: v => v + 'd',     vals: [18,17,15,14,11,9,10,12,14,16,17,19] },
-  los:    { fmt: v => v.toFixed(1),vals: [2.4,2.6,2.9,3.1,3.6,4.0,3.8,3.3,2.9,2.7,2.6,2.3] },
-  adr:    { fmt: v => '$' + v,     vals: [150,162,178,193,215,240,232,205,180,168,162,148] },
-};
-function switchHistoryMetric(el, key) {
-  const data = HISTORY_DATASETS[key];
-  if (!data) return;
-  const max = Math.max(...data.vals), min = Math.min(...data.vals);
-  const baseline = 120, top = 15, range = max - min || 1;
-  data.vals.forEach((v, i) => {
-    const rect = document.getElementById('hist-bar-' + i);
-    const label = document.getElementById('hist-label-' + i);
-    if (!rect || !label) return;
-    const h = 20 + ((v - min) / range) * 88; // 20..108 px tall
-    const y = baseline - h;
-    rect.setAttribute('y', y);
-    rect.setAttribute('height', h);
-    rect.setAttribute('opacity', v === max ? '1' : (v === min ? '0.6' : '0.85'));
-    label.setAttribute('y', y - 4);
-    label.textContent = data.fmt(v);
-  });
-}
-
 /* ── Comp grid scroll → dots ── */
 const compGrid = document.getElementById('comp-grid');
 const compDots = document.getElementById('comp-dots');
