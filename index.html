@@ -552,12 +552,14 @@
 
   /* ── Sticky CTA ── */
   .sticky-cta {
+    display: none;
     position: absolute; bottom: var(--bottom-nav-height); left: 0; right: 0;
     padding: 10px 16px;
     background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
     border-top: 1px solid var(--pl-border); box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
-    display: flex; align-items: center; justify-content: space-between; z-index: 90;
+    align-items: center; justify-content: space-between; z-index: 90;
   }
+  .sticky-cta.visible { display: flex; }
   .sticky-cta .cta-hint { font-size: 14px; font-weight: 600; color: var(--pl-text-secondary); display: flex; align-items: center; gap: 6px; }
   .sticky-cta .cta-btn {
     padding: 0 20px; min-width: 80px; background: var(--pl-primary); color: #fff;
@@ -583,6 +585,109 @@
   }
   .nav-item.active { color: var(--pl-primary); }
   .nav-item .nav-icon { font-size: 20px; }
+
+  /* ── App Header (shared shell, matches PriceLabs mobile app) ── */
+  .app-header {
+    background: var(--pl-card); padding: 14px 16px;
+    display: flex; align-items: center; gap: 14px;
+    position: sticky; top: 0; z-index: 100;
+  }
+  .app-header .back-btn {
+    width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;
+    background: none; border: none; font-size: 22px; color: var(--pl-text); cursor: pointer; flex-shrink: 0;
+  }
+  .app-header .app-title { flex: 1; min-width: 0; font-size: 20px; font-weight: 700; color: var(--pl-text); }
+  .app-header .header-icons { display: flex; align-items: center; gap: 14px; flex-shrink: 0; }
+  .app-header .header-icon { position: relative; font-size: 19px; color: var(--pl-text); cursor: pointer; display: flex; }
+  .app-header .header-icon .badge {
+    position: absolute; top: -6px; right: -8px; background: var(--pl-primary); color: #fff;
+    font-size: 10px; font-weight: 700; min-width: 15px; height: 15px; border-radius: var(--radius-full);
+    display: flex; align-items: center; justify-content: center; padding: 0 3px;
+  }
+
+  /* ── View panels ── */
+  .view-panel { display: none; }
+  .view-panel.active { display: block; }
+
+  /* ── Listing context card (Calendar view) ── */
+  .listing-context { padding: 4px 16px 12px; }
+  .listing-context .breadcrumb { font-size: 13px; font-weight: 400; color: var(--pl-text-secondary); margin-bottom: 2px; }
+  .listing-context .breadcrumb .pms-link { color: var(--pl-blue); }
+  .listing-context .listing-title { font-size: 19px; font-weight: 700; color: var(--pl-text); margin-bottom: 12px; }
+  .price-card {
+    background: var(--pl-bg); border-radius: var(--radius-card); padding: 14px 16px;
+    display: flex; align-items: flex-start; gap: 8px; margin-bottom: 12px;
+  }
+  .price-card .price-field { flex: 1; min-width: 0; }
+  .price-card .price-field .value { font-size: 17px; font-weight: 700; color: var(--pl-text); }
+  .price-card .price-field .label { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 2px; }
+  .price-card .edit-icon {
+    width: 32px; height: 32px; border-radius: var(--radius-base); background: var(--pl-card);
+    display: flex; align-items: center; justify-content: center; color: var(--pl-text-secondary);
+    flex-shrink: 0; cursor: pointer; font-size: 15px;
+  }
+  .sync-row { display: flex; align-items: center; gap: 12px; }
+  .sync-toggle {
+    width: 42px; height: 24px; border-radius: var(--radius-full); background: var(--pl-green);
+    position: relative; flex-shrink: 0; cursor: pointer;
+  }
+  .sync-toggle::after {
+    content: ''; position: absolute; top: 2px; right: 2px; width: 20px; height: 20px;
+    border-radius: 50%; background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+  }
+  .sync-row .sync-label { font-size: 14px; font-weight: 600; color: var(--pl-text); }
+  .sync-row .sync-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 1px; }
+  .sync-row .spacer { flex: 1; }
+  .sync-row .icon-btn { width: 36px; height: 36px; border-radius: var(--radius-full); border: 1px solid var(--pl-border); background: var(--pl-card); display: flex; align-items: center; justify-content: center; color: var(--pl-text-secondary); font-size: 15px; cursor: pointer; }
+  .sync-row .sync-now-btn {
+    padding: 0 16px; height: 36px; border-radius: var(--radius-full); border: none;
+    background: var(--pl-card); box-shadow: var(--shadow-md); color: var(--pl-text);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600; cursor: pointer;
+  }
+
+  /* ── Calendar mock grid ── */
+  .cal-month-label { text-align: center; font-size: 16px; font-weight: 700; color: var(--pl-text); padding: 14px 0 8px; }
+  .cal-weekdays { display: grid; grid-template-columns: repeat(7,1fr); border-top: 1px solid var(--pl-border-table); }
+  .cal-weekdays span { text-align: center; padding: 8px 0; font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); background: var(--pl-bg); }
+  .cal-grid { display: grid; grid-template-columns: repeat(7,1fr); }
+  .cal-cell { min-height: 74px; padding: 6px 4px; border-right: 1px solid var(--pl-border-table); border-bottom: 1px solid var(--pl-border-table); }
+  .cal-cell.empty { background: transparent; }
+  .cal-cell .cal-day { font-size: 13px; font-weight: 700; color: var(--pl-text); }
+  .cal-cell .cal-stay { font-size: 10px; color: var(--pl-text-secondary); margin-top: 2px; }
+  .cal-cell .cal-price { font-size: 12px; font-weight: 700; color: var(--pl-text); margin-top: 14px; }
+  .cal-cell.tone-green { background: #EAF7EF; }
+  .cal-cell.tone-blue { background: #E9F1FB; }
+  .cal-cell.tone-split { background: linear-gradient(135deg, #EAF7EF 50%, #E9F1FB 50%); }
+  .fab-override {
+    display: none;
+    position: absolute; right: 16px; bottom: calc(var(--bottom-nav-height) + 16px);
+    background: var(--pl-card); color: var(--pl-text); border: none; border-radius: var(--radius-full);
+    padding: 0 18px; height: 44px; font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 600;
+    box-shadow: var(--shadow-md); align-items: center; gap: 6px; cursor: pointer; z-index: 80;
+  }
+  .fab-override.visible { display: flex; }
+
+  /* ── Select View sheet ── */
+  .view-option {
+    display: flex; align-items: center; gap: 12px; padding: 14px; margin-bottom: 10px;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-card); cursor: pointer;
+  }
+  .view-option .vo-icon { font-size: 17px; width: 20px; text-align: center; color: var(--pl-text-secondary); }
+  .view-option .vo-label { flex: 1; font-size: 15px; font-weight: 600; color: var(--pl-text); }
+  .view-option .vo-check { color: var(--pl-primary); font-size: 16px; display: none; }
+  .view-option.selected { border-color: var(--pl-primary); background: var(--pl-primary-light); }
+  .view-option.selected .vo-icon, .view-option.selected .vo-label { color: var(--pl-primary); }
+  .view-option.selected .vo-check { display: block; }
+
+  /* ── Coming soon placeholder ── */
+  .coming-soon { padding: 60px 32px 0; text-align: center; }
+  .coming-soon .cs-icon {
+    width: 110px; height: 110px; border-radius: 50%; background: var(--pl-bg);
+    display: flex; align-items: center; justify-content: center; font-size: 44px;
+    margin: 0 auto 20px; color: var(--pl-text-disabled);
+  }
+  .coming-soon .cs-title { font-size: 19px; font-weight: 700; color: var(--pl-text); margin-bottom: 8px; }
+  .coming-soon .cs-sub { font-size: 14px; font-weight: 400; color: var(--pl-text-secondary); line-height: 1.5; }
 </style>
 </head>
 <body>
@@ -597,23 +702,59 @@
   </div>
   <div class="app-scroll">
 
-<!-- ═══ Top Bar ═══ -->
-<div class="top-bar">
+<!-- ═══ Shared App Header ═══ -->
+<div class="app-header">
   <button class="back-btn">‹</button>
-  <div class="listing-info">
-    <div class="listing-name">Cozy Downtown 1BR — Perfect for Couples</div>
-    <div class="listing-meta">Airbnb · 1 BR · Austin, TX</div>
+  <div class="app-title" id="app-title">Calendar</div>
+  <div class="header-icons">
+    <div class="header-icon">🔔<span class="badge">6</span></div>
+    <div class="header-icon">⚙</div>
+    <div class="header-icon">❓</div>
   </div>
 </div>
 
-<!-- ═══ Tab Bar ═══ -->
-<div class="tab-bar">
-  <div class="tab-item">Calendar</div>
-  <div class="tab-item active">Neighborhood Data</div>
-  <div class="tab-item">Hotel Data</div>
-  <div class="tab-item">Booking Insights</div>
+<!-- ═══ VIEW: Calendar (default) ═══ -->
+<div class="view-panel active" id="view-calendar">
+  <div class="listing-context">
+    <div class="breadcrumb">Split | 1BR | Airbnb | <span class="pms-link">300000956 ↗</span></div>
+    <div class="listing-title">Cozy Downtown 1BR — Perfect for Couples</div>
+    <div class="price-card">
+      <div class="price-field"><div class="value">$185</div><div class="label">Min Price</div></div>
+      <div class="price-field"><div class="value">$228</div><div class="label">Base Price</div></div>
+      <div class="price-field"><div class="value">$340</div><div class="label">Max Price</div></div>
+      <div class="edit-icon">✎</div>
+    </div>
+    <div class="sync-row">
+      <div class="sync-toggle"></div>
+      <div><div class="sync-label">Last synced</div><div class="sync-sub">2 hours ago</div></div>
+      <div class="spacer"></div>
+      <div class="icon-btn">⟳</div>
+      <div class="sync-now-btn">Sync Now</div>
+    </div>
+  </div>
+  <div class="cal-month-label">October 2026</div>
+  <div class="cal-weekdays"><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span><span>Sun</span></div>
+  <div class="cal-grid">
+    <div class="cal-cell empty"></div><div class="cal-cell empty"></div><div class="cal-cell empty"></div>
+    <div class="cal-cell tone-green"><div class="cal-day">1</div><div class="cal-stay">1n</div><div class="cal-price">$212</div></div>
+    <div class="cal-cell tone-green"><div class="cal-day">2</div><div class="cal-stay">1n</div><div class="cal-price">$218</div></div>
+    <div class="cal-cell tone-blue"><div class="cal-day">3</div><div class="cal-stay">2n</div><div class="cal-price">$240</div></div>
+    <div class="cal-cell tone-blue"><div class="cal-day">4</div><div class="cal-stay">2n</div><div class="cal-price">$245</div></div>
+    <div class="cal-cell tone-green"><div class="cal-day">5</div><div class="cal-stay">1n</div><div class="cal-price">$205</div></div>
+    <div class="cal-cell tone-green"><div class="cal-day">6</div><div class="cal-stay">1n</div><div class="cal-price">$198</div></div>
+    <div class="cal-cell tone-split"><div class="cal-day">7</div><div class="cal-stay">1n</div><div class="cal-price">$202</div></div>
+    <div class="cal-cell tone-blue"><div class="cal-day">8</div><div class="cal-stay">2n</div><div class="cal-price">$236</div></div>
+    <div class="cal-cell tone-green"><div class="cal-day">9</div><div class="cal-stay">1n</div><div class="cal-price">$210</div></div>
+    <div class="cal-cell tone-green"><div class="cal-day">10</div><div class="cal-stay">1n</div><div class="cal-price">$215</div></div>
+    <div class="cal-cell tone-blue"><div class="cal-day">11</div><div class="cal-stay">2n</div><div class="cal-price">$248</div></div>
+    <div class="cal-cell tone-green"><div class="cal-day">12</div><div class="cal-stay">1n</div><div class="cal-price">$220</div></div>
+    <div class="cal-cell tone-green"><div class="cal-day">13</div><div class="cal-stay">1n</div><div class="cal-price">$225</div></div>
+    <div class="cal-cell tone-split"><div class="cal-day">14</div><div class="cal-stay">1n</div><div class="cal-price">$230</div></div>
+  </div>
 </div>
 
+<!-- ═══ VIEW: Neighbourhood Data (our POC) ═══ -->
+<div class="view-panel" id="view-neighbourhood">
 <!-- ═══ Comp Set Banner (compact single line) ═══ -->
 <div class="comp-banner">
   <span class="banner-text">Comparing with <strong>232 nearby Studio–2BR</strong> on Airbnb</span>
@@ -1356,7 +1497,76 @@
   </div>
 
 </div>
+</div><!-- /view-neighbourhood -->
+
+<!-- ═══ VIEW: Customization (out of scope for this POC) ═══ -->
+<div class="view-panel" id="view-customization">
+  <div class="coming-soon">
+    <div class="cs-icon">🎚</div>
+    <div class="cs-title">Not part of this POC</div>
+    <div class="cs-sub">Customization rules live here in the real app. This walkthrough focuses on Neighbourhood Data, so this view is left as a placeholder.</div>
+  </div>
+</div>
+
+<!-- ═══ VIEW: Listing Details (out of scope for this POC) ═══ -->
+<div class="view-panel" id="view-listingdetails">
+  <div class="coming-soon">
+    <div class="cs-icon">ℹ️</div>
+    <div class="cs-title">Not part of this POC</div>
+    <div class="cs-sub">Listing Details lives here in the real app. This walkthrough focuses on Neighbourhood Data, so this view is left as a placeholder.</div>
+  </div>
+</div>
+
+<!-- ═══ VIEW: Hotel Rate Shopper (out of scope for this POC) ═══ -->
+<div class="view-panel" id="view-hotelrate">
+  <div class="coming-soon">
+    <div class="cs-icon">🏨</div>
+    <div class="cs-title">Not part of this POC</div>
+    <div class="cs-sub">Hotel Rate Shopper lives here in the real app. This walkthrough focuses on Neighbourhood Data, so this view is left as a placeholder.</div>
+  </div>
+</div>
+
+<!-- ═══ VIEW: Help Me Choose a Base Price (out of scope for this POC) ═══ -->
+<div class="view-panel" id="view-baseprice">
+  <div class="coming-soon">
+    <div class="cs-icon">💡</div>
+    <div class="cs-title">Not part of this POC</div>
+    <div class="cs-sub">Help Me Choose a Base Price lives here in the real app. This walkthrough focuses on Neighbourhood Data, so this view is left as a placeholder.</div>
+  </div>
+</div>
+
   </div><!-- /.app-scroll -->
+
+<!-- ═══ Bottom Sheet: Select View ═══ -->
+<div class="bs-overlay" id="bs-select-view" onclick="closeSheet('bs-select-view')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Select View</div>
+      <button class="bs-close" onclick="closeSheet('bs-select-view')">✕</button>
+    </div>
+    <div class="bs-body">
+      <div class="view-option selected" data-view="calendar" onclick="switchView('calendar'); closeSheet('bs-select-view')">
+        <span class="vo-icon">📅</span><span class="vo-label">Calendar</span><span class="vo-check">✓</span>
+      </div>
+      <div class="view-option" data-view="customization" onclick="switchView('customization'); closeSheet('bs-select-view')">
+        <span class="vo-icon">🎚</span><span class="vo-label">Customization</span><span class="vo-check">✓</span>
+      </div>
+      <div class="view-option" data-view="listingdetails" onclick="switchView('listingdetails'); closeSheet('bs-select-view')">
+        <span class="vo-icon">ℹ️</span><span class="vo-label">Listing Details</span><span class="vo-check">✓</span>
+      </div>
+      <div class="view-option" data-view="neighbourhood" onclick="switchView('neighbourhood'); closeSheet('bs-select-view')">
+        <span class="vo-icon">📍</span><span class="vo-label">Neighbourhood Data</span><span class="vo-check">✓</span>
+      </div>
+      <div class="view-option" data-view="hotelrate" onclick="switchView('hotelrate'); closeSheet('bs-select-view')">
+        <span class="vo-icon">🏨</span><span class="vo-label">Hotel Rate Shopper</span><span class="vo-check">✓</span>
+      </div>
+      <div class="view-option" data-view="baseprice" onclick="switchView('baseprice'); closeSheet('bs-select-view')">
+        <span class="vo-icon">💡</span><span class="vo-label">Help Me Choose a Base Price</span><span class="vo-check">✓</span>
+      </div>
+    </div>
+  </div>
+</div>
 
 <!-- ═══ Bottom Sheet: Future Prices Chart Options ═══ -->
 <div class="bs-overlay" id="bs-future-options" onclick="closeSheet('bs-future-options')">
@@ -1553,23 +1763,48 @@
   </div>
 </div>
 
-<!-- ═══ Sticky CTA ═══ -->
-<div class="sticky-cta">
+<!-- ═══ Override FAB (Calendar view) ═══ -->
+<button class="fab-override visible" id="fab-override">+ Override</button>
+
+<!-- ═══ Sticky CTA (Neighbourhood Data view) ═══ -->
+<div class="sticky-cta" id="sticky-cta">
   <div class="cta-hint">Ready to sync?</div>
   <button class="cta-btn">Save &amp; Refresh</button>
 </div>
 
 <!-- ═══ Bottom Nav ═══ -->
 <div class="bottom-nav">
-  <div class="nav-item"><div class="nav-icon">🏠</div>Home</div>
-  <div class="nav-item active"><div class="nav-icon">💲</div>Pricing</div>
-  <div class="nav-item"><div class="nav-icon">📊</div>Dashboard</div>
-  <div class="nav-item"><div class="nav-icon">⚙</div>Settings</div>
+  <div class="nav-item active" data-nav="calendar" onclick="switchView('calendar')"><div class="nav-icon">📅</div>Calendar</div>
+  <div class="nav-item" data-nav="customization" onclick="switchView('customization')"><div class="nav-icon">🎚</div>Customization</div>
+  <div class="nav-item" data-nav="listingdetails" onclick="switchView('listingdetails')"><div class="nav-icon">ℹ️</div>Listing Details</div>
+  <div class="nav-item" data-nav="more" onclick="openSheet('bs-select-view')"><div class="nav-icon">⋯</div>More</div>
 </div>
 
 </div><!-- /.device-frame -->
 
 <script>
+/* ── View switching (shared shell) ── */
+const VIEW_META = {
+  calendar:       { title: 'Calendar',        navKey: 'calendar' },
+  customization:  { title: 'Customization',   navKey: 'customization' },
+  listingdetails: { title: 'Listing Details', navKey: 'listingdetails' },
+  neighbourhood:  { title: 'Neighbourhood Data', navKey: 'more' },
+  hotelrate:      { title: 'Hotel Rate Shopper', navKey: 'more' },
+  baseprice:      { title: 'Help Me Choose a Base Price', navKey: 'more' },
+};
+function switchView(key) {
+  const meta = VIEW_META[key];
+  if (!meta) return;
+  document.querySelectorAll('.view-panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('view-' + key).classList.add('active');
+  document.getElementById('app-title').textContent = meta.title;
+  document.querySelectorAll('.bottom-nav .nav-item').forEach(n => n.classList.toggle('active', n.dataset.nav === meta.navKey));
+  document.querySelectorAll('.view-option').forEach(o => o.classList.toggle('selected', o.dataset.view === key));
+  document.getElementById('fab-override').classList.toggle('visible', key === 'calendar');
+  document.getElementById('sticky-cta').classList.toggle('visible', key === 'neighbourhood');
+  document.getElementById('view-neighbourhood').closest('.app-scroll').scrollTop = 0;
+}
+
 /* ── Section accordion ── */
 function toggleSection(id) {
   document.getElementById(id).classList.toggle('expanded');
