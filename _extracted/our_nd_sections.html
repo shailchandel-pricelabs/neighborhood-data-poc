@@ -1,24 +1,28 @@
 
 
-  <!-- ──── 1. Future Prices (expanded) ──── -->
+  <!-- ──── 1. Future Prices + Occupancy, merged into one section (matches desktop's
+       "How do my prices and demand compare to the market?") ──── -->
   <div class="section expanded" id="sec-future">
     <div class="section-header" onclick="toggleSection('sec-future')">
       <div class="chevron">▶</div>
       <div class="header-text">
-        <div class="title">Future Prices</div>
+        <div class="title">How do my prices and demand compare to the market?</div>
+        <div class="subtitle">Identify pricing opportunities and anticipate demand changes by comparing your future prices and occupancy against market trends.</div>
       </div>
       <div class="header-actions" onclick="event.stopPropagation()">
+        <button class="ai-insights-btn" onclick="event.stopPropagation()">✨ AI Insights</button>
         <button class="icon-btn" title="Chart Options" onclick="ndOpenSheet('bs-future-options')">⚙</button>
         <button class="icon-btn" title="About this chart" onclick="ndOpenSheet('bs-future-help')">?</button>
       </div>
     </div>
     <div class="section-body">
       <div class="section-content">
+        <div class="sub-chart-label">Future Prices</div>
         <!-- Daily/Monthly on left, pills on right -->
         <div class="chart-controls">
           <select class="mini-dropdown" id="fp-granularity" title="Granularity" onchange="toggleFPView(this.value)">
-            <option selected>Daily</option>
-            <option>Monthly</option>
+            <option>Daily</option>
+            <option selected>Monthly</option>
           </select>
           <span class="spacer"></span>
           <div class="pill active" onclick="setFPRange(30, this)" style="padding:6px 10px;min-height:30px;font-size:13px">30d</div>
@@ -31,7 +35,7 @@
             </div>
           </div>
         </div>
-        <div class="legend" id="fp-legend-daily">
+        <div class="legend" id="fp-legend-daily" style="display:none">
           <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:3px"></div> Listing Price</div>
           <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.25)"></div> 25th–50th</div>
           <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.12)"></div> 50th–75th</div>
@@ -40,15 +44,14 @@
           <div class="legend-item" id="fp-events-legend"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#FE6A35;opacity:0.7"></span> Events</div>
           <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-future-options')">+ More</div>
         </div>
-        <div class="legend" id="fp-legend-monthly" style="display:none">
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.35);width:10px;height:12px"></div> 25th–50th</div>
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.18);width:10px;height:12px"></div> 50th–75th</div>
-          <div class="legend-item"><div class="legend-band" style="background:rgba(44,175,254,0.08);width:10px;height:12px"></div> 75th–90th</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:3px"></div> Listed Price</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#7A7A7A;height:2px;width:10px;border-top:1px dashed #7A7A7A;background:none"></div> Last Seen</div>
+        <div class="legend" id="fp-legend-monthly">
+          <div class="legend-item"><div class="legend-swatch" style="background:#C8CDD3;height:8px;width:8px;border-radius:2px"></div> Listing Price</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#A8D8FF;height:2px;width:14px"></div> 25th Percentile</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:2px;width:14px"></div> 50th Percentile (Median)</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:2px;width:14px"></div> 90th Percentile</div>
           <div class="legend-item" style="cursor:pointer;color:var(--pl-primary);font-weight:600" onclick="ndOpenSheet('bs-future-options')">+ More</div>
         </div>
-        <div class="chart-area" style="position:relative" id="fp-chart-daily">
+        <div class="chart-area" style="position:relative;display:none" id="fp-chart-daily">
           <svg viewBox="0 0 343 200" xmlns="http://www.w3.org/2000/svg">
             <line x1="24" y1="20" x2="340" y2="20" class="grid-line"/>
             <line x1="24" y1="60" x2="340" y2="60" class="grid-line"/>
@@ -97,8 +100,9 @@
             </div>
           </div>
         </div>
-        <!-- Monthly view: bar chart for market percentiles, lines for listing/last seen -->
-        <div class="chart-area" id="fp-chart-monthly" style="display:none;position:relative">
+        <!-- Monthly view: matches desktop — one bar per month for Listing Price,
+             plus 25th / 50th (median) / 90th percentile line series ("Stay Month" x-axis) -->
+        <div class="chart-area" id="fp-chart-monthly" style="position:relative">
           <svg viewBox="0 0 343 210" xmlns="http://www.w3.org/2000/svg">
             <line x1="30" y1="20" x2="340" y2="20" class="grid-line"/>
             <line x1="30" y1="55" x2="340" y2="55" class="grid-line"/>
@@ -110,83 +114,50 @@
             <text x="26" y="94" class="axis-label" text-anchor="end">210</text>
             <text x="26" y="129" class="axis-label" text-anchor="end">140</text>
             <text x="26" y="164" class="axis-label" text-anchor="end">70</text>
-            <!-- Oct bars: 25-50 (darkest), 50-75 (mid), 75-90 (lightest) -->
-            <rect x="40" y="110" width="14" height="50" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="54" y="95" width="14" height="15" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="68" y="82" width="14" height="13" rx="2" fill="#2CAFFE" opacity="0.08"/>
-            <!-- Nov bars -->
-            <rect x="92" y="105" width="14" height="55" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="106" y="88" width="14" height="17" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="120" y="74" width="14" height="14" rx="2" fill="#2CAFFE" opacity="0.08"/>
-            <!-- Dec bars -->
-            <rect x="144" y="90" width="14" height="60" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="158" y="72" width="14" height="18" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="172" y="56" width="14" height="16" rx="2" fill="#2CAFFE" opacity="0.08"/>
-            <!-- Jan bars -->
-            <rect x="196" y="98" width="14" height="52" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="210" y="80" width="14" height="18" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="224" y="65" width="14" height="15" rx="2" fill="#2CAFFE" opacity="0.08"/>
-            <!-- Feb bars -->
-            <rect x="248" y="108" width="14" height="48" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="262" y="92" width="14" height="16" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="276" y="78" width="14" height="14" rx="2" fill="#2CAFFE" opacity="0.08"/>
-            <!-- Mar bars -->
-            <rect x="300" y="112" width="14" height="45" rx="2" fill="#2CAFFE" opacity="0.35"/>
-            <rect x="314" y="96" width="14" height="16" rx="2" fill="#2CAFFE" opacity="0.18"/>
-            <rect x="328" y="84" width="14" height="12" rx="2" fill="#2CAFFE" opacity="0.08"/>
-            <!-- Listed Price line (solid blue) -->
-            <path d="M55,140 L107,132 L159,115 L211,125 L263,135 L315,138" stroke="#2CAFFE" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-            <circle cx="55" cy="140" r="3" fill="#2CAFFE"/>
-            <circle cx="107" cy="132" r="3" fill="#2CAFFE"/>
-            <circle cx="159" cy="115" r="3" fill="#2CAFFE"/>
-            <circle cx="211" cy="125" r="3" fill="#2CAFFE"/>
-            <circle cx="263" cy="135" r="3" fill="#2CAFFE"/>
-            <circle cx="315" cy="138" r="3" fill="#2CAFFE"/>
-            <!-- Last Seen line (dashed grey) -->
-            <path d="M55,144 L107,136 L159,120 L211,130 L263,140 L315,142" stroke="#7A7A7A" stroke-width="1.5" stroke-dasharray="5,4" fill="none" opacity="0.5"/>
-            <!-- X-axis -->
+            <!-- Listing Price bars (one per month) -->
+            <rect x="42" y="100" width="26" height="70" rx="3" fill="#C8CDD3"/>
+            <text x="55" y="94" class="bar-val-label" text-anchor="middle">$190</text>
+            <rect x="94" y="87.5" width="26" height="82.5" rx="3" fill="#C8CDD3"/>
+            <text x="107" y="81.5" class="bar-val-label" text-anchor="middle">$215</text>
+            <rect x="146" y="70" width="26" height="100" rx="3" fill="#C8CDD3"/>
+            <text x="159" y="64" class="bar-val-label" text-anchor="middle">$250</text>
+            <rect x="198" y="52.5" width="26" height="117.5" rx="3" fill="#C8CDD3"/>
+            <text x="211" y="46.5" class="bar-val-label" text-anchor="middle">$285</text>
+            <rect x="250" y="37.5" width="26" height="132.5" rx="3" fill="#C8CDD3"/>
+            <text x="263" y="31.5" class="bar-val-label" text-anchor="middle">$315</text>
+            <rect x="302" y="40" width="26" height="130" rx="3" fill="#C8CDD3"/>
+            <text x="315" y="34" class="bar-val-label" text-anchor="middle">$310</text>
+            <!-- 25th Percentile line -->
+            <path d="M55,117.5 L107,107.5 L159,95 L211,82.5 L263,72.5 L315,75" stroke="#A8D8FF" stroke-width="1.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- 50th Percentile (Median) line — bolder -->
+            <path d="M55,95 L107,82.5 L159,65 L211,47.5 L263,32.5 L315,35" stroke="#2CAFFE" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <circle cx="55" cy="95" r="3" fill="#2CAFFE"/><circle cx="107" cy="82.5" r="3" fill="#2CAFFE"/><circle cx="159" cy="65" r="3" fill="#2CAFFE"/><circle cx="211" cy="47.5" r="3" fill="#2CAFFE"/><circle cx="263" cy="32.5" r="3" fill="#2CAFFE"/><circle cx="315" cy="35" r="3" fill="#2CAFFE"/>
+            <!-- 90th Percentile line -->
+            <path d="M55,60 L107,47.5 L159,30 L211,22.5 L263,22.5 L315,27.5" stroke="#F37579" stroke-width="1.5" stroke-dasharray="4,3" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+            <!-- X-axis (Stay Month) -->
             <text x="55" y="182" class="axis-label" text-anchor="middle">Oct</text>
             <text x="107" y="182" class="axis-label" text-anchor="middle">Nov</text>
             <text x="159" y="182" class="axis-label" text-anchor="middle">Dec</text>
             <text x="211" y="182" class="axis-label" text-anchor="middle">Jan</text>
             <text x="263" y="182" class="axis-label" text-anchor="middle">Feb</text>
             <text x="315" y="182" class="axis-label" text-anchor="middle">Mar</text>
-            <!-- Bar group labels -->
-            <text x="40" y="200" class="axis-label" style="font-size:8px" text-anchor="start">25–50</text>
-            <text x="54" y="200" class="axis-label" style="font-size:8px" text-anchor="start">50–75</text>
-            <text x="68" y="200" class="axis-label" style="font-size:8px" text-anchor="start">75–90</text>
+            <text x="185" y="197" class="axis-label" text-anchor="middle" style="font-size:10px">Stay Month</text>
           </svg>
           <!-- Monthly tooltip mock -->
-          <div class="chart-tooltip" id="fp-monthly-tooltip" style="position:absolute;top:18px;left:100px;background:var(--pl-card);border:1px solid var(--pl-border);border-radius:var(--radius-card);box-shadow:var(--shadow-md);padding:8px 10px;font-size:12px;line-height:1.5;width:170px;z-index:10">
+          <div class="chart-tooltip" id="fp-monthly-tooltip" style="display:none;position:absolute;top:18px;left:100px;background:var(--pl-card);border:1px solid var(--pl-border);border-radius:var(--radius-card);box-shadow:var(--shadow-md);padding:8px 10px;font-size:12px;line-height:1.5;width:175px;z-index:10">
             <button onclick="this.parentElement.style.display='none'" style="position:absolute;top:4px;right:4px;width:20px;height:20px;border:none;background:var(--pl-bg);border-radius:var(--radius-full);font-size:12px;color:var(--pl-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center;line-height:1">✕</button>
             <div style="font-weight:600;color:var(--pl-text);margin-bottom:4px">December 2026</div>
-            <div style="font-weight:400;color:var(--pl-text-secondary)">Avg Listed: <strong style="color:var(--pl-text)">$228</strong></div>
-            <div style="font-weight:400;color:var(--pl-text-secondary)">Avg Last Seen: <strong style="color:var(--pl-text)">$232</strong></div>
+            <div style="font-weight:400;color:var(--pl-text-secondary)">Listing Price: <strong style="color:var(--pl-text)">$250</strong></div>
             <div style="border-top:1px solid var(--pl-border-table);margin:4px 0;padding-top:4px">
-              <div style="font-weight:600;color:var(--pl-text-secondary);font-size:11px;margin-bottom:2px">Market Ranges</div>
-              <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">25th–50th: <strong style="color:var(--pl-text)">$198–$245</strong></div>
-              <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">50th–75th: <strong style="color:var(--pl-text)">$245–$280</strong></div>
-              <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">75th–90th: <strong style="color:var(--pl-text)">$280–$310</strong></div>
+              <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">25th Percentile: <strong style="color:var(--pl-text)">$200</strong></div>
+              <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">50th Percentile: <strong style="color:var(--pl-text)">$260</strong></div>
+              <div style="font-weight:400;color:var(--pl-text-secondary);font-size:11px">90th Percentile: <strong style="color:var(--pl-text)">$330</strong></div>
             </div>
           </div>
         </div>
-      </div>
-    </div>
-  </div>
 
-  <!-- ──── 2. Occupancy (expanded) ──── -->
-  <div class="section expanded" id="sec-occupancy">
-    <div class="section-header" onclick="toggleSection('sec-occupancy')">
-      <div class="chevron">▶</div>
-      <div class="header-text">
-        <div class="title">Occupancy</div>
-      </div>
-      <div class="header-actions" onclick="event.stopPropagation()">
-        <button class="icon-btn" title="About this chart" onclick="ndOpenSheet('bs-occ-help')">?</button>
-      </div>
-    </div>
-    <div class="section-body">
-      <div class="section-content">
+        <div class="sub-chart-divider"></div>
+        <div class="sub-chart-label">Occupancy</div>
         <div class="chart-controls">
           <select class="mini-dropdown" id="occ-granularity" title="Granularity" onchange="toggleOccView(this.value)">
             <option>Daily</option>
@@ -201,7 +172,7 @@
         <div class="legend" id="occ-legend-monthly">
           <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:8px;width:8px;border-radius:2px"></div> Booked</div>
           <div class="legend-item"><div class="legend-swatch" style="background:rgba(44,175,254,0.45);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#FE6A35;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-lyf')"><div class="legend-swatch" style="background:#D568FB;height:2px;width:14px"></div> Last Year Final</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-stly')"><div class="legend-swatch" style="background:#544FC5;height:2px;width:14px"></div> Same Time LY</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-pickup')"><div class="legend-swatch" style="background:#00E272;height:2px;width:14px"></div> Pickup</div>
@@ -210,7 +181,7 @@
         <div class="legend" id="occ-legend-daily" style="display:none">
           <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:8px;width:8px;border-radius:2px"></div> Booked</div>
           <div class="legend-item"><div class="legend-swatch" style="background:rgba(44,175,254,0.45);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#FE6A35;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
+          <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
           <div class="legend-item"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#FE6A35;opacity:0.7"></span> Events</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-lyf-d')"><div class="legend-swatch" style="background:#D568FB;height:2px;width:14px"></div> Last Year Final</div>
           <div class="legend-item togglable" onclick="toggleOccLegend(this,'occ-stly-d')"><div class="legend-swatch" style="background:#544FC5;height:2px;width:14px"></div> Same Time LY</div>
@@ -244,18 +215,18 @@
             <rect x="238" y="148" width="22" height="2" rx="1" fill="rgba(44,175,254,0.3)" opacity="0.3"/>
             <rect x="288" y="148" width="22" height="2" rx="1" fill="rgba(44,175,254,0.3)" opacity="0.3"/>
             <!-- Market Occupancy: orange bars -->
-            <rect x="64" y="48" width="16" height="102" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="72" y="44" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">73%</text>
-            <rect x="114" y="42" width="16" height="108" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="122" y="38" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">77%</text>
-            <rect x="164" y="50" width="16" height="100" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="172" y="46" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">71%</text>
-            <rect x="214" y="55" width="16" height="95" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="222" y="51" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">68%</text>
-            <rect x="264" y="45" width="16" height="105" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="272" y="41" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">75%</text>
-            <rect x="314" y="40" width="16" height="110" rx="2" fill="#FE6A35" opacity="0.25"/>
-            <text x="322" y="36" class="bar-val-label" text-anchor="middle" style="fill:#FE6A35;font-weight:700">79%</text>
+            <rect x="64" y="48" width="16" height="102" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="72" y="44" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">73%</text>
+            <rect x="114" y="42" width="16" height="108" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="122" y="38" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">77%</text>
+            <rect x="164" y="50" width="16" height="100" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="172" y="46" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">71%</text>
+            <rect x="214" y="55" width="16" height="95" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="222" y="51" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">68%</text>
+            <rect x="264" y="45" width="16" height="105" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="272" y="41" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">75%</text>
+            <rect x="314" y="40" width="16" height="110" rx="2" fill="#F37579" opacity="0.25"/>
+            <text x="322" y="36" class="bar-val-label" text-anchor="middle" style="fill:#F37579;font-weight:700">79%</text>
             <!-- Last Year Final line (hidden by default) -->
             <path d="M55,52 L105,48 L155,55 L205,62 L255,50 L305,45" stroke="#D568FB" stroke-width="1.5" stroke-dasharray="5,4" fill="none" opacity="0.5" class="occ-lyf-line" style="display:none"/>
             <!-- Same Time Last Year line (hidden by default) -->
@@ -351,13 +322,15 @@
       </div>
     </div>
   </div>
+  <!-- (section wrapper closed above — Future Prices + Occupancy are now one merged section) -->
 
   <!-- ──── 3. Market History (collapsed) ──── -->
   <div class="section" id="sec-history">
     <div class="section-header" onclick="toggleSection('sec-history')">
       <div class="chevron">▶</div>
       <div class="header-text">
-        <div class="title">Market History</div>
+        <div class="title">How have market conditions changed over time?</div>
+        <div class="subtitle">Understand how guest demand and booking behavior have evolved. Select a metric to explore its trend over time.</div>
       </div>
       <div class="header-actions" onclick="event.stopPropagation()">
         <button class="icon-btn" title="About this chart" onclick="ndOpenSheet('bs-history-help')">?</button>
@@ -366,29 +339,25 @@
     <div class="section-body">
       <div class="section-content">
         <div class="pill-toggles">
-          <div class="pill active">Last 1 year</div>
-          <div class="pill">Last 2 year</div>
+          <div class="pill active">Summary for Last Year</div>
+          <div class="pill">Summary for Last 2 Years</div>
         </div>
         <div class="metric-grid">
-          <div class="metric-card selected">
-            <div class="metric-label">Market Occupancy</div>
-            <div class="metric-value">72%</div>
-            <div class="metric-trend up">↑ 8% vs. last year</div>
+          <div class="metric-card selected" onclick="switchHistoryMetric(this,'occ')">
+            <div class="metric-label">Short-Term Rental Market Occupancy</div>
+            <div class="metric-value">59%</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-label">Market ADR</div>
-            <div class="metric-value">$234</div>
-            <div class="metric-trend up">↑ 3% vs. last year</div>
+          <div class="metric-card" onclick="switchHistoryMetric(this,'window')">
+            <div class="metric-label">Market Booking Window</div>
+            <div class="metric-value">13 Days</div>
           </div>
-          <div class="metric-card">
-            <div class="metric-label">Booking Window</div>
-            <div class="metric-value">26 days</div>
-            <div class="metric-trend down">↓ 4 days vs. last year</div>
-          </div>
-          <div class="metric-card">
-            <div class="metric-label">Length of Stay</div>
+          <div class="metric-card" onclick="switchHistoryMetric(this,'los')">
+            <div class="metric-label">Market Length of Stay</div>
             <div class="metric-value">3 nights</div>
-            <div class="metric-trend up">↑ 0.2 vs. last year</div>
+          </div>
+          <div class="metric-card" onclick="switchHistoryMetric(this,'adr')">
+            <div class="metric-label">Market ADR</div>
+            <div class="metric-value">USD 193</div>
           </div>
         </div>
         <div class="chart-area">
@@ -403,37 +372,41 @@
             <text x="26" y="69" class="axis-label" text-anchor="end">60%</text>
             <text x="26" y="94" class="axis-label" text-anchor="end">45%</text>
             <text x="26" y="119" class="axis-label" text-anchor="end">30%</text>
-            <rect x="38" y="72" width="20" height="48" rx="3" fill="#2CAFFE" opacity="0.35"/>
-            <text x="48" y="68" class="bar-val-label" text-anchor="middle">52%</text>
-            <rect x="62" y="58" width="20" height="62" rx="3" fill="#2CAFFE" opacity="0.35"/>
-            <text x="72" y="54" class="bar-val-label" text-anchor="middle">58%</text>
-            <rect x="86" y="42" width="20" height="78" rx="3" fill="#2CAFFE" opacity="0.40"/>
-            <text x="96" y="38" class="bar-val-label" text-anchor="middle">66%</text>
-            <rect x="110" y="28" width="20" height="92" rx="3" fill="#2CAFFE" opacity="0.45"/>
-            <text x="120" y="24" class="bar-val-label" text-anchor="middle">75%</text>
-            <rect x="134" y="32" width="20" height="88" rx="3" fill="#2CAFFE" opacity="0.45"/>
-            <text x="144" y="28" class="bar-val-label" text-anchor="middle">72%</text>
-            <rect x="158" y="46" width="20" height="74" rx="3" fill="#2CAFFE" opacity="0.40"/>
-            <text x="168" y="42" class="bar-val-label" text-anchor="middle">64%</text>
-            <rect x="182" y="55" width="20" height="65" rx="3" fill="#2CAFFE" opacity="0.35"/>
-            <text x="192" y="51" class="bar-val-label" text-anchor="middle">59%</text>
-            <rect x="206" y="65" width="20" height="55" rx="3" fill="#2CAFFE" opacity="0.35"/>
-            <text x="216" y="61" class="bar-val-label" text-anchor="middle">55%</text>
-            <rect x="230" y="48" width="20" height="72" rx="3" fill="#2CAFFE" opacity="0.40"/>
-            <text x="240" y="44" class="bar-val-label" text-anchor="middle">62%</text>
-            <rect x="254" y="35" width="20" height="85" rx="3" fill="#2CAFFE" opacity="0.45"/>
-            <text x="264" y="31" class="bar-val-label" text-anchor="middle">70%</text>
-            <rect x="278" y="25" width="20" height="95" rx="3" fill="#2CAFFE" opacity="0.50"/>
-            <text x="288" y="21" class="bar-val-label" text-anchor="middle">76%</text>
-            <rect x="302" y="36" width="20" height="84" rx="3" fill="#2CAFFE" opacity="0.50"/>
-            <text x="312" y="32" class="bar-val-label" text-anchor="middle">72%</text>
-            <text x="48" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Oct</text>
-            <text x="96" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Dec</text>
-            <text x="144" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Feb</text>
-            <text x="192" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Apr</text>
-            <text x="240" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Jun</text>
-            <text x="288" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Aug</text>
+            <rect id="hist-bar-0" x="38" y="72" width="20" height="48" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-0" x="48" y="68" class="bar-val-label" text-anchor="middle">38%</text>
+            <rect id="hist-bar-1" x="62" y="58" width="20" height="62" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-1" x="72" y="54" class="bar-val-label" text-anchor="middle">50%</text>
+            <rect id="hist-bar-2" x="86" y="42" width="20" height="78" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-2" x="96" y="38" class="bar-val-label" text-anchor="middle">57%</text>
+            <rect id="hist-bar-3" x="110" y="42" width="20" height="78" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-3" x="120" y="38" class="bar-val-label" text-anchor="middle">57%</text>
+            <rect id="hist-bar-4" x="134" y="20" width="20" height="100" rx="3" fill="#F37579"/>
+            <text id="hist-label-4" x="144" y="16" class="bar-val-label" text-anchor="middle">70%</text>
+            <rect id="hist-bar-5" x="158" y="12" width="20" height="108" rx="3" fill="#F37579"/>
+            <text id="hist-label-5" x="168" y="8" class="bar-val-label" text-anchor="middle">82%</text>
+            <rect id="hist-bar-6" x="182" y="18" width="20" height="102" rx="3" fill="#F37579"/>
+            <text id="hist-label-6" x="192" y="14" class="bar-val-label" text-anchor="middle">80%</text>
+            <rect id="hist-bar-7" x="206" y="38" width="20" height="82" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-7" x="216" y="34" class="bar-val-label" text-anchor="middle">68%</text>
+            <rect id="hist-bar-8" x="230" y="55" width="20" height="65" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-8" x="240" y="51" class="bar-val-label" text-anchor="middle">58%</text>
+            <rect id="hist-bar-9" x="254" y="62" width="20" height="58" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-9" x="264" y="58" class="bar-val-label" text-anchor="middle">53%</text>
+            <rect id="hist-bar-10" x="278" y="62" width="20" height="58" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-10" x="288" y="58" class="bar-val-label" text-anchor="middle">53%</text>
+            <rect id="hist-bar-11" x="302" y="78" width="20" height="42" rx="3" fill="#F37579" opacity="0.85"/>
+            <text id="hist-label-11" x="312" y="74" class="bar-val-label" text-anchor="middle">41%</text>
+            <text x="48" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Sep</text>
+            <text x="96" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Nov</text>
+            <text x="144" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Jan</text>
+            <text x="192" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Mar</text>
+            <text x="240" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">May</text>
+            <text x="288" y="138" class="axis-label" text-anchor="middle" style="font-size:9px">Jul</text>
           </svg>
+        </div>
+        <div class="year-legend">
+          <span class="year-legend-item active"><span class="year-dot" style="background:#F37579;opacity:0.85"></span>2025</span>
+          <span class="year-legend-item"><span class="year-dot" style="background:#F37579"></span>2026</span>
         </div>
       </div>
     </div>
@@ -444,7 +417,8 @@
     <div class="section-header" onclick="toggleSection('sec-comp-cal')">
       <div class="chevron">▶</div>
       <div class="header-text">
-        <div class="title">Competitor Calendar</div>
+        <div class="title">How do my rates compare with competitors?</div>
+        <div class="subtitle">Evaluate your competitive position by comparing pricing, availability, and minimum stays against selected competitors.</div>
       </div>
       <div class="header-actions" onclick="event.stopPropagation()">
         <button class="icon-btn" title="Settings: Manage Competitors, Price Type" onclick="ndOpenSheet('bs-comp-options')">⚙</button>
@@ -613,7 +587,8 @@
     <div class="section-header" onclick="toggleSection('sec-map')">
       <div class="chevron">▶</div>
       <div class="header-text">
-        <div class="title">Competitor Map</div>
+        <div class="title">How are listings distributed across the market?</div>
+        <div class="subtitle">Understand how rates vary across your market by exploring listing locations and average prices.</div>
       </div>
       <div class="header-actions" onclick="event.stopPropagation()">
         <button class="icon-btn" title="About this view" onclick="ndOpenSheet('bs-map-help')">?</button>
@@ -674,7 +649,8 @@
     <div class="section-header" onclick="toggleSection('sec-overview')">
       <div class="chevron">▶</div>
       <div class="header-text">
-        <div class="title">Market Overview</div>
+        <div class="title">How does pricing vary by bedroom type?</div>
+        <div class="subtitle">Compare listing counts and price ranges for each property size in your market.</div>
       </div>
       <div class="header-actions" onclick="event.stopPropagation()">
         <button class="icon-btn" title="About this chart" onclick="ndOpenSheet('bs-overview-help')">?</button>

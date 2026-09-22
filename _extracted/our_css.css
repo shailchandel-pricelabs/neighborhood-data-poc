@@ -114,19 +114,30 @@
     border-top-right-radius: var(--radius-md); background: var(--pl-card);
   }
 
-  /* ── Comp Set Banner (compact single-line) ── */
+  /* ── Comp Set Banner (matches desktop's intro copy + compset chip) ── */
   .comp-banner {
-    margin: 12px 16px 0; padding: 8px 12px;
-    background: var(--pl-highlight-blue); border: 1px solid var(--pl-blue);
-    border-radius: var(--radius-md); font-size: 13px; font-weight: 400;
-    color: var(--pl-text); display: flex; align-items: center;
-    gap: 4px; line-height: 1.3;
+    margin: 14px 16px 4px; padding: 0;
   }
-  .comp-banner .banner-text { flex: 1; min-width: 0; }
-  .comp-banner strong { font-weight: 600; }
-  .comp-banner .edit-link {
-    color: var(--pl-blue); font-weight: 600; text-decoration: none;
-    white-space: nowrap; flex-shrink: 0; font-size: 13px;
+  .comp-banner .banner-intro {
+    font-size: 13px; font-weight: 400; color: var(--pl-text-secondary); line-height: 1.5;
+    margin-bottom: 10px;
+  }
+  .comp-banner .banner-intro strong { font-weight: 600; color: var(--pl-text); }
+  .comp-banner .compset-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    flex-wrap: wrap;
+  }
+  .comp-banner .compset-chip {
+    flex: 1; min-width: 0; font-size: 12px; font-weight: 400; color: var(--pl-text-secondary);
+    background: var(--pl-bg); border: 1px solid var(--pl-border); border-radius: var(--radius-md);
+    padding: 7px 10px; line-height: 1.4;
+  }
+  .comp-banner .compset-chip-label { font-weight: 600; color: var(--pl-text); }
+  .comp-banner .compset-chip-dot { color: var(--pl-text-disabled); margin: 0 2px; }
+  .comp-banner .compset-edit-btn {
+    flex-shrink: 0; font-size: 13px; font-weight: 600; color: var(--pl-primary);
+    background: none; border: 1px solid var(--pl-primary); border-radius: var(--radius-full);
+    padding: 8px 14px; cursor: pointer; font-family: 'IBM Plex Sans', sans-serif;
   }
 
   /* ── Sections / Accordion ── */
@@ -146,8 +157,9 @@
   }
   .section.expanded .section-header .chevron { transform: rotate(90deg); }
   .section-header .header-text { flex: 1; min-width: 0; }
-  .section-header .title { font-size: 16px; font-weight: 600; color: var(--pl-text); }
-  .section-header .header-actions { flex-shrink: 0; margin-left: 8px; display: flex; gap: 4px; }
+  .section-header .title { font-size: 16px; font-weight: 600; color: var(--pl-text); line-height: 1.35; }
+  .section-header .subtitle { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); line-height: 1.4; margin-top: 3px; }
+  .section-header .header-actions { flex-shrink: 0; margin-left: 8px; display: flex; gap: 4px; align-items: center; }
   .section-header .icon-btn {
     width: 32px; height: 32px; border: 1px solid var(--pl-border); background: var(--pl-card);
     color: var(--pl-text-secondary); font-size: 14px; cursor: pointer;
@@ -156,9 +168,21 @@
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
+  .ai-insights-btn {
+    display: flex; align-items: center; gap: 4px; white-space: nowrap;
+    border: 1px solid var(--pl-primary); background: var(--pl-primary-light); color: var(--pl-primary);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600;
+    padding: 0 10px; height: 32px; border-radius: var(--radius-full); cursor: pointer;
+  }
   .section-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; }
-  .section.expanded .section-body { max-height: 6000px; }
+  .section.expanded .section-body { max-height: 8000px; }
   .section-content { padding: 0 16px 16px; }
+  .sub-chart-label { font-size: 13px; font-weight: 600; color: var(--pl-text-secondary); text-transform: uppercase; letter-spacing: 0.4px; margin-bottom: 8px; }
+  .sub-chart-divider { height: 1px; background: var(--pl-border-table); margin: 20px 0 16px; }
+  .year-legend { display: flex; gap: 16px; justify-content: center; margin-top: 10px; }
+  .year-legend-item { display: flex; align-items: center; gap: 5px; font-size: 12px; font-weight: 600; color: var(--pl-text-disabled); cursor: pointer; }
+  .year-legend-item.active { color: var(--pl-text); }
+  .year-dot { width: 8px; height: 8px; border-radius: 50%; display: inline-block; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */
   .chart-controls {
