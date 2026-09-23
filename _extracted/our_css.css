@@ -114,20 +114,37 @@
     border-top-right-radius: var(--radius-md); background: var(--pl-card);
   }
 
-  /* ── Comp Set Banner (compact single-line) ── */
+  /* ── Comp Set Banner (desktop-style "Current Compset" card, redesigned
+     for mobile: icon + type pill + count/source on one line, a real
+     tappable Edit button rather than a plain text link) ── */
   .comp-banner {
-    margin: 12px 12px 0; padding: 8px 12px;
-    background: var(--pl-highlight-blue); border: 1px solid var(--pl-blue);
-    border-radius: var(--radius-md); font-size: 13px; font-weight: 400;
-    color: var(--pl-text); display: flex; align-items: center;
-    gap: 4px; line-height: 1.3;
+    margin: 12px 12px 0; padding: 12px;
+    background: var(--pl-highlight-blue); border: 1px solid var(--pl-blue-surface);
+    border-radius: var(--radius-lg); display: flex; align-items: center; gap: 10px;
   }
-  .comp-banner .banner-text { flex: 1; min-width: 0; }
+  .comp-banner .banner-icon {
+    width: 34px; height: 34px; border-radius: var(--radius-md); flex-shrink: 0;
+    background: var(--pl-card); color: var(--pl-blue); display: flex;
+    align-items: center; justify-content: center; font-size: 15px;
+  }
+  .comp-banner .banner-body { flex: 1; min-width: 0; }
+  .comp-banner .banner-label {
+    font-size: 10px; font-weight: 700; color: var(--pl-blue); text-transform: uppercase;
+    letter-spacing: 0.4px; margin-bottom: 2px;
+  }
+  .comp-banner .banner-text { font-size: 13px; font-weight: 400; color: var(--pl-text); line-height: 1.3; }
   .comp-banner strong { font-weight: 600; }
-  .comp-banner .edit-link {
-    color: var(--pl-blue); font-weight: 600; text-decoration: none;
-    white-space: nowrap; flex-shrink: 0; font-size: 13px;
+  .comp-banner .banner-meta {
+    font-size: 11px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 2px;
   }
+  .comp-banner .banner-meta .dot-sep { margin: 0 4px; }
+  .comp-banner .edit-link {
+    flex-shrink: 0; white-space: nowrap; font-size: 12px; font-weight: 700;
+    color: var(--pl-blue); background: var(--pl-card); border: 1px solid var(--pl-blue);
+    border-radius: var(--radius-full); padding: 7px 12px; cursor: pointer;
+    text-decoration: none; transition: background 0.15s;
+  }
+  .comp-banner .edit-link:active { background: var(--pl-blue-surface); }
 
   /* ── Full-screen destination (Neighbourhood Data): a real push screen,
      not a bottom sheet — no rounded top corners, no drag handle, slides
@@ -135,8 +152,18 @@
      the bottom like an options/help sheet. ── */
   .nd-fullscreen { border-radius: 0 !important; min-height: 100% !important; animation: ndSlideInRight 0.22s ease-out; }
   @keyframes ndSlideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .nd-fullscreen .css-1fydlbq { justify-content: flex-start; }
-  .nd-fullscreen .css-1vakbk4 .chakra-button { font-size: 15px; }
+  /* The header's justify-content: space-between (and its 16px side padding)
+     come from a higher-specificity real-app rule (.phone-frame header >
+     div:first-child, matched on element+pseudo-class, which beats a plain
+     two-class override) — !important is required to actually win here, not
+     just added defensively. Padding and button size are also tightened so
+     the title lands as close to the card content's own left edge (12px
+     card margin) as a real 32px tappable back button allows. */
+  .nd-fullscreen .css-1fydlbq { justify-content: flex-start !important; }
+  .nd-fullscreen .chakra-modal__header .css-1fydlbq { padding-left: 12px; padding-right: 12px; }
+  .nd-fullscreen .css-1vakbk4 .chakra-button {
+    font-size: 15px; width: 32px !important; height: 32px !important; min-width: 32px !important;
+  }
 
   /* ── Sections / Accordion — card list, mobile-app inspired (Robinhood/Coinbase
      grouped-card style: rounded cards floating on a soft grey backdrop rather
@@ -275,6 +302,26 @@
 
   /* ── Floating market-range tooltip card (shown while scrubbing) ── */
   .hc-chart-wrap { position: relative; }
+
+  /* ── Expand-to-fullscreen affordance: a small floating button in the
+     chart's own top-right corner (mobile-app pattern, e.g. maps/photos)
+     rather than a header icon, so it reads as "this chart" not "this
+     section". ── */
+  .hc-expand-btn {
+    position: absolute; top: 0; right: 0; z-index: 55;
+    width: 26px; height: 26px; border-radius: var(--radius-base);
+    background: rgba(255,255,255,0.85); border: 1px solid var(--pl-border);
+    color: var(--pl-text-secondary); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; cursor: pointer;
+  }
+  .hc-expand-btn:active { background: var(--pl-bg); }
+
+  /* ── Fullscreen chart sheet: mobile-first detail view for scrubbing a
+     single chart without the rest of the section around it ── */
+  .hc-fullscreen-body { padding: 8px 12px 24px; display: flex; flex-direction: column; height: 100%; }
+  .hc-fullscreen-body .price-hero { padding-top: 8px; }
+  .hc-fullscreen-body .hc-chart-wrap { flex: 1; min-height: 0; }
+  .hc-fullscreen-body .hc-chart { height: 100% !important; }
   .hc-tooltip {
     position: absolute; top: 2px; z-index: 60;
     background: #fff; border-radius: var(--radius-md); box-shadow: var(--shadow-md);
@@ -604,6 +651,53 @@
     background: var(--chart-event); opacity: 0.7;
   }
 
+  /* Events legend swatch, matching the purple baseline bands rendered on
+     the charts themselves (desktop shows Events & Holidays as bands along
+     the x-axis, not dots on the price line). */
+  .legend-band-event {
+    display: inline-block; width: 10px; height: 8px; border-radius: var(--radius-sm);
+    background: #D568FB; opacity: 0.55; flex-shrink: 0;
+  }
+
+  /* ── Bedroom multi-select chips (Comp Set edit sheet) ── */
+  .bedroom-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .bedroom-chip {
+    padding: 8px 14px; border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    font-size: 13px; font-weight: 600; color: var(--pl-text-secondary); cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .bedroom-chip.selected { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
+
+  /* ── Markup fields (Comp Set edit sheet) ── */
+  .markup-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+  .markup-toggle-row .markup-toggle-label { font-size: 14px; font-weight: 600; color: var(--pl-text); }
+  .markup-fields { display: none; flex-direction: column; gap: 8px; padding: 4px 0 10px; }
+  .markup-fields.open { display: flex; }
+  .markup-field-row { display: flex; gap: 8px; }
+  .markup-field-row input, .markup-field-row select {
+    flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--pl-border);
+    border-radius: var(--radius-base); font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px; color: var(--pl-text); background: var(--pl-card);
+  }
+  .markup-remove-btn {
+    align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--pl-error);
+    background: none; border: none; cursor: pointer; padding: 4px 0;
+  }
+  .markup-add-btn {
+    align-self: flex-start; font-size: 13px; font-weight: 600; color: var(--pl-primary);
+    background: none; border: none; cursor: pointer; padding: 4px 0;
+  }
+  .bs-footer-actions {
+    display: flex; gap: 10px; padding: 12px 16px 16px; border-top: 1px solid var(--pl-border-table);
+  }
+  .bs-footer-actions .bs-btn {
+    flex: 1; padding: 0; height: 44px; border-radius: var(--radius-full);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bs-footer-actions .bs-btn.cancel { background: var(--pl-bg); color: var(--pl-text-secondary); border: none; }
+  .bs-footer-actions .bs-btn.apply { background: var(--pl-primary); color: #fff; border: none; }
+
   /* ── Bottom Sheet Modal ── */
   .bs-overlay {
     display: none; position: absolute; inset: 0; z-index: 2100;
@@ -670,26 +764,13 @@
     margin-top: 8px; margin-bottom: 4px;
   }
 
-  /* ── Sticky CTA ── */
-  .sticky-cta {
-    display: none;
-    position: absolute; bottom: var(--bottom-nav-height); left: 0; right: 0;
-    padding: 10px 16px;
-    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--pl-border); box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
-    align-items: center; justify-content: space-between; z-index: 90;
-  }
-  .sticky-cta.visible { display: flex; }
-  .sticky-cta .cta-hint { font-size: 14px; font-weight: 600; color: var(--pl-text-secondary); display: flex; align-items: center; gap: 6px; }
-  .sticky-cta .cta-btn {
-    padding: 0 20px; min-width: 80px; background: var(--pl-primary); color: #fff;
-    border: none; border-radius: var(--radius-full); font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: var(--shadow-sm); transition: background 0.15s;
-  }
-  .sticky-cta .cta-btn:hover { background: var(--pl-primary-hover); }
-  .sticky-cta .cta-btn:active { background: var(--pl-primary-800); }
+  /* ── Real app bottom nav, reused inside the Neighbourhood Data
+     full-screen sheet in place of the old placeholder "Ready to
+     sync?" CTA — the nav markup itself (.css-18y2um2 etc.) is the
+     genuine app footer, already positioned by chakra-tokens.css; we
+     only need to reserve room for it so scrolled content doesn't end
+     up hidden underneath it. ── */
+  .nd-fullscreen .nd-sheet-body { padding-bottom: 84px; }
 
   /* ── Bottom Nav ── */
   .bottom-nav {

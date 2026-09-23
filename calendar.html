@@ -1335,20 +1335,37 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     border-top-right-radius: var(--radius-md); background: var(--pl-card);
   }
 
-  /* ── Comp Set Banner (compact single-line) ── */
+  /* ── Comp Set Banner (desktop-style "Current Compset" card, redesigned
+     for mobile: icon + type pill + count/source on one line, a real
+     tappable Edit button rather than a plain text link) ── */
   .comp-banner {
-    margin: 12px 12px 0; padding: 8px 12px;
-    background: var(--pl-highlight-blue); border: 1px solid var(--pl-blue);
-    border-radius: var(--radius-md); font-size: 13px; font-weight: 400;
-    color: var(--pl-text); display: flex; align-items: center;
-    gap: 4px; line-height: 1.3;
+    margin: 12px 12px 0; padding: 12px;
+    background: var(--pl-highlight-blue); border: 1px solid var(--pl-blue-surface);
+    border-radius: var(--radius-lg); display: flex; align-items: center; gap: 10px;
   }
-  .comp-banner .banner-text { flex: 1; min-width: 0; }
+  .comp-banner .banner-icon {
+    width: 34px; height: 34px; border-radius: var(--radius-md); flex-shrink: 0;
+    background: var(--pl-card); color: var(--pl-blue); display: flex;
+    align-items: center; justify-content: center; font-size: 15px;
+  }
+  .comp-banner .banner-body { flex: 1; min-width: 0; }
+  .comp-banner .banner-label {
+    font-size: 10px; font-weight: 700; color: var(--pl-blue); text-transform: uppercase;
+    letter-spacing: 0.4px; margin-bottom: 2px;
+  }
+  .comp-banner .banner-text { font-size: 13px; font-weight: 400; color: var(--pl-text); line-height: 1.3; }
   .comp-banner strong { font-weight: 600; }
-  .comp-banner .edit-link {
-    color: var(--pl-blue); font-weight: 600; text-decoration: none;
-    white-space: nowrap; flex-shrink: 0; font-size: 13px;
+  .comp-banner .banner-meta {
+    font-size: 11px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 2px;
   }
+  .comp-banner .banner-meta .dot-sep { margin: 0 4px; }
+  .comp-banner .edit-link {
+    flex-shrink: 0; white-space: nowrap; font-size: 12px; font-weight: 700;
+    color: var(--pl-blue); background: var(--pl-card); border: 1px solid var(--pl-blue);
+    border-radius: var(--radius-full); padding: 7px 12px; cursor: pointer;
+    text-decoration: none; transition: background 0.15s;
+  }
+  .comp-banner .edit-link:active { background: var(--pl-blue-surface); }
 
   /* ── Full-screen destination (Neighbourhood Data): a real push screen,
      not a bottom sheet — no rounded top corners, no drag handle, slides
@@ -1356,8 +1373,18 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      the bottom like an options/help sheet. ── */
   .nd-fullscreen { border-radius: 0 !important; min-height: 100% !important; animation: ndSlideInRight 0.22s ease-out; }
   @keyframes ndSlideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .nd-fullscreen .css-1fydlbq { justify-content: flex-start; }
-  .nd-fullscreen .css-1vakbk4 .chakra-button { font-size: 15px; }
+  /* The header's justify-content: space-between (and its 16px side padding)
+     come from a higher-specificity real-app rule (.phone-frame header >
+     div:first-child, matched on element+pseudo-class, which beats a plain
+     two-class override) — !important is required to actually win here, not
+     just added defensively. Padding and button size are also tightened so
+     the title lands as close to the card content's own left edge (12px
+     card margin) as a real 32px tappable back button allows. */
+  .nd-fullscreen .css-1fydlbq { justify-content: flex-start !important; }
+  .nd-fullscreen .chakra-modal__header .css-1fydlbq { padding-left: 12px; padding-right: 12px; }
+  .nd-fullscreen .css-1vakbk4 .chakra-button {
+    font-size: 15px; width: 32px !important; height: 32px !important; min-width: 32px !important;
+  }
 
   /* ── Sections / Accordion — card list, mobile-app inspired (Robinhood/Coinbase
      grouped-card style: rounded cards floating on a soft grey backdrop rather
@@ -1496,6 +1523,26 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
 
   /* ── Floating market-range tooltip card (shown while scrubbing) ── */
   .hc-chart-wrap { position: relative; }
+
+  /* ── Expand-to-fullscreen affordance: a small floating button in the
+     chart's own top-right corner (mobile-app pattern, e.g. maps/photos)
+     rather than a header icon, so it reads as "this chart" not "this
+     section". ── */
+  .hc-expand-btn {
+    position: absolute; top: 0; right: 0; z-index: 55;
+    width: 26px; height: 26px; border-radius: var(--radius-base);
+    background: rgba(255,255,255,0.85); border: 1px solid var(--pl-border);
+    color: var(--pl-text-secondary); display: flex; align-items: center; justify-content: center;
+    font-size: 11px; cursor: pointer;
+  }
+  .hc-expand-btn:active { background: var(--pl-bg); }
+
+  /* ── Fullscreen chart sheet: mobile-first detail view for scrubbing a
+     single chart without the rest of the section around it ── */
+  .hc-fullscreen-body { padding: 8px 12px 24px; display: flex; flex-direction: column; height: 100%; }
+  .hc-fullscreen-body .price-hero { padding-top: 8px; }
+  .hc-fullscreen-body .hc-chart-wrap { flex: 1; min-height: 0; }
+  .hc-fullscreen-body .hc-chart { height: 100% !important; }
   .hc-tooltip {
     position: absolute; top: 2px; z-index: 60;
     background: #fff; border-radius: var(--radius-md); box-shadow: var(--shadow-md);
@@ -1825,6 +1872,53 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     background: var(--chart-event); opacity: 0.7;
   }
 
+  /* Events legend swatch, matching the purple baseline bands rendered on
+     the charts themselves (desktop shows Events & Holidays as bands along
+     the x-axis, not dots on the price line). */
+  .legend-band-event {
+    display: inline-block; width: 10px; height: 8px; border-radius: var(--radius-sm);
+    background: #D568FB; opacity: 0.55; flex-shrink: 0;
+  }
+
+  /* ── Bedroom multi-select chips (Comp Set edit sheet) ── */
+  .bedroom-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .bedroom-chip {
+    padding: 8px 14px; border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    font-size: 13px; font-weight: 600; color: var(--pl-text-secondary); cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .bedroom-chip.selected { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
+
+  /* ── Markup fields (Comp Set edit sheet) ── */
+  .markup-toggle-row { display: flex; align-items: center; justify-content: space-between; padding: 10px 0; }
+  .markup-toggle-row .markup-toggle-label { font-size: 14px; font-weight: 600; color: var(--pl-text); }
+  .markup-fields { display: none; flex-direction: column; gap: 8px; padding: 4px 0 10px; }
+  .markup-fields.open { display: flex; }
+  .markup-field-row { display: flex; gap: 8px; }
+  .markup-field-row input, .markup-field-row select {
+    flex: 1; min-width: 0; padding: 9px 10px; border: 1px solid var(--pl-border);
+    border-radius: var(--radius-base); font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px; color: var(--pl-text); background: var(--pl-card);
+  }
+  .markup-remove-btn {
+    align-self: flex-start; font-size: 12px; font-weight: 600; color: var(--pl-error);
+    background: none; border: none; cursor: pointer; padding: 4px 0;
+  }
+  .markup-add-btn {
+    align-self: flex-start; font-size: 13px; font-weight: 600; color: var(--pl-primary);
+    background: none; border: none; cursor: pointer; padding: 4px 0;
+  }
+  .bs-footer-actions {
+    display: flex; gap: 10px; padding: 12px 16px 16px; border-top: 1px solid var(--pl-border-table);
+  }
+  .bs-footer-actions .bs-btn {
+    flex: 1; padding: 0; height: 44px; border-radius: var(--radius-full);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .bs-footer-actions .bs-btn.cancel { background: var(--pl-bg); color: var(--pl-text-secondary); border: none; }
+  .bs-footer-actions .bs-btn.apply { background: var(--pl-primary); color: #fff; border: none; }
+
   /* ── Bottom Sheet Modal ── */
   .bs-overlay {
     display: none; position: absolute; inset: 0; z-index: 2100;
@@ -1891,26 +1985,13 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     margin-top: 8px; margin-bottom: 4px;
   }
 
-  /* ── Sticky CTA ── */
-  .sticky-cta {
-    display: none;
-    position: absolute; bottom: var(--bottom-nav-height); left: 0; right: 0;
-    padding: 10px 16px;
-    background: rgba(255,255,255,0.92); backdrop-filter: blur(12px); -webkit-backdrop-filter: blur(12px);
-    border-top: 1px solid var(--pl-border); box-shadow: 0 -2px 4px rgba(0,0,0,0.05);
-    align-items: center; justify-content: space-between; z-index: 90;
-  }
-  .sticky-cta.visible { display: flex; }
-  .sticky-cta .cta-hint { font-size: 14px; font-weight: 600; color: var(--pl-text-secondary); display: flex; align-items: center; gap: 6px; }
-  .sticky-cta .cta-btn {
-    padding: 0 20px; min-width: 80px; background: var(--pl-primary); color: #fff;
-    border: none; border-radius: var(--radius-full); font-family: 'IBM Plex Sans', sans-serif;
-    font-size: 14px; font-weight: 600; cursor: pointer; min-height: 44px;
-    display: flex; align-items: center; justify-content: center;
-    box-shadow: var(--shadow-sm); transition: background 0.15s;
-  }
-  .sticky-cta .cta-btn:hover { background: var(--pl-primary-hover); }
-  .sticky-cta .cta-btn:active { background: var(--pl-primary-800); }
+  /* ── Real app bottom nav, reused inside the Neighbourhood Data
+     full-screen sheet in place of the old placeholder "Ready to
+     sync?" CTA — the nav markup itself (.css-18y2um2 etc.) is the
+     genuine app footer, already positioned by chakra-tokens.css; we
+     only need to reserve room for it so scrolled content doesn't end
+     up hidden underneath it. ── */
+  .nd-fullscreen .nd-sheet-body { padding-bottom: 84px; }
 
   /* ── Bottom Nav ── */
   .bottom-nav {
@@ -2069,10 +2150,15 @@ body { background: #d9dbe0; }
   </header>
   <div class="chakra-modal__body css-d8ne84" style="padding:0;display:flex;flex-direction:column;flex:1;min-height:0;">
     <div class="nd-sheet-body">
-      <!-- ═══ Comp Set Banner (compact single line) ═══ -->
+      <!-- ═══ Comp Set Banner (desktop-style "Current Compset" card) ═══ -->
 <div class="comp-banner">
-  <span class="banner-text">Comparing with <strong>232 nearby Studio–2BR</strong> on Airbnb</span>
-  <a href="#" class="edit-link">Edit comp set</a>
+  <div class="banner-icon"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em" fill="currentColor"><path d="M215.7 499.2C267 435 384 279.4 384 192C384 86 298 0 192 0S0 86 0 192c0 87.4 117 243 168.3 307.2c12.3 15.3 35.1 15.3 47.4 0zM192 128a64 64 0 1 1 0 128 64 64 0 1 1 0-128z"></path></svg></div>
+  <div class="banner-body">
+    <div class="banner-label">Current Compset</div>
+    <div class="banner-text">Nearby Room Types · <strong>Studio–2BR</strong></div>
+    <div class="banner-meta">232 room types<span class="dot-sep">·</span>Source: Airbnb</div>
+  </div>
+  <a href="#" class="edit-link" onclick="event.preventDefault();ndOpenSheet('bs-comp-set-edit')">Edit</a>
 </div>
 
 
@@ -2102,6 +2188,7 @@ body { background: #d9dbe0; }
           <div class="pill" onclick="fpSetGranularity(this,'monthly')">Monthly</div>
         </div>
         <div class="hc-chart-wrap">
+          <button class="hc-expand-btn" title="Expand" onclick="ndOpenChartFullscreen('fp')"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.8em;height:0.8em" fill="currentColor"><path d="M32 32C14.3 32 0 46.3 0 64L0 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0 0-96zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128c0-17.7-14.3-32-32-32l-128 0zM448 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96-96 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-128z"></path></svg></button>
           <div id="fp-hc-chart" class="hc-chart"></div>
           <div class="hc-tooltip"></div>
         </div>
@@ -2113,14 +2200,7 @@ body { background: #d9dbe0; }
           <div class="range-seg-item" onclick="fpSetRange(this,180)">180D</div>
           <div class="range-seg-item" onclick="fpSetRange(this,360)">360D</div>
         </div>
-        <div class="legend" id="fp-legend-daily">
-          <div class="legend-item"><div class="legend-swatch" style="background:#333333;height:3px"></div> Listing Price</div>
-          <div class="legend-item"><div class="legend-band" style="background:#FCDCDD"></div> 25th–50th</div>
-          <div class="legend-item"><div class="legend-band" style="background:#F69396"></div> 50th–75th</div>
-          <div class="legend-item"><div class="legend-band" style="background:#A15457;opacity:0.4"></div> 75th–90th</div>
-          <div class="legend-item" id="fp-events-legend"><span style="display:inline-block;width:7px;height:7px;border-radius:50%;background:#D568FB"></span> Events</div>
-          <div class="legend-item legend-more" onclick="ndOpenSheet('bs-future-options')">+ More</div>
-        </div>
+        <div class="legend" id="fp-legend"></div>
       </div>
     </div>
   </div>
@@ -2132,6 +2212,7 @@ body { background: #d9dbe0; }
         <div class="title">Occupancy</div>
       </div>
       <div class="header-actions" onclick="event.stopPropagation()">
+        <button class="icon-btn" title="Chart Options" onclick="ndOpenSheet('bs-occ-options')"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M256 0c17 0 33.6 1.7 49.8 4.8c7.9 1.5 21.8 6.1 29.4 20.1c2 3.7 3.6 7.6 4.6 11.8l9.3 38.5C350.5 81 360.3 86.7 366 85l38-11.2c4-1.2 8.1-1.8 12.2-1.9c16.1-.5 27 9.4 32.3 15.4c22.1 25.1 39.1 54.6 49.9 86.3c2.6 7.6 5.6 21.8-2.7 35.4c-2.2 3.6-4.9 7-8 10L459 246.3c-4.2 4-4.2 15.5 0 19.5l28.7 27.3c3.1 3 5.8 6.4 8 10c8.2 13.6 5.2 27.8 2.7 35.4c-10.8 31.7-27.8 61.1-49.9 86.3c-5.3 6-16.3 15.9-32.3 15.4c-4.1-.1-8.2-.8-12.2-1.9L366 427c-5.7-1.7-15.5 4-16.9 9.8l-9.3 38.5c-1 4.2-2.6 8.2-4.6 11.8c-7.7 14-21.6 18.5-29.4 20.1C289.6 510.3 273 512 256 512s-33.6-1.7-49.8-4.8c-7.9-1.5-21.8-6.1-29.4-20.1c-2-3.7-3.6-7.6-4.6-11.8l-9.3-38.5c-1.4-5.8-11.2-11.5-16.9-9.8l-38 11.2c-4 1.2-8.1 1.8-12.2 1.9c-16.1 .5-27-9.4-32.3-15.4c-22-25.1-39.1-54.6-49.9-86.3c-2.6-7.6-5.6-21.8 2.7-35.4c2.2-3.6 4.9-7 8-10L53 265.7c4.2-4 4.2-15.5 0-19.5L24.2 218.9c-3.1-3-5.8-6.4-8-10C8 195.3 11 181.1 13.6 173.6c10.8-31.7 27.8-61.1 49.9-86.3c5.3-6 16.3-15.9 32.3-15.4c4.1 .1 8.2 .8 12.2 1.9L146 85c5.7 1.7 15.5-4 16.9-9.8l9.3-38.5c1-4.2 2.6-8.2 4.6-11.8c7.7-14 21.6-18.5 29.4-20.1C222.4 1.7 239 0 256 0zM218.1 51.4l-8.5 35.1c-7.8 32.3-45.3 53.9-77.2 44.6L97.9 120.9c-16.5 19.3-29.5 41.7-38 65.7l26.2 24.9c24 22.8 24 66.2 0 89L59.9 325.4c8.5 24 21.5 46.4 38 65.7l34.6-10.2c31.8-9.4 69.4 12.3 77.2 44.6l8.5 35.1c24.6 4.5 51.3 4.5 75.9 0l8.5-35.1c7.8-32.3 45.3-53.9 77.2-44.6l34.6 10.2c16.5-19.3 29.5-41.7 38-65.7l-26.2-24.9c-24-22.8-24-66.2 0-89l26.2-24.9c-8.5-24-21.5-46.4-38-65.7l-34.6 10.2c-31.8 9.4-69.4-12.3-77.2-44.6l-8.5-35.1c-24.6-4.5-51.3-4.5-75.9 0zM208 256a48 48 0 1 0 96 0 48 48 0 1 0 -96 0zm48 96a96 96 0 1 1 0-192 96 96 0 1 1 0 192z"></path></svg></button>
         <button class="icon-btn" title="About this chart" onclick="ndOpenSheet('bs-occ-help')"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></button>
       </div>
     </div>
@@ -2139,13 +2220,14 @@ body { background: #d9dbe0; }
       <div class="section-content">
         <div class="price-hero">
           <div class="price-hero-value" id="occ-hero-value">78%</div>
-          <div class="price-hero-delta up" id="occ-hero-delta">▲ 6% above market median</div>
+          <div class="price-hero-delta up" id="occ-hero-delta">▲ 6% above last year</div>
         </div>
         <div class="pill-toggles granularity-toggle">
           <div class="pill active" onclick="occSetGranularity(this,'daily')">Daily</div>
           <div class="pill" onclick="occSetGranularity(this,'monthly')">Monthly</div>
         </div>
         <div class="hc-chart-wrap">
+          <button class="hc-expand-btn" title="Expand" onclick="ndOpenChartFullscreen('occ')"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.8em;height:0.8em" fill="currentColor"><path d="M32 32C14.3 32 0 46.3 0 64L0 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0 0-96zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128c0-17.7-14.3-32-32-32l-128 0zM448 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96-96 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-128z"></path></svg></button>
           <div id="occ-hc-chart" class="hc-chart" style="height:220px"></div>
           <div class="hc-tooltip"></div>
         </div>
@@ -2156,12 +2238,7 @@ body { background: #d9dbe0; }
           <div class="range-seg-item" onclick="occSetRange(this,180)">180D</div>
           <div class="range-seg-item" onclick="occSetRange(this,360)">360D</div>
         </div>
-        <div class="legend" id="occ-legend">
-          <div class="legend-item"><div class="legend-swatch" style="background:#2CAFFE;height:8px;width:8px;border-radius:2px"></div> Booked</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:rgba(44,175,254,0.45);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
-          <div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:8px;width:8px;border-radius:2px"></div> Market Occ.</div>
-          <div class="legend-item legend-more" onclick="ndOpenSheet('bs-occ-help')">+ More</div>
-        </div>
+        <div class="legend" id="occ-legend"></div>
       </div>
     </div>
   </div>
@@ -2277,9 +2354,29 @@ body { background: #d9dbe0; }
 
       </div>
     </div>
-    <div class="sticky-cta visible" style="position:relative;bottom:auto;flex-shrink:0;">
-      <div class="cta-hint">Ready to sync?</div>
-      <button class="cta-btn">Save &amp; Refresh</button>
+    <div class="chakra-stack css-18y2um2">
+      <div class="chakra-stack css-t6sl9" onclick="closeAllSheets()"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="calendar" class="svg-inline--fa fa-calendar " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M152 24c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L64 64C28.7 64 0 92.7 0 128l0 16 0 48L0 448c0 35.3 28.7 64 64 64l320 0c35.3 0 64-28.7 64-64l0-256 0-48 0-16c0-35.3-28.7-64-64-64l-40 0 0-40c0-13.3-10.7-24-24-24s-24 10.7-24 24l0 40L152 64l0-40zM48 192l352 0 0 256c0 8.8-7.2 16-16 16L64 464c-8.8 0-16-7.2-16-16l0-256z"></path></svg><p class="chakra-text css-6vwqj7">Calendar</p></div>
+      <div class="chakra-stack css-t6sl9" onclick="closeAllSheets();openComingSoon('Customization', &quot;Not captured in this walkthrough — this POC's focus is Neighbourhood Data.&quot;)"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="sliders" class="svg-inline--fa fa-sliders " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M0 416c0 13.3 10.7 24 24 24l59.7 0c10.2 32.5 40.5 56 76.3 56s66.1-23.5 76.3-56L488 440c13.3 0 24-10.7 24-24s-10.7-24-24-24l-251.7 0c-10.2-32.5-40.5-56-76.3-56s-66.1 23.5-76.3 56L24 392c-13.3 0-24 10.7-24 24zm128 0a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zM320 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0zm32-80c-35.8 0-66.1 23.5-76.3 56L24 232c-13.3 0-24 10.7-24 24s10.7 24 24 24l251.7 0c10.2 32.5 40.5 56 76.3 56s66.1-23.5 76.3-56l59.7 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-59.7 0c-10.2-32.5-40.5-56-76.3-56zM192 128a32 32 0 1 1 0-64 32 32 0 1 1 0 64zm76.3-56C258.1 39.5 227.8 16 192 16s-66.1 23.5-76.3 56L24 72C10.7 72 0 82.7 0 96s10.7 24 24 24l91.7 0c10.2 32.5 40.5 56 76.3 56s66.1-23.5 76.3-56L488 120c13.3 0 24-10.7 24-24s-10.7-24-24-24L268.3 72z"></path></svg><p class="chakra-text css-6vwqj7">Customization</p></div>
+      <div class="chakra-stack css-m1xwns" id="ndfoot-insights" onclick="document.querySelector('.nd-sheet-body') && (document.querySelector('.nd-sheet-body').scrollTop = 0)"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="location-crosshairs" class="svg-inline--fa fa-location-crosshairs " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M256 0c13.3 0 24 10.7 24 24l0 41.5C366.8 76.3 435.7 145.2 446.5 232l41.5 0c13.3 0 24 10.7 24 24s-10.7 24-24 24l-41.5 0C435.7 366.8 366.8 435.7 280 446.5l0 41.5c0 13.3-10.7 24-24 24s-24-10.7-24-24l0-41.5C145.2 435.7 76.3 366.8 65.5 280L24 280c-13.3 0-24-10.7-24-24s10.7-24 24-24l41.5 0C76.3 145.2 145.2 76.3 232 65.5L232 24c0-13.3 10.7-24 24-24zM112 256a144 144 0 1 0 288 0 144 144 0 1 0 -288 0zm192 0a48 48 0 1 0 -96 0 48 48 0 1 0 96 0zm-144 0a96 96 0 1 1 192 0 96 96 0 1 1 -192 0z"></path></svg><p class="chakra-text css-13g890n">Insights</p></div>
+      <div class="chakra-stack css-t6sl9" onclick="closeAllSheets();openComingSoon('Listing Details', &quot;Not captured in this walkthrough — this POC's focus is Neighbourhood Data.&quot;)"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="list" class="svg-inline--fa fa-list " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M40 48C26.7 48 16 58.7 16 72l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24L40 48zM184 72c-13.3 0-24 10.7-24 24s10.7 24 24 24l304 0c13.3 0 24-10.7 24-24s-10.7-24-24-24L184 72zm0 160c-13.3 0-24 10.7-24 24s10.7 24 24 24l304 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-304 0zm0 160c-13.3 0-24 10.7-24 24s10.7 24 24 24l304 0c13.3 0 24-10.7 24-24s-10.7-24-24-24l-304 0zM16 232l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0c-13.3 0-24 10.7-24 24zM40 368c-13.3 0-24 10.7-24 24l0 48c0 13.3 10.7 24 24 24l48 0c13.3 0 24-10.7 24-24l0-48c0-13.3-10.7-24-24-24l-48 0z"></path></svg><p class="chakra-text css-6vwqj7">Details</p></div>
+      <div class="chakra-stack css-t6sl9" onclick="closeAllSheets();openSheet('sheet-select-view')"><svg aria-hidden="true" focusable="false" data-prefix="far" data-icon="ellipsis" class="svg-inline--fa fa-ellipsis " role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M432 256a48 48 0 1 1 -96 0 48 48 0 1 1 96 0zm-160 0a48 48 0 1 1 -96 0 48 48 0 1 1 96 0zM64 304a48 48 0 1 1 0-96 48 48 0 1 1 0 96z"></path></svg><p class="chakra-text css-6vwqj7">More</p></div>
+    </div>
+  </div>
+</div>
+
+<div id="sheet-chart-fullscreen" role="dialog" class="chakra-modal__content css-ej5jt3 nd-fullscreen" style="position: absolute; inset: 0; transform: none; z-index: 2020; display: none; flex-direction: column;">
+  <header class="chakra-modal__header css-1jf69i2">
+    <div class="css-1fydlbq">
+      <div class="css-1vakbk4"><button type="button" class="chakra-button css-1x8iiyz" aria-label="Back" onclick="ndCloseChartFullscreen()"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M7.4 273.4C2.7 268.8 0 262.6 0 256s2.7-12.8 7.4-17.4l176-168c9.6-9.2 24.8-8.8 33.9 .8s8.8 24.8-.8 33.9L83.9 232 424 232c13.3 0 24 10.7 24 24s-10.7 24-24 24L83.9 280 216.6 406.6c9.6 9.2 9.9 24.3 .8 33.9s-24.3 9.9-33.9 .8l-176-168z"></path></svg></button></div>
+      <div class="css-17b9cpr"><div class="css-1j06hm9"><p class="chakra-text css-1u6fvt8" id="fs-chart-title">Future Prices</p></div></div>
+    </div>
+  </header>
+  <div class="chakra-modal__body css-d8ne84" style="padding:0;display:flex;flex-direction:column;flex:1;min-height:0;">
+    <div class="hc-fullscreen-body">
+      <div class="hc-chart-wrap">
+        <div id="fs-hc-chart" class="hc-chart" style="height:100%"></div>
+        <div class="hc-tooltip"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -2542,12 +2639,69 @@ body { background: #d9dbe0; }
     </div>
     <div class="bs-body">
       <div class="bs-section-label">Future Prices Options</div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Upcoming Bookings</span></div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Last Year Bookings</span></div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Same Time Last Year Bookings</span></div>
-      <div class="bs-section-label">More Options</div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">Market Booked Price</span></div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">Price with Default Customization</span></div>
+      <div class="bs-option" onclick="fpToggleOverlay(this,'upcoming')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Upcoming Bookings</span></div>
+      <div class="bs-option" onclick="fpToggleOverlay(this,'lastyear')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Last Year Bookings</span></div>
+      <div class="bs-option" onclick="fpToggleOverlay(this,'stly')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Same Time Last Year Bookings</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Bottom Sheet: Occupancy Chart Options (pacing toggle — item 4) ═══ -->
+<div class="bs-overlay" id="bs-occ-options" onclick="ndCloseSheet('bs-occ-options')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Chart Options</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-occ-options')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body">
+      <div class="bs-section-label">Pacing</div>
+      <div class="bs-option checked" onclick="occTogglePacing(this)"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">Show 7-day Market Pickup</span></div>
+      <p style="font-size:12px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0 0">Tracks how fast the market is booking up over the trailing 7 days, compared to the same week last year.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Bottom Sheet: Comp Set edit (mobile-friendly version of desktop's
+     Comp Set editor — Competitor Room Types intentionally left out) ═══ -->
+<div class="bs-overlay" id="bs-comp-set-edit" onclick="ndCloseSheet('bs-comp-set-edit')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()" style="max-height:85vh;display:flex;flex-direction:column">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Edit Comp Set</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-comp-set-edit')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body" style="flex:1;overflow-y:auto">
+      <div class="bs-section-label">Compset Type</div>
+      <div class="bs-radio-group">
+        <div class="bs-radio selected" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Nearby Room Types</span></div>
+        <div class="bs-radio" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Market Dashboards</span></div>
+      </div>
+      <div class="bs-section-label">Bedrooms</div>
+      <div class="bedroom-chips">
+        <div class="bedroom-chip" onclick="toggleBedroomChip(this)">Studio</div>
+        <div class="bedroom-chip selected" onclick="toggleBedroomChip(this)">1 BR</div>
+        <div class="bedroom-chip selected" onclick="toggleBedroomChip(this)">2 BR</div>
+        <div class="bedroom-chip" onclick="toggleBedroomChip(this)">3 BR+</div>
+      </div>
+      <div class="bs-section-label">Markup</div>
+      <div class="markup-toggle-row">
+        <span class="markup-toggle-label">Do you add markup for this listing on your PMS?</span>
+        <div class="bs-check" style="width:22px;height:22px" onclick="toggleMarkupFields(this)"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div>
+      </div>
+      <div class="markup-fields" id="markup-fields">
+        <div class="markup-field-row">
+          <input type="text" placeholder="Name" value="Cleaning">
+          <select><option>Percent</option><option>Fixed</option></select>
+          <input type="text" placeholder="Amount" value="10%">
+        </div>
+        <button class="markup-remove-btn" onclick="this.closest('.markup-field-row').remove();this.remove()">Remove Markup Details</button>
+        <button class="markup-add-btn" onclick="addMarkupRow()">+ Add Another</button>
+      </div>
+    </div>
+    <div class="bs-footer-actions">
+      <button class="bs-btn cancel" onclick="ndCloseSheet('bs-comp-set-edit')">Cancel</button>
+      <button class="bs-btn apply" onclick="ndCloseSheet('bs-comp-set-edit')">Apply</button>
     </div>
   </div>
 </div>
@@ -2561,8 +2715,8 @@ body { background: #d9dbe0; }
       <button class="bs-close" onclick="ndCloseSheet('bs-future-help')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
     </div>
     <div class="bs-body">
-      <p>Shows your listing's price compared to the market for upcoming dates. The solid line is your current price, while the shaded bands show the 25th–75th percentile range of comparable listings in your comp set.</p>
-      <p style="margin-top:10px">Use the time range pills to adjust how far ahead you're looking. Tap the gear icon to overlay additional data like last year's bookings or market booked prices.</p>
+      <p>Shows your listing's price compared to the market for upcoming dates. The solid line is your current price, while the shaded bands show the percentile range of comparable listings in your comp set. Switch to Monthly for a bar-chart summary with percentile lines, matching the desktop view.</p>
+      <p style="margin-top:10px">Use the time range pills to adjust how far ahead you're looking. Tap the gear icon to overlay your own upcoming or last year's bookings on the chart.</p>
     </div>
   </div>
 </div>
@@ -2576,8 +2730,8 @@ body { background: #d9dbe0; }
       <button class="bs-close" onclick="ndCloseSheet('bs-occ-help')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
     </div>
     <div class="bs-body">
-      <p>Tracks your listing's booked and unavailable nights alongside overall market occupancy. Blue bars show your booked nights (darker) and blocked/unavailable nights (lighter). Orange bars show market occupancy for your comp set.</p>
-      <p style="margin-top:10px">Toggle "Last Year Data" and "Pickup" in the legend to compare with historical occupancy or see booking pace changes.</p>
+      <p>Tracks market occupancy for your comp set against the same period last year. The salmon line (or bar) is current market occupancy; grey shows Last Year (Today) — where last year stood at this same point in its booking window — and Last Year (Final) — how it ultimately landed.</p>
+      <p style="margin-top:10px">Green shows the 7-day Market Pickup pacing line, comparing how fast the market is booking up now vs. the same week last year. Use the gear icon to show or hide it.</p>
     </div>
   </div>
 </div>
@@ -2812,12 +2966,13 @@ body { background: #d9dbe0; }
 <script>
 function findByText(str){ return Array.from(document.querySelectorAll('*')).filter(e=>e.children.length===0 && e.textContent.trim()===str); }
 function closeAllSheets(){
-  ['sheet-select-view','sheet-neighbourhood','sheet-competitor','sheet-comingsoon','sheet-backdrop'].forEach(id => document.getElementById(id).style.display = 'none');
+  ['sheet-select-view','sheet-neighbourhood','sheet-competitor','sheet-comingsoon','sheet-chart-fullscreen','sheet-backdrop'].forEach(id => document.getElementById(id).style.display = 'none');
+  if (typeof fsChart !== 'undefined' && fsChart) { fsChart.destroy(); fsChart = null; }
 }
 function openSheet(id){
   document.getElementById('sheet-backdrop').style.display = 'block';
   const el = document.getElementById(id);
-  el.style.display = (id === 'sheet-neighbourhood' || id === 'sheet-competitor') ? 'flex' : 'block';
+  el.style.display = (id === 'sheet-neighbourhood' || id === 'sheet-competitor' || id === 'sheet-chart-fullscreen') ? 'flex' : 'block';
   const frame = document.querySelector('.phone-frame');
   if (frame) { frame.scrollTop = 0; frame.scrollLeft = 0; }
 }
@@ -3024,14 +3179,17 @@ function ndSeededRand(seed) {
    area visibly narrower than the card while the right side sat empty.
    Left-aligned axis labels are narrower (2-4 digits) so the reserved
    margin can shrink too, giving the plot area most of the card width. ── */
-const ND_CHART_SPACING = [8, 8, 22, 4];
+const ND_CHART_SPACING = [8, 0, 22, 0];
 /* Highcharts auto-reserves axis width beyond what the label text actually
    needs (measured ~71px total for 3-char "$350"-style labels when left
    to auto-calculate) — the gap between the plot area and the card's right
-   edge that was flagged as wasted space. Setting marginLeft explicitly
-   overrides that auto-calculation so the plot area gets nearly the full
-   card width instead. */
-const ND_CHART_MARGIN_LEFT = 34;
+   edge that was flagged as wasted space. Setting marginLeft/marginRight
+   explicitly overrides that auto-calculation so the plot area's left edge
+   lines up with the section's own title/hero text and its right edge
+   lines up with the rightmost header icon button, instead of sitting
+   inset from both by the auto-reserved margin + default spacing. */
+const ND_CHART_MARGIN_LEFT = 30;
+const ND_CHART_MARGIN_RIGHT = 4;
 function ndXAxisConfig(cats, step) {
   return {
     categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
@@ -3067,9 +3225,26 @@ function ndHideTooltip(wrapEl) {
   if (tt) tt.classList.remove('visible');
 }
 
-/* ── Future Prices: build arearange + line series for N days, at either
-   daily or monthly granularity (independent of Occupancy's own toggle —
-   each chart aggregates on its own, there's no shared/global setting) ── */
+/* ── Lookup a series by its explicit `id` rather than by position, so
+   tooltip/hero code works the same whether the chart is showing its
+   daily (line/arearange) or monthly (column) series set. ── */
+function ndSeriesById(chart, id) {
+  return chart.series.find(function (s) { return s.options.id === id; });
+}
+
+/* ── Events & Holidays rendered as purple baseline bands (matching
+   desktop) rather than dots sitting on the price/occupancy line. ── */
+function ndEventPlotBands(events, color) {
+  color = color || 'rgba(213,104,251,0.16)';
+  return events.map(function (i) { return { from: i - 0.42, to: i + 0.42, color: color, zIndex: 0 }; });
+}
+
+/* ── Future Prices: build data for N days, at either daily or monthly
+   granularity (independent of Occupancy's own toggle — each chart
+   aggregates on its own, there's no shared/global setting). Daily mode
+   renders as a line + percentile arearange bands; monthly mode renders
+   as columns (Listing Price / Listing Price with Markup) plus percentile
+   lines in a grey→red gradient, matching desktop's own monthly view. ── */
 function fpBuildData(days, granularity) {
   const rand = ndSeededRand(days * 7 + 1);
   const base = 228;
@@ -3090,20 +3265,24 @@ function fpBuildData(days, granularity) {
     });
   }
   const buckets = granularity === 'monthly' ? bucketByMonth(rows) : rows.map(r => [r]);
-  const cats = [], listing = [], band2550 = [], band5075 = [], band7590 = [], events = [];
+  const cats = [], listing = [], markupCol = [], p25 = [], p50 = [], p75 = [], p90 = [];
+  const band2550 = [], band5075 = [], band7590 = [], events = [];
   buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
     cats.push(granularity === 'monthly'
       ? first.date.toLocaleDateString('en-US', { month: 'short' })
       : first.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const avg = key => Math.round(rowsInBucket.reduce((s, r) => s + r[key], 0) / rowsInBucket.length);
-    listing.push([i, avg('price')]);
+    const priceAvg = avg('price');
+    listing.push(priceAvg);
+    markupCol.push(Math.round(priceAvg * 1.06));
+    p25.push(avg('p25')); p50.push(avg('p50')); p75.push(avg('p75')); p90.push(avg('p90'));
     band2550.push([i, avg('p25'), avg('p50')]);
     band5075.push([i, avg('p50'), avg('p75')]);
     band7590.push([i, avg('p75'), avg('p90')]);
     if (rowsInBucket.some(r => r.isEvent) && events.length < 5) events.push(i);
   });
-  return { cats, listing, band2550, band5075, band7590, events };
+  return { cats, listing, markupCol, p25, p50, p75, p90, band2550, band5075, band7590, events };
 }
 function bucketByMonth(rows) {
   const buckets = [];
@@ -3119,17 +3298,34 @@ function bucketByMonth(rows) {
 let fpChart = null;
 let fpDays = 30;
 let fpGranularity = 'daily';
-function fpInitChart(days) {
-  const el = document.getElementById('fp-hc-chart');
-  if (!el || !window.Highcharts) return;
-  if (days) fpDays = days;
-  const { cats, listing, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
-  if (fpChart) { fpChart.destroy(); fpChart = null; }
-  fpChart = Highcharts.chart('fp-hc-chart', {
+
+/* Pure chart builder — renders into any container at any height, so the
+   same code drives both the in-card chart and the fullscreen detail view
+   (item 8) without duplicating the series/config logic. */
+function fpRenderChart(containerId, height) {
+  const el = document.getElementById(containerId);
+  if (!el || !window.Highcharts) return null;
+  const { cats, listing, markupCol, p25, p50, p75, p90, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
+  const isMonthly = fpGranularity === 'monthly';
+  const series = isMonthly ? [
+    { type: 'column', id: 'fp-s-listing', name: 'Listing Price', data: listing, color: '#4A4A4A', zIndex: 3 },
+    { type: 'column', id: 'fp-s-markup', name: 'Listing Price with Markup', data: markupCol, color: '#C7C7C7', zIndex: 2 },
+    { type: 'line', id: 'fp-s-p25', name: '25th Percentile', data: p25, color: '#C8CDD3', lineWidth: 1.5, zIndex: 5 },
+    { type: 'line', id: 'fp-s-p50', name: '50th Percentile', data: p50, color: '#F6B4B6', lineWidth: 1.5, zIndex: 5 },
+    { type: 'line', id: 'fp-s-p75', name: '75th Percentile', data: p75, color: '#F37579', lineWidth: 1.5, zIndex: 5 },
+    { type: 'line', id: 'fp-s-p90', name: '90th Percentile', data: p90, color: '#A15457', lineWidth: 1.5, zIndex: 5 }
+  ] : [
+    { type: 'line', id: 'fp-s-listing', name: 'Listing Price', data: listing, color: '#333333', lineWidth: 2.5, zIndex: 5 },
+    { type: 'arearange', id: 'fp-s-5075', name: '50th–75th', data: band5075.map(p => [p[1], p[2]]), color: '#F69396', zIndex: 2 },
+    { type: 'arearange', id: 'fp-s-7590', name: '75th–90th', data: band7590.map(p => [p[1], p[2]]), color: 'rgba(161,84,87,0.4)', zIndex: 1 },
+    { type: 'arearange', id: 'fp-s-2550', name: '25th–50th', data: band2550.map(p => [p[1], p[2]]), color: '#FCDCDD', zIndex: 3 }
+  ];
+  const chart = Highcharts.chart(containerId, {
     chart: {
-      height: 200,
+      height: height,
       spacing: ND_CHART_SPACING,
       marginLeft: ND_CHART_MARGIN_LEFT,
+      marginRight: ND_CHART_MARGIN_RIGHT,
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
@@ -3137,7 +3333,7 @@ function fpInitChart(days) {
         load: function () { fpUpdateHero(this, this.series[0].points.length - 1); }
       }
     },
-    xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
+    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
     yAxis: ndYAxisConfig({
       yFormatter: function () { return '$' + this.value; }
     }),
@@ -3150,76 +3346,54 @@ function fpInitChart(days) {
         enableMouseTracking: true,
         animation: { duration: 300 }
       },
-      arearange: { lineWidth: 0, fillOpacity: 1 }
+      arearange: { lineWidth: 0, fillOpacity: 1 },
+      column: { borderWidth: 0, borderRadius: 2, pointPadding: 0.08, groupPadding: 0.06 }
     },
-    series: [
-      {
-        type: 'line',
-        name: 'Listing Price',
-        data: listing.map(p => p[1]),
-        color: '#333333',
-        lineWidth: 2.5,
-        zIndex: 5
-      },
-      {
-        type: 'arearange',
-        name: '50th–75th',
-        data: band5075.map(p => [p[1], p[2]]),
-        color: '#F69396',
-        zIndex: 2
-      },
-      {
-        type: 'arearange',
-        name: '75th–90th',
-        data: band7590.map(p => [p[1], p[2]]),
-        color: 'rgba(161,84,87,0.4)',
-        zIndex: 1
-      },
-      {
-        type: 'arearange',
-        name: '25th–50th',
-        data: band2550.map(p => [p[1], p[2]]),
-        color: '#FCDCDD',
-        zIndex: 3
-      },
-      {
-        type: 'scatter',
-        name: 'Events',
-        data: events.map(i => [i, listing[i][1]]),
-        color: '#D568FB',
-        marker: { enabled: true, radius: 4, symbol: 'circle', lineWidth: 1.5, lineColor: '#fff', states: { hover: { enabled: false } } },
-        enableMouseTracking: false,
-        zIndex: 6
-      }
-    ]
+    series: series
   });
-  const fpWrap = el.closest('.hc-chart-wrap');
-  attachScrub(fpChart, fpWrap, fpUpdateHero, fpTooltipHtml);
+  const wrap = el.closest('.hc-chart-wrap');
+  attachScrub(chart, wrap, fpUpdateHero, fpTooltipHtml);
+  return chart;
+}
+
+function fpInitChart(days) {
+  if (!document.getElementById('fp-hc-chart')) return;
+  if (days) fpDays = days;
+  if (fpChart) { fpChart.destroy(); fpChart = null; }
+  fpChart = fpRenderChart('fp-hc-chart', 200);
+  fpRenderLegend();
 }
 
 function fpTooltipHtml(chart, idx) {
   const date = chart.xAxis[0].categories[idx];
-  const price = chart.series[0].points[idx].y;
-  const b2550 = chart.series[3].points[idx];
-  const b5075 = chart.series[1].points[idx];
-  const b7590 = chart.series[2].points[idx];
-  return '' +
-    '<div class="hc-tt-date">' + date + '</div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#333333"></span>Listing Price: <b>$' + price + '</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
+  const price = ndSeriesById(chart, 'fp-s-listing').points[idx].y;
+  let rows = '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#333333"></span>Listing Price: <b>$' + price + '</b></div>';
+  if (fpGranularity === 'monthly') {
+    const markupS = ndSeriesById(chart, 'fp-s-markup');
+    if (markupS) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#C7C7C7"></span>With Markup: <b>$' + markupS.points[idx].y + '</b></div>';
+    [['fp-s-p25', '25th'], ['fp-s-p50', '50th'], ['fp-s-p75', '75th'], ['fp-s-p90', '90th']].forEach(function (pair) {
+      const s = ndSeriesById(chart, pair[0]);
+      if (s) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + s.color + '"></span>' + pair[1] + ' Percentile: <b>$' + s.points[idx].y + '</b></div>';
+    });
+  } else {
+    const b2550 = ndSeriesById(chart, 'fp-s-2550').points[idx];
+    const b5075 = ndSeriesById(chart, 'fp-s-5075').points[idx];
+    const b7590 = ndSeriesById(chart, 'fp-s-7590').points[idx];
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>';
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>';
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
+  }
+  return '<div class="hc-tt-date">' + date + '</div>' + rows;
 }
 
 function fpUpdateHero(chart, index) {
-  const series = chart.series[0];
-  const points = series.points;
+  const listingS = ndSeriesById(chart, 'fp-s-listing');
+  const points = listingS.points;
   if (!points || !points.length) return;
   const i = Math.max(0, Math.min(index, points.length - 1));
   const price = points[i].y;
-  const bandLow = chart.series[1].points[i].low;
-  const bandHigh = chart.series[1].points[i].high;
-  const median = Math.round((bandLow + bandHigh) / 2);
+  const p50S = ndSeriesById(chart, 'fp-s-p50');
+  const median = p50S ? p50S.points[i].y : Math.round((ndSeriesById(chart, 'fp-s-5075').points[i].low));
   const diff = price - median;
   const pct = median ? Math.round(Math.abs(diff) / median * 100) : 0;
   document.getElementById('fp-hero-price').textContent = '$' + price;
@@ -3231,6 +3405,52 @@ function fpUpdateHero(chart, index) {
     deltaEl.className = 'price-hero-delta down';
     deltaEl.textContent = '▼ $' + Math.abs(diff) + ' (' + pct + '%) below market median';
   }
+}
+
+/* ── Legend rebuilt per-granularity since monthly (columns + percentile
+   lines) and daily (line + arearange bands) show different series. ── */
+function fpRenderLegend() {
+  const el = document.getElementById('fp-legend');
+  if (!el) return;
+  el.innerHTML = fpGranularity === 'monthly'
+    ? '<div class="legend-item"><div class="legend-swatch" style="background:#4A4A4A;height:8px;width:8px;border-radius:2px"></div> Listing Price</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#C7C7C7;height:8px;width:8px;border-radius:2px"></div> With Markup</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#C8CDD3;height:3px"></div> 25th</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#F6B4B6;height:3px"></div> 50th</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:3px"></div> 75th</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#A15457;height:3px"></div> 90th</div>' +
+      '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' +
+      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>'
+    : '<div class="legend-item"><div class="legend-swatch" style="background:#333333;height:3px"></div> Listing Price</div>' +
+      '<div class="legend-item"><div class="legend-band" style="background:#FCDCDD"></div> 25th–50th</div>' +
+      '<div class="legend-item"><div class="legend-band" style="background:#F69396"></div> 50th–75th</div>' +
+      '<div class="legend-item"><div class="legend-band" style="background:#A15457;opacity:0.4"></div> 75th–90th</div>' +
+      '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' +
+      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>';
+}
+
+/* ── "+ More" overlays: My Upcoming Bookings / My Last Year Bookings /
+   My Same Time Last Year Bookings, added or removed as real chart series
+   (previously purely decorative checkboxes). ── */
+function fpToggleOverlay(el, kind) {
+  el.classList.toggle('checked');
+  const on = el.classList.contains('checked');
+  if (!fpChart) return;
+  const id = 'fp-overlay-' + kind;
+  const existing = ndSeriesById(fpChart, id);
+  if (!on) { if (existing) existing.remove(); return; }
+  if (existing) return;
+  const listingData = ndSeriesById(fpChart, 'fp-s-listing').data.map(p => p.y);
+  const rand = ndSeededRand(fpDays * 11 + kind.length * 17 + 3);
+  const meta = {
+    upcoming: { name: 'My Upcoming Bookings', color: '#544FC5', type: 'scatter', marker: { enabled: true, radius: 4, symbol: 'circle', lineWidth: 1.5, lineColor: '#fff', states: { hover: { enabled: false } } } },
+    lastyear: { name: 'My Last Year Bookings', color: '#7A7A7A', type: 'line', dashStyle: 'Dash', lineWidth: 1.5 },
+    stly: { name: 'My Same Time Last Year Bookings', color: '#2CAFFE', type: 'line', dashStyle: 'ShortDot', lineWidth: 1.5 }
+  }[kind];
+  const data = kind === 'upcoming'
+    ? listingData.map((v, i) => rand() < 0.32 ? [i, v] : null).filter(function (p) { return p; })
+    : listingData.map((v, i) => Math.round(v * (kind === 'lastyear' ? 0.9 : 0.96) + Math.sin(i / 4) * 6));
+  fpChart.addSeries(Object.assign({ id: id, data: data, zIndex: 6, enableMouseTracking: false }, meta), true);
 }
 
 function fpSetRange(el, days) {
@@ -3245,20 +3465,26 @@ function fpSetGranularity(el, mode) {
   fpInitChart();
 }
 
-/* ── Occupancy: column chart, Booked/Unavailable stacked + Market Occ line.
-   Daily/Monthly is its own independent toggle — not tied to Future
-   Prices' granularity setting. ── */
+/* ── Occupancy: matches desktop's own Occupancy chart — Market Occupancy
+   (current), Last Year (Today) and Last Year (Final) as lines (daily) or
+   grouped columns (monthly), plus an optional 7-day Market Pickup pacing
+   overlay (toggled from Chart Options — item 4). Daily/Monthly is its
+   own independent toggle — not tied to Future Prices' granularity. ── */
 function occBuildData(days, granularity) {
   const rand = ndSeededRand(days * 3 + 5);
   const today = new Date(2026, 8, 22);
   const rows = [];
   for (let i = 0; i < days; i++) {
     const d = new Date(today.getTime() + i * 86400000);
+    const cur = Math.round(55 + Math.sin(i / 6) * 15 + rand() * 8);
     rows.push({
       date: d,
-      booked: Math.round(50 + rand() * 30),
-      unavailable: Math.round(rand() * 15),
-      market: Math.round(55 + Math.sin(i / 6) * 15 + rand() * 8)
+      market: cur,
+      lyToday: Math.round(cur * 0.88 + (rand() - 0.5) * 6),
+      lyFinal: Math.round(cur * 1.04 + (rand() - 0.5) * 6),
+      pickup: Math.round(2 + rand() * 6),
+      pickupLY: Math.round(1 + rand() * 5),
+      isEvent: rand() < 0.06
     });
   }
   let buckets;
@@ -3270,40 +3496,58 @@ function occBuildData(days, granularity) {
     buckets = [];
     for (let i = 0; i < rows.length; i += step) buckets.push(rows.slice(i, i + 1));
   }
-  const cats = [], booked = [], unavailable = [], market = [];
-  buckets.forEach(rowsInBucket => {
+  const cats = [], market = [], lyToday = [], lyFinal = [], pickup = [], pickupLY = [], events = [];
+  buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
     cats.push(granularity === 'monthly'
       ? first.date.toLocaleDateString('en-US', { month: 'short' })
       : first.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const avg = key => Math.round(rowsInBucket.reduce((s, r) => s + r[key], 0) / rowsInBucket.length);
-    booked.push(avg('booked'));
-    unavailable.push(avg('unavailable'));
-    market.push(avg('market'));
+    market.push(Math.min(100, avg('market')));
+    lyToday.push(Math.min(100, avg('lyToday')));
+    lyFinal.push(Math.min(100, avg('lyFinal')));
+    pickup.push(avg('pickup'));
+    pickupLY.push(avg('pickupLY'));
+    if (rowsInBucket.some(r => r.isEvent) && events.length < 5) events.push(i);
   });
-  return { cats, booked, unavailable, market };
+  return { cats, market, lyToday, lyFinal, pickup, pickupLY, events };
 }
 
 let occChart = null;
 let occDays = 30;
 let occGranularity = 'daily';
-function occInitChart(days) {
-  const el = document.getElementById('occ-hc-chart');
-  if (!el || !window.Highcharts) return;
-  if (days) occDays = days;
-  const { cats, booked, unavailable, market } = occBuildData(occDays, occGranularity);
-  if (occChart) { occChart.destroy(); occChart = null; }
-  occChart = Highcharts.chart('occ-hc-chart', {
+let occPacingEnabled = true;
+
+function occRenderChart(containerId, height) {
+  const el = document.getElementById(containerId);
+  if (!el || !window.Highcharts) return null;
+  const { cats, market, lyToday, lyFinal, pickup, pickupLY, events } = occBuildData(occDays, occGranularity);
+  const isMonthly = occGranularity === 'monthly';
+  const series = isMonthly ? [
+    { type: 'column', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', zIndex: 3 },
+    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#F8C6C8', zIndex: 2 },
+    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#FDE3E4', zIndex: 1 }
+  ] : [
+    { type: 'line', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 },
+    { type: 'line', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#B5B5B5', lineWidth: 1.5, zIndex: 4 },
+    { type: 'line', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#B5B5B5', lineWidth: 1.5, dashStyle: 'Dot', zIndex: 4 }
+  ];
+  if (occPacingEnabled) {
+    series.push({ type: 'line', id: 'occ-s-pickup', name: '7-day Market Pickup', data: pickup, color: '#31C48D', lineWidth: 1.5, zIndex: 6 });
+    series.push({ type: 'line', id: 'occ-s-pickupLY', name: '7-day Market Pickup (LY)', data: pickupLY, color: '#31C48D', lineWidth: 1.5, dashStyle: 'Dot', zIndex: 6 });
+  }
+  const chart = Highcharts.chart(containerId, {
     chart: {
-      height: 220,
+      height: height,
       spacing: ND_CHART_SPACING,
       marginLeft: ND_CHART_MARGIN_LEFT,
+      marginRight: ND_CHART_MARGIN_RIGHT,
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
       events: { load: function () { occUpdateHero(this, this.series[0].points.length - 1); } }
     },
-    xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
+    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
     yAxis: ndYAxisConfig({
       max: 110,
       yFormatter: function () { return this.value + '%'; }
@@ -3311,47 +3555,78 @@ function occInitChart(days) {
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
-      column: { stacking: 'normal', pointPadding: 0.08, groupPadding: 0.06, borderWidth: 0 },
+      column: { pointPadding: 0.08, groupPadding: 0.1, borderWidth: 0, borderRadius: 2 },
       series: { marker: { enabled: false }, states: { hover: { enabled: false } } }
     },
-    series: [
-      { type: 'column', name: 'Booked', data: booked, color: '#2CAFFE' },
-      { type: 'column', name: 'Unavailable', data: unavailable, color: 'rgba(44,175,254,0.45)' },
-      { type: 'line', name: 'Market Occ.', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 }
-    ]
+    series: series
   });
-  const occWrap = el.closest('.hc-chart-wrap');
-  attachScrub(occChart, occWrap, occUpdateHero, occTooltipHtml);
+  const wrap = el.closest('.hc-chart-wrap');
+  attachScrub(chart, wrap, occUpdateHero, occTooltipHtml);
+  return chart;
+}
+
+function occInitChart(days) {
+  if (!document.getElementById('occ-hc-chart')) return;
+  if (days) occDays = days;
+  if (occChart) { occChart.destroy(); occChart = null; }
+  occChart = occRenderChart('occ-hc-chart', 220);
+  occRenderLegend();
 }
 
 function occTooltipHtml(chart, idx) {
   const date = chart.xAxis[0].categories[idx];
-  const booked = chart.series[0].points[idx].y;
-  const unavailable = chart.series[1].points[idx].y;
-  const marketOcc = chart.series[2].points[idx].y;
-  return '' +
-    '<div class="hc-tt-date">' + date + '</div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#2CAFFE"></span>Booked: <b>' + booked + '%</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:rgba(44,175,254,0.45)"></span>Unavailable: <b>' + unavailable + '%</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F37579"></span>Market Occ.: <b>' + marketOcc + '%</b></div>';
+  const defs = [
+    ['occ-s-market', '#F37579', 'Market Occupancy'],
+    ['occ-s-lytoday', '#B5B5B5', 'Last Year (Today)'],
+    ['occ-s-lyfinal', '#B5B5B5', 'Last Year (Final)'],
+    ['occ-s-pickup', '#31C48D', '7-day Pickup'],
+    ['occ-s-pickupLY', '#31C48D', '7-day Pickup (LY)']
+  ];
+  let rows = '';
+  defs.forEach(function (d) {
+    const s = ndSeriesById(chart, d[0]);
+    if (!s || !s.points[idx]) return;
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + d[1] + '"></span>' + d[2] + ': <b>' + s.points[idx].y + '%</b></div>';
+  });
+  return '<div class="hc-tt-date">' + date + '</div>' + rows;
 }
 
 function occUpdateHero(chart, index) {
-  const points = chart.series[0].points;
-  if (!points || !points.length) return;
-  const i = Math.max(0, Math.min(index, points.length - 1));
-  const yours = points[i].y + chart.series[1].points[i].y;
-  const marketVal = chart.series[2].points[i].y;
-  const diff = yours - marketVal;
-  document.getElementById('occ-hero-value').textContent = yours + '%';
+  const marketS = ndSeriesById(chart, 'occ-s-market');
+  if (!marketS || !marketS.points.length) return;
+  const i = Math.max(0, Math.min(index, marketS.points.length - 1));
+  const cur = marketS.points[i].y;
+  const lyFinalS = ndSeriesById(chart, 'occ-s-lyfinal');
+  const ly = lyFinalS ? lyFinalS.points[i].y : cur;
+  const diff = cur - ly;
+  document.getElementById('occ-hero-value').textContent = cur + '%';
   const deltaEl = document.getElementById('occ-hero-delta');
   if (diff >= 0) {
     deltaEl.className = 'price-hero-delta up';
-    deltaEl.textContent = '▲ ' + diff + '% above market median';
+    deltaEl.textContent = '▲ ' + diff + '% above last year';
   } else {
     deltaEl.className = 'price-hero-delta down';
-    deltaEl.textContent = '▼ ' + Math.abs(diff) + '% below market median';
+    deltaEl.textContent = '▼ ' + Math.abs(diff) + '% below last year';
   }
+}
+
+/* ── Legend rebuilt per-granularity/pacing-state ── */
+function occRenderLegend() {
+  const el = document.getElementById('occ-legend');
+  if (!el) return;
+  const isMonthly = occGranularity === 'monthly';
+  const sw = isMonthly ? 'height:8px;width:8px;border-radius:2px' : 'height:3px';
+  let html =
+    '<div class="legend-item"><div class="legend-swatch" style="background:#F37579;' + sw + '"></div> Market Occupancy</div>' +
+    '<div class="legend-item"><div class="legend-swatch" style="background:' + (isMonthly ? '#F8C6C8' : '#B5B5B5') + ';' + sw + '"></div> Last Year (Today)</div>' +
+    '<div class="legend-item"><div class="legend-swatch" style="background:' + (isMonthly ? '#FDE3E4' : '#B5B5B5') + ';' + sw + '"></div> Last Year (Final)</div>';
+  if (occPacingEnabled) {
+    html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px"></div> 7-day Pickup</div>';
+    html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px;opacity:0.5"></div> Pickup (LY)</div>';
+  }
+  html += '<div class="legend-item"><span class="legend-band-event"></span> Events</div>';
+  html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ Pacing</div>';
+  el.innerHTML = html;
 }
 
 function occSetRange(el, days) {
@@ -3363,6 +3638,11 @@ function occSetGranularity(el, mode) {
   el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
   occGranularity = mode;
+  occInitChart();
+}
+function occTogglePacing(el) {
+  el.classList.toggle('checked');
+  occPacingEnabled = el.classList.contains('checked');
   occInitChart();
 }
 
@@ -3398,7 +3678,7 @@ function histInitChart(key) {
       ]
     : [{ type: 'column', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }];
   histChart = Highcharts.chart('hist-hc-chart', {
-    chart: { height: 190, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, backgroundColor: 'transparent' },
+    chart: { height: 190, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
     xAxis: {
       categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
       labels: { style: { fontSize: '10px', color: '#7A7A7A' } },
@@ -3584,6 +3864,55 @@ function ndCloseSheet(id) {
 function selectRadio(el) {
   el.closest('.bs-radio-group').querySelectorAll('.bs-radio').forEach(r => r.classList.remove('selected'));
   el.classList.add('selected');
+}
+
+/* ── Fullscreen chart detail view (item 8): a mobile-first push screen,
+   reusing the same fp/occ chart-building functions at a larger height
+   rather than a separate "zoomed" implementation. ── */
+let fsChart = null;
+function ndOpenChartFullscreen(which) {
+  document.getElementById('fs-chart-title').textContent = which === 'fp' ? 'Future Prices' : 'Occupancy';
+  const sheet = document.getElementById('sheet-chart-fullscreen');
+  sheet.style.display = 'flex';
+  sheet.dataset.chart = which;
+  if (fsChart) { fsChart.destroy(); fsChart = null; }
+  setTimeout(function () {
+    fsChart = which === 'fp' ? fpRenderChart('fs-hc-chart', 380) : occRenderChart('fs-hc-chart', 380);
+  }, 30);
+}
+function ndCloseChartFullscreen() {
+  document.getElementById('sheet-chart-fullscreen').style.display = 'none';
+  if (fsChart) { fsChart.destroy(); fsChart = null; }
+}
+
+/* ── Bedroom multi-select chips (Comp Set edit sheet) ── */
+function toggleBedroomChip(el) {
+  el.classList.toggle('selected');
+}
+
+/* ── Markup toggle (Comp Set edit sheet): reveals name/type/amount fields,
+   same "does your PMS add markup" flow shown in the desktop editor. ── */
+function toggleMarkupFields(checkboxEl) {
+  checkboxEl.classList.toggle('checked');
+  const fields = document.getElementById('markup-fields');
+  if (fields) fields.classList.toggle('open', checkboxEl.classList.contains('checked'));
+}
+function addMarkupRow() {
+  const list = document.getElementById('markup-fields');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'markup-field-row';
+  row.innerHTML =
+    '<input type="text" placeholder="Name">' +
+    '<select><option>Percent</option><option>Fixed</option></select>' +
+    '<input type="text" placeholder="Amount">';
+  const addBtn = list.querySelector('.markup-add-btn');
+  list.insertBefore(row, addBtn);
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'markup-remove-btn';
+  removeBtn.textContent = 'Remove Markup Details';
+  removeBtn.onclick = function () { row.remove(); removeBtn.remove(); };
+  list.insertBefore(removeBtn, addBtn);
 }
 
 </script>

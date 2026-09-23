@@ -8,12 +8,69 @@
     </div>
     <div class="bs-body">
       <div class="bs-section-label">Future Prices Options</div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Upcoming Bookings</span></div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Last Year Bookings</span></div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Same Time Last Year Bookings</span></div>
-      <div class="bs-section-label">More Options</div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">Market Booked Price</span></div>
-      <div class="bs-option" onclick="this.classList.toggle('checked')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">Price with Default Customization</span></div>
+      <div class="bs-option" onclick="fpToggleOverlay(this,'upcoming')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Upcoming Bookings</span></div>
+      <div class="bs-option" onclick="fpToggleOverlay(this,'lastyear')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Last Year Bookings</span></div>
+      <div class="bs-option" onclick="fpToggleOverlay(this,'stly')"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">My Same Time Last Year Bookings</span></div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Bottom Sheet: Occupancy Chart Options (pacing toggle — item 4) ═══ -->
+<div class="bs-overlay" id="bs-occ-options" onclick="ndCloseSheet('bs-occ-options')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Chart Options</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-occ-options')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body">
+      <div class="bs-section-label">Pacing</div>
+      <div class="bs-option checked" onclick="occTogglePacing(this)"><div class="bs-check"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div><span class="bs-opt-label">Show 7-day Market Pickup</span></div>
+      <p style="font-size:12px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0 0">Tracks how fast the market is booking up over the trailing 7 days, compared to the same week last year.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Bottom Sheet: Comp Set edit (mobile-friendly version of desktop's
+     Comp Set editor — Competitor Room Types intentionally left out) ═══ -->
+<div class="bs-overlay" id="bs-comp-set-edit" onclick="ndCloseSheet('bs-comp-set-edit')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()" style="max-height:85vh;display:flex;flex-direction:column">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Edit Comp Set</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-comp-set-edit')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body" style="flex:1;overflow-y:auto">
+      <div class="bs-section-label">Compset Type</div>
+      <div class="bs-radio-group">
+        <div class="bs-radio selected" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Nearby Room Types</span></div>
+        <div class="bs-radio" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Market Dashboards</span></div>
+      </div>
+      <div class="bs-section-label">Bedrooms</div>
+      <div class="bedroom-chips">
+        <div class="bedroom-chip" onclick="toggleBedroomChip(this)">Studio</div>
+        <div class="bedroom-chip selected" onclick="toggleBedroomChip(this)">1 BR</div>
+        <div class="bedroom-chip selected" onclick="toggleBedroomChip(this)">2 BR</div>
+        <div class="bedroom-chip" onclick="toggleBedroomChip(this)">3 BR+</div>
+      </div>
+      <div class="bs-section-label">Markup</div>
+      <div class="markup-toggle-row">
+        <span class="markup-toggle-label">Do you add markup for this listing on your PMS?</span>
+        <div class="bs-check" style="width:22px;height:22px" onclick="toggleMarkupFields(this)"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div>
+      </div>
+      <div class="markup-fields" id="markup-fields">
+        <div class="markup-field-row">
+          <input type="text" placeholder="Name" value="Cleaning">
+          <select><option>Percent</option><option>Fixed</option></select>
+          <input type="text" placeholder="Amount" value="10%">
+        </div>
+        <button class="markup-remove-btn" onclick="this.closest('.markup-field-row').remove();this.remove()">Remove Markup Details</button>
+        <button class="markup-add-btn" onclick="addMarkupRow()">+ Add Another</button>
+      </div>
+    </div>
+    <div class="bs-footer-actions">
+      <button class="bs-btn cancel" onclick="ndCloseSheet('bs-comp-set-edit')">Cancel</button>
+      <button class="bs-btn apply" onclick="ndCloseSheet('bs-comp-set-edit')">Apply</button>
     </div>
   </div>
 </div>
@@ -27,8 +84,8 @@
       <button class="bs-close" onclick="ndCloseSheet('bs-future-help')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
     </div>
     <div class="bs-body">
-      <p>Shows your listing's price compared to the market for upcoming dates. The solid line is your current price, while the shaded bands show the 25th–75th percentile range of comparable listings in your comp set.</p>
-      <p style="margin-top:10px">Use the time range pills to adjust how far ahead you're looking. Tap the gear icon to overlay additional data like last year's bookings or market booked prices.</p>
+      <p>Shows your listing's price compared to the market for upcoming dates. The solid line is your current price, while the shaded bands show the percentile range of comparable listings in your comp set. Switch to Monthly for a bar-chart summary with percentile lines, matching the desktop view.</p>
+      <p style="margin-top:10px">Use the time range pills to adjust how far ahead you're looking. Tap the gear icon to overlay your own upcoming or last year's bookings on the chart.</p>
     </div>
   </div>
 </div>
@@ -42,8 +99,8 @@
       <button class="bs-close" onclick="ndCloseSheet('bs-occ-help')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
     </div>
     <div class="bs-body">
-      <p>Tracks your listing's booked and unavailable nights alongside overall market occupancy. Blue bars show your booked nights (darker) and blocked/unavailable nights (lighter). Orange bars show market occupancy for your comp set.</p>
-      <p style="margin-top:10px">Toggle "Last Year Data" and "Pickup" in the legend to compare with historical occupancy or see booking pace changes.</p>
+      <p>Tracks market occupancy for your comp set against the same period last year. The salmon line (or bar) is current market occupancy; grey shows Last Year (Today) — where last year stood at this same point in its booking window — and Last Year (Final) — how it ultimately landed.</p>
+      <p style="margin-top:10px">Green shows the 7-day Market Pickup pacing line, comparing how fast the market is booking up now vs. the same week last year. Use the gear icon to show or hide it.</p>
     </div>
   </div>
 </div>

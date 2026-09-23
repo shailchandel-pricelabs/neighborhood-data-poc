@@ -180,14 +180,17 @@ function ndSeededRand(seed) {
    area visibly narrower than the card while the right side sat empty.
    Left-aligned axis labels are narrower (2-4 digits) so the reserved
    margin can shrink too, giving the plot area most of the card width. ── */
-const ND_CHART_SPACING = [8, 8, 22, 4];
+const ND_CHART_SPACING = [8, 0, 22, 0];
 /* Highcharts auto-reserves axis width beyond what the label text actually
    needs (measured ~71px total for 3-char "$350"-style labels when left
    to auto-calculate) — the gap between the plot area and the card's right
-   edge that was flagged as wasted space. Setting marginLeft explicitly
-   overrides that auto-calculation so the plot area gets nearly the full
-   card width instead. */
-const ND_CHART_MARGIN_LEFT = 34;
+   edge that was flagged as wasted space. Setting marginLeft/marginRight
+   explicitly overrides that auto-calculation so the plot area's left edge
+   lines up with the section's own title/hero text and its right edge
+   lines up with the rightmost header icon button, instead of sitting
+   inset from both by the auto-reserved margin + default spacing. */
+const ND_CHART_MARGIN_LEFT = 30;
+const ND_CHART_MARGIN_RIGHT = 4;
 function ndXAxisConfig(cats, step) {
   return {
     categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
@@ -223,9 +226,26 @@ function ndHideTooltip(wrapEl) {
   if (tt) tt.classList.remove('visible');
 }
 
-/* ── Future Prices: build arearange + line series for N days, at either
-   daily or monthly granularity (independent of Occupancy's own toggle —
-   each chart aggregates on its own, there's no shared/global setting) ── */
+/* ── Lookup a series by its explicit `id` rather than by position, so
+   tooltip/hero code works the same whether the chart is showing its
+   daily (line/arearange) or monthly (column) series set. ── */
+function ndSeriesById(chart, id) {
+  return chart.series.find(function (s) { return s.options.id === id; });
+}
+
+/* ── Events & Holidays rendered as purple baseline bands (matching
+   desktop) rather than dots sitting on the price/occupancy line. ── */
+function ndEventPlotBands(events, color) {
+  color = color || 'rgba(213,104,251,0.16)';
+  return events.map(function (i) { return { from: i - 0.42, to: i + 0.42, color: color, zIndex: 0 }; });
+}
+
+/* ── Future Prices: build data for N days, at either daily or monthly
+   granularity (independent of Occupancy's own toggle — each chart
+   aggregates on its own, there's no shared/global setting). Daily mode
+   renders as a line + percentile arearange bands; monthly mode renders
+   as columns (Listing Price / Listing Price with Markup) plus percentile
+   lines in a grey→red gradient, matching desktop's own monthly view. ── */
 function fpBuildData(days, granularity) {
   const rand = ndSeededRand(days * 7 + 1);
   const base = 228;
@@ -246,20 +266,24 @@ function fpBuildData(days, granularity) {
     });
   }
   const buckets = granularity === 'monthly' ? bucketByMonth(rows) : rows.map(r => [r]);
-  const cats = [], listing = [], band2550 = [], band5075 = [], band7590 = [], events = [];
+  const cats = [], listing = [], markupCol = [], p25 = [], p50 = [], p75 = [], p90 = [];
+  const band2550 = [], band5075 = [], band7590 = [], events = [];
   buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
     cats.push(granularity === 'monthly'
       ? first.date.toLocaleDateString('en-US', { month: 'short' })
       : first.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const avg = key => Math.round(rowsInBucket.reduce((s, r) => s + r[key], 0) / rowsInBucket.length);
-    listing.push([i, avg('price')]);
+    const priceAvg = avg('price');
+    listing.push(priceAvg);
+    markupCol.push(Math.round(priceAvg * 1.06));
+    p25.push(avg('p25')); p50.push(avg('p50')); p75.push(avg('p75')); p90.push(avg('p90'));
     band2550.push([i, avg('p25'), avg('p50')]);
     band5075.push([i, avg('p50'), avg('p75')]);
     band7590.push([i, avg('p75'), avg('p90')]);
     if (rowsInBucket.some(r => r.isEvent) && events.length < 5) events.push(i);
   });
-  return { cats, listing, band2550, band5075, band7590, events };
+  return { cats, listing, markupCol, p25, p50, p75, p90, band2550, band5075, band7590, events };
 }
 function bucketByMonth(rows) {
   const buckets = [];
@@ -275,17 +299,34 @@ function bucketByMonth(rows) {
 let fpChart = null;
 let fpDays = 30;
 let fpGranularity = 'daily';
-function fpInitChart(days) {
-  const el = document.getElementById('fp-hc-chart');
-  if (!el || !window.Highcharts) return;
-  if (days) fpDays = days;
-  const { cats, listing, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
-  if (fpChart) { fpChart.destroy(); fpChart = null; }
-  fpChart = Highcharts.chart('fp-hc-chart', {
+
+/* Pure chart builder — renders into any container at any height, so the
+   same code drives both the in-card chart and the fullscreen detail view
+   (item 8) without duplicating the series/config logic. */
+function fpRenderChart(containerId, height) {
+  const el = document.getElementById(containerId);
+  if (!el || !window.Highcharts) return null;
+  const { cats, listing, markupCol, p25, p50, p75, p90, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
+  const isMonthly = fpGranularity === 'monthly';
+  const series = isMonthly ? [
+    { type: 'column', id: 'fp-s-listing', name: 'Listing Price', data: listing, color: '#4A4A4A', zIndex: 3 },
+    { type: 'column', id: 'fp-s-markup', name: 'Listing Price with Markup', data: markupCol, color: '#C7C7C7', zIndex: 2 },
+    { type: 'line', id: 'fp-s-p25', name: '25th Percentile', data: p25, color: '#C8CDD3', lineWidth: 1.5, zIndex: 5 },
+    { type: 'line', id: 'fp-s-p50', name: '50th Percentile', data: p50, color: '#F6B4B6', lineWidth: 1.5, zIndex: 5 },
+    { type: 'line', id: 'fp-s-p75', name: '75th Percentile', data: p75, color: '#F37579', lineWidth: 1.5, zIndex: 5 },
+    { type: 'line', id: 'fp-s-p90', name: '90th Percentile', data: p90, color: '#A15457', lineWidth: 1.5, zIndex: 5 }
+  ] : [
+    { type: 'line', id: 'fp-s-listing', name: 'Listing Price', data: listing, color: '#333333', lineWidth: 2.5, zIndex: 5 },
+    { type: 'arearange', id: 'fp-s-5075', name: '50th–75th', data: band5075.map(p => [p[1], p[2]]), color: '#F69396', zIndex: 2 },
+    { type: 'arearange', id: 'fp-s-7590', name: '75th–90th', data: band7590.map(p => [p[1], p[2]]), color: 'rgba(161,84,87,0.4)', zIndex: 1 },
+    { type: 'arearange', id: 'fp-s-2550', name: '25th–50th', data: band2550.map(p => [p[1], p[2]]), color: '#FCDCDD', zIndex: 3 }
+  ];
+  const chart = Highcharts.chart(containerId, {
     chart: {
-      height: 200,
+      height: height,
       spacing: ND_CHART_SPACING,
       marginLeft: ND_CHART_MARGIN_LEFT,
+      marginRight: ND_CHART_MARGIN_RIGHT,
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
@@ -293,7 +334,7 @@ function fpInitChart(days) {
         load: function () { fpUpdateHero(this, this.series[0].points.length - 1); }
       }
     },
-    xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
+    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
     yAxis: ndYAxisConfig({
       yFormatter: function () { return '$' + this.value; }
     }),
@@ -306,76 +347,54 @@ function fpInitChart(days) {
         enableMouseTracking: true,
         animation: { duration: 300 }
       },
-      arearange: { lineWidth: 0, fillOpacity: 1 }
+      arearange: { lineWidth: 0, fillOpacity: 1 },
+      column: { borderWidth: 0, borderRadius: 2, pointPadding: 0.08, groupPadding: 0.06 }
     },
-    series: [
-      {
-        type: 'line',
-        name: 'Listing Price',
-        data: listing.map(p => p[1]),
-        color: '#333333',
-        lineWidth: 2.5,
-        zIndex: 5
-      },
-      {
-        type: 'arearange',
-        name: '50th–75th',
-        data: band5075.map(p => [p[1], p[2]]),
-        color: '#F69396',
-        zIndex: 2
-      },
-      {
-        type: 'arearange',
-        name: '75th–90th',
-        data: band7590.map(p => [p[1], p[2]]),
-        color: 'rgba(161,84,87,0.4)',
-        zIndex: 1
-      },
-      {
-        type: 'arearange',
-        name: '25th–50th',
-        data: band2550.map(p => [p[1], p[2]]),
-        color: '#FCDCDD',
-        zIndex: 3
-      },
-      {
-        type: 'scatter',
-        name: 'Events',
-        data: events.map(i => [i, listing[i][1]]),
-        color: '#D568FB',
-        marker: { enabled: true, radius: 4, symbol: 'circle', lineWidth: 1.5, lineColor: '#fff', states: { hover: { enabled: false } } },
-        enableMouseTracking: false,
-        zIndex: 6
-      }
-    ]
+    series: series
   });
-  const fpWrap = el.closest('.hc-chart-wrap');
-  attachScrub(fpChart, fpWrap, fpUpdateHero, fpTooltipHtml);
+  const wrap = el.closest('.hc-chart-wrap');
+  attachScrub(chart, wrap, fpUpdateHero, fpTooltipHtml);
+  return chart;
+}
+
+function fpInitChart(days) {
+  if (!document.getElementById('fp-hc-chart')) return;
+  if (days) fpDays = days;
+  if (fpChart) { fpChart.destroy(); fpChart = null; }
+  fpChart = fpRenderChart('fp-hc-chart', 200);
+  fpRenderLegend();
 }
 
 function fpTooltipHtml(chart, idx) {
   const date = chart.xAxis[0].categories[idx];
-  const price = chart.series[0].points[idx].y;
-  const b2550 = chart.series[3].points[idx];
-  const b5075 = chart.series[1].points[idx];
-  const b7590 = chart.series[2].points[idx];
-  return '' +
-    '<div class="hc-tt-date">' + date + '</div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#333333"></span>Listing Price: <b>$' + price + '</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
+  const price = ndSeriesById(chart, 'fp-s-listing').points[idx].y;
+  let rows = '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#333333"></span>Listing Price: <b>$' + price + '</b></div>';
+  if (fpGranularity === 'monthly') {
+    const markupS = ndSeriesById(chart, 'fp-s-markup');
+    if (markupS) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#C7C7C7"></span>With Markup: <b>$' + markupS.points[idx].y + '</b></div>';
+    [['fp-s-p25', '25th'], ['fp-s-p50', '50th'], ['fp-s-p75', '75th'], ['fp-s-p90', '90th']].forEach(function (pair) {
+      const s = ndSeriesById(chart, pair[0]);
+      if (s) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + s.color + '"></span>' + pair[1] + ' Percentile: <b>$' + s.points[idx].y + '</b></div>';
+    });
+  } else {
+    const b2550 = ndSeriesById(chart, 'fp-s-2550').points[idx];
+    const b5075 = ndSeriesById(chart, 'fp-s-5075').points[idx];
+    const b7590 = ndSeriesById(chart, 'fp-s-7590').points[idx];
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>';
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>';
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
+  }
+  return '<div class="hc-tt-date">' + date + '</div>' + rows;
 }
 
 function fpUpdateHero(chart, index) {
-  const series = chart.series[0];
-  const points = series.points;
+  const listingS = ndSeriesById(chart, 'fp-s-listing');
+  const points = listingS.points;
   if (!points || !points.length) return;
   const i = Math.max(0, Math.min(index, points.length - 1));
   const price = points[i].y;
-  const bandLow = chart.series[1].points[i].low;
-  const bandHigh = chart.series[1].points[i].high;
-  const median = Math.round((bandLow + bandHigh) / 2);
+  const p50S = ndSeriesById(chart, 'fp-s-p50');
+  const median = p50S ? p50S.points[i].y : Math.round((ndSeriesById(chart, 'fp-s-5075').points[i].low));
   const diff = price - median;
   const pct = median ? Math.round(Math.abs(diff) / median * 100) : 0;
   document.getElementById('fp-hero-price').textContent = '$' + price;
@@ -387,6 +406,52 @@ function fpUpdateHero(chart, index) {
     deltaEl.className = 'price-hero-delta down';
     deltaEl.textContent = '▼ $' + Math.abs(diff) + ' (' + pct + '%) below market median';
   }
+}
+
+/* ── Legend rebuilt per-granularity since monthly (columns + percentile
+   lines) and daily (line + arearange bands) show different series. ── */
+function fpRenderLegend() {
+  const el = document.getElementById('fp-legend');
+  if (!el) return;
+  el.innerHTML = fpGranularity === 'monthly'
+    ? '<div class="legend-item"><div class="legend-swatch" style="background:#4A4A4A;height:8px;width:8px;border-radius:2px"></div> Listing Price</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#C7C7C7;height:8px;width:8px;border-radius:2px"></div> With Markup</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#C8CDD3;height:3px"></div> 25th</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#F6B4B6;height:3px"></div> 50th</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:3px"></div> 75th</div>' +
+      '<div class="legend-item"><div class="legend-swatch" style="background:#A15457;height:3px"></div> 90th</div>' +
+      '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' +
+      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>'
+    : '<div class="legend-item"><div class="legend-swatch" style="background:#333333;height:3px"></div> Listing Price</div>' +
+      '<div class="legend-item"><div class="legend-band" style="background:#FCDCDD"></div> 25th–50th</div>' +
+      '<div class="legend-item"><div class="legend-band" style="background:#F69396"></div> 50th–75th</div>' +
+      '<div class="legend-item"><div class="legend-band" style="background:#A15457;opacity:0.4"></div> 75th–90th</div>' +
+      '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' +
+      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>';
+}
+
+/* ── "+ More" overlays: My Upcoming Bookings / My Last Year Bookings /
+   My Same Time Last Year Bookings, added or removed as real chart series
+   (previously purely decorative checkboxes). ── */
+function fpToggleOverlay(el, kind) {
+  el.classList.toggle('checked');
+  const on = el.classList.contains('checked');
+  if (!fpChart) return;
+  const id = 'fp-overlay-' + kind;
+  const existing = ndSeriesById(fpChart, id);
+  if (!on) { if (existing) existing.remove(); return; }
+  if (existing) return;
+  const listingData = ndSeriesById(fpChart, 'fp-s-listing').data.map(p => p.y);
+  const rand = ndSeededRand(fpDays * 11 + kind.length * 17 + 3);
+  const meta = {
+    upcoming: { name: 'My Upcoming Bookings', color: '#544FC5', type: 'scatter', marker: { enabled: true, radius: 4, symbol: 'circle', lineWidth: 1.5, lineColor: '#fff', states: { hover: { enabled: false } } } },
+    lastyear: { name: 'My Last Year Bookings', color: '#7A7A7A', type: 'line', dashStyle: 'Dash', lineWidth: 1.5 },
+    stly: { name: 'My Same Time Last Year Bookings', color: '#2CAFFE', type: 'line', dashStyle: 'ShortDot', lineWidth: 1.5 }
+  }[kind];
+  const data = kind === 'upcoming'
+    ? listingData.map((v, i) => rand() < 0.32 ? [i, v] : null).filter(function (p) { return p; })
+    : listingData.map((v, i) => Math.round(v * (kind === 'lastyear' ? 0.9 : 0.96) + Math.sin(i / 4) * 6));
+  fpChart.addSeries(Object.assign({ id: id, data: data, zIndex: 6, enableMouseTracking: false }, meta), true);
 }
 
 function fpSetRange(el, days) {
@@ -401,20 +466,26 @@ function fpSetGranularity(el, mode) {
   fpInitChart();
 }
 
-/* ── Occupancy: column chart, Booked/Unavailable stacked + Market Occ line.
-   Daily/Monthly is its own independent toggle — not tied to Future
-   Prices' granularity setting. ── */
+/* ── Occupancy: matches desktop's own Occupancy chart — Market Occupancy
+   (current), Last Year (Today) and Last Year (Final) as lines (daily) or
+   grouped columns (monthly), plus an optional 7-day Market Pickup pacing
+   overlay (toggled from Chart Options — item 4). Daily/Monthly is its
+   own independent toggle — not tied to Future Prices' granularity. ── */
 function occBuildData(days, granularity) {
   const rand = ndSeededRand(days * 3 + 5);
   const today = new Date(2026, 8, 22);
   const rows = [];
   for (let i = 0; i < days; i++) {
     const d = new Date(today.getTime() + i * 86400000);
+    const cur = Math.round(55 + Math.sin(i / 6) * 15 + rand() * 8);
     rows.push({
       date: d,
-      booked: Math.round(50 + rand() * 30),
-      unavailable: Math.round(rand() * 15),
-      market: Math.round(55 + Math.sin(i / 6) * 15 + rand() * 8)
+      market: cur,
+      lyToday: Math.round(cur * 0.88 + (rand() - 0.5) * 6),
+      lyFinal: Math.round(cur * 1.04 + (rand() - 0.5) * 6),
+      pickup: Math.round(2 + rand() * 6),
+      pickupLY: Math.round(1 + rand() * 5),
+      isEvent: rand() < 0.06
     });
   }
   let buckets;
@@ -426,40 +497,58 @@ function occBuildData(days, granularity) {
     buckets = [];
     for (let i = 0; i < rows.length; i += step) buckets.push(rows.slice(i, i + 1));
   }
-  const cats = [], booked = [], unavailable = [], market = [];
-  buckets.forEach(rowsInBucket => {
+  const cats = [], market = [], lyToday = [], lyFinal = [], pickup = [], pickupLY = [], events = [];
+  buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
     cats.push(granularity === 'monthly'
       ? first.date.toLocaleDateString('en-US', { month: 'short' })
       : first.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const avg = key => Math.round(rowsInBucket.reduce((s, r) => s + r[key], 0) / rowsInBucket.length);
-    booked.push(avg('booked'));
-    unavailable.push(avg('unavailable'));
-    market.push(avg('market'));
+    market.push(Math.min(100, avg('market')));
+    lyToday.push(Math.min(100, avg('lyToday')));
+    lyFinal.push(Math.min(100, avg('lyFinal')));
+    pickup.push(avg('pickup'));
+    pickupLY.push(avg('pickupLY'));
+    if (rowsInBucket.some(r => r.isEvent) && events.length < 5) events.push(i);
   });
-  return { cats, booked, unavailable, market };
+  return { cats, market, lyToday, lyFinal, pickup, pickupLY, events };
 }
 
 let occChart = null;
 let occDays = 30;
 let occGranularity = 'daily';
-function occInitChart(days) {
-  const el = document.getElementById('occ-hc-chart');
-  if (!el || !window.Highcharts) return;
-  if (days) occDays = days;
-  const { cats, booked, unavailable, market } = occBuildData(occDays, occGranularity);
-  if (occChart) { occChart.destroy(); occChart = null; }
-  occChart = Highcharts.chart('occ-hc-chart', {
+let occPacingEnabled = true;
+
+function occRenderChart(containerId, height) {
+  const el = document.getElementById(containerId);
+  if (!el || !window.Highcharts) return null;
+  const { cats, market, lyToday, lyFinal, pickup, pickupLY, events } = occBuildData(occDays, occGranularity);
+  const isMonthly = occGranularity === 'monthly';
+  const series = isMonthly ? [
+    { type: 'column', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', zIndex: 3 },
+    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#F8C6C8', zIndex: 2 },
+    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#FDE3E4', zIndex: 1 }
+  ] : [
+    { type: 'line', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 },
+    { type: 'line', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#B5B5B5', lineWidth: 1.5, zIndex: 4 },
+    { type: 'line', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#B5B5B5', lineWidth: 1.5, dashStyle: 'Dot', zIndex: 4 }
+  ];
+  if (occPacingEnabled) {
+    series.push({ type: 'line', id: 'occ-s-pickup', name: '7-day Market Pickup', data: pickup, color: '#31C48D', lineWidth: 1.5, zIndex: 6 });
+    series.push({ type: 'line', id: 'occ-s-pickupLY', name: '7-day Market Pickup (LY)', data: pickupLY, color: '#31C48D', lineWidth: 1.5, dashStyle: 'Dot', zIndex: 6 });
+  }
+  const chart = Highcharts.chart(containerId, {
     chart: {
-      height: 220,
+      height: height,
       spacing: ND_CHART_SPACING,
       marginLeft: ND_CHART_MARGIN_LEFT,
+      marginRight: ND_CHART_MARGIN_RIGHT,
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
       events: { load: function () { occUpdateHero(this, this.series[0].points.length - 1); } }
     },
-    xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
+    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
     yAxis: ndYAxisConfig({
       max: 110,
       yFormatter: function () { return this.value + '%'; }
@@ -467,47 +556,78 @@ function occInitChart(days) {
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
-      column: { stacking: 'normal', pointPadding: 0.08, groupPadding: 0.06, borderWidth: 0 },
+      column: { pointPadding: 0.08, groupPadding: 0.1, borderWidth: 0, borderRadius: 2 },
       series: { marker: { enabled: false }, states: { hover: { enabled: false } } }
     },
-    series: [
-      { type: 'column', name: 'Booked', data: booked, color: '#2CAFFE' },
-      { type: 'column', name: 'Unavailable', data: unavailable, color: 'rgba(44,175,254,0.45)' },
-      { type: 'line', name: 'Market Occ.', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 }
-    ]
+    series: series
   });
-  const occWrap = el.closest('.hc-chart-wrap');
-  attachScrub(occChart, occWrap, occUpdateHero, occTooltipHtml);
+  const wrap = el.closest('.hc-chart-wrap');
+  attachScrub(chart, wrap, occUpdateHero, occTooltipHtml);
+  return chart;
+}
+
+function occInitChart(days) {
+  if (!document.getElementById('occ-hc-chart')) return;
+  if (days) occDays = days;
+  if (occChart) { occChart.destroy(); occChart = null; }
+  occChart = occRenderChart('occ-hc-chart', 220);
+  occRenderLegend();
 }
 
 function occTooltipHtml(chart, idx) {
   const date = chart.xAxis[0].categories[idx];
-  const booked = chart.series[0].points[idx].y;
-  const unavailable = chart.series[1].points[idx].y;
-  const marketOcc = chart.series[2].points[idx].y;
-  return '' +
-    '<div class="hc-tt-date">' + date + '</div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#2CAFFE"></span>Booked: <b>' + booked + '%</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:rgba(44,175,254,0.45)"></span>Unavailable: <b>' + unavailable + '%</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F37579"></span>Market Occ.: <b>' + marketOcc + '%</b></div>';
+  const defs = [
+    ['occ-s-market', '#F37579', 'Market Occupancy'],
+    ['occ-s-lytoday', '#B5B5B5', 'Last Year (Today)'],
+    ['occ-s-lyfinal', '#B5B5B5', 'Last Year (Final)'],
+    ['occ-s-pickup', '#31C48D', '7-day Pickup'],
+    ['occ-s-pickupLY', '#31C48D', '7-day Pickup (LY)']
+  ];
+  let rows = '';
+  defs.forEach(function (d) {
+    const s = ndSeriesById(chart, d[0]);
+    if (!s || !s.points[idx]) return;
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + d[1] + '"></span>' + d[2] + ': <b>' + s.points[idx].y + '%</b></div>';
+  });
+  return '<div class="hc-tt-date">' + date + '</div>' + rows;
 }
 
 function occUpdateHero(chart, index) {
-  const points = chart.series[0].points;
-  if (!points || !points.length) return;
-  const i = Math.max(0, Math.min(index, points.length - 1));
-  const yours = points[i].y + chart.series[1].points[i].y;
-  const marketVal = chart.series[2].points[i].y;
-  const diff = yours - marketVal;
-  document.getElementById('occ-hero-value').textContent = yours + '%';
+  const marketS = ndSeriesById(chart, 'occ-s-market');
+  if (!marketS || !marketS.points.length) return;
+  const i = Math.max(0, Math.min(index, marketS.points.length - 1));
+  const cur = marketS.points[i].y;
+  const lyFinalS = ndSeriesById(chart, 'occ-s-lyfinal');
+  const ly = lyFinalS ? lyFinalS.points[i].y : cur;
+  const diff = cur - ly;
+  document.getElementById('occ-hero-value').textContent = cur + '%';
   const deltaEl = document.getElementById('occ-hero-delta');
   if (diff >= 0) {
     deltaEl.className = 'price-hero-delta up';
-    deltaEl.textContent = '▲ ' + diff + '% above market median';
+    deltaEl.textContent = '▲ ' + diff + '% above last year';
   } else {
     deltaEl.className = 'price-hero-delta down';
-    deltaEl.textContent = '▼ ' + Math.abs(diff) + '% below market median';
+    deltaEl.textContent = '▼ ' + Math.abs(diff) + '% below last year';
   }
+}
+
+/* ── Legend rebuilt per-granularity/pacing-state ── */
+function occRenderLegend() {
+  const el = document.getElementById('occ-legend');
+  if (!el) return;
+  const isMonthly = occGranularity === 'monthly';
+  const sw = isMonthly ? 'height:8px;width:8px;border-radius:2px' : 'height:3px';
+  let html =
+    '<div class="legend-item"><div class="legend-swatch" style="background:#F37579;' + sw + '"></div> Market Occupancy</div>' +
+    '<div class="legend-item"><div class="legend-swatch" style="background:' + (isMonthly ? '#F8C6C8' : '#B5B5B5') + ';' + sw + '"></div> Last Year (Today)</div>' +
+    '<div class="legend-item"><div class="legend-swatch" style="background:' + (isMonthly ? '#FDE3E4' : '#B5B5B5') + ';' + sw + '"></div> Last Year (Final)</div>';
+  if (occPacingEnabled) {
+    html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px"></div> 7-day Pickup</div>';
+    html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px;opacity:0.5"></div> Pickup (LY)</div>';
+  }
+  html += '<div class="legend-item"><span class="legend-band-event"></span> Events</div>';
+  html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ Pacing</div>';
+  el.innerHTML = html;
 }
 
 function occSetRange(el, days) {
@@ -519,6 +639,11 @@ function occSetGranularity(el, mode) {
   el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
   occGranularity = mode;
+  occInitChart();
+}
+function occTogglePacing(el) {
+  el.classList.toggle('checked');
+  occPacingEnabled = el.classList.contains('checked');
   occInitChart();
 }
 
@@ -554,7 +679,7 @@ function histInitChart(key) {
       ]
     : [{ type: 'column', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }];
   histChart = Highcharts.chart('hist-hc-chart', {
-    chart: { height: 190, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, backgroundColor: 'transparent' },
+    chart: { height: 190, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
     xAxis: {
       categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
       labels: { style: { fontSize: '10px', color: '#7A7A7A' } },
@@ -740,4 +865,53 @@ function ndCloseSheet(id) {
 function selectRadio(el) {
   el.closest('.bs-radio-group').querySelectorAll('.bs-radio').forEach(r => r.classList.remove('selected'));
   el.classList.add('selected');
+}
+
+/* ── Fullscreen chart detail view (item 8): a mobile-first push screen,
+   reusing the same fp/occ chart-building functions at a larger height
+   rather than a separate "zoomed" implementation. ── */
+let fsChart = null;
+function ndOpenChartFullscreen(which) {
+  document.getElementById('fs-chart-title').textContent = which === 'fp' ? 'Future Prices' : 'Occupancy';
+  const sheet = document.getElementById('sheet-chart-fullscreen');
+  sheet.style.display = 'flex';
+  sheet.dataset.chart = which;
+  if (fsChart) { fsChart.destroy(); fsChart = null; }
+  setTimeout(function () {
+    fsChart = which === 'fp' ? fpRenderChart('fs-hc-chart', 380) : occRenderChart('fs-hc-chart', 380);
+  }, 30);
+}
+function ndCloseChartFullscreen() {
+  document.getElementById('sheet-chart-fullscreen').style.display = 'none';
+  if (fsChart) { fsChart.destroy(); fsChart = null; }
+}
+
+/* ── Bedroom multi-select chips (Comp Set edit sheet) ── */
+function toggleBedroomChip(el) {
+  el.classList.toggle('selected');
+}
+
+/* ── Markup toggle (Comp Set edit sheet): reveals name/type/amount fields,
+   same "does your PMS add markup" flow shown in the desktop editor. ── */
+function toggleMarkupFields(checkboxEl) {
+  checkboxEl.classList.toggle('checked');
+  const fields = document.getElementById('markup-fields');
+  if (fields) fields.classList.toggle('open', checkboxEl.classList.contains('checked'));
+}
+function addMarkupRow() {
+  const list = document.getElementById('markup-fields');
+  if (!list) return;
+  const row = document.createElement('div');
+  row.className = 'markup-field-row';
+  row.innerHTML =
+    '<input type="text" placeholder="Name">' +
+    '<select><option>Percent</option><option>Fixed</option></select>' +
+    '<input type="text" placeholder="Amount">';
+  const addBtn = list.querySelector('.markup-add-btn');
+  list.insertBefore(row, addBtn);
+  const removeBtn = document.createElement('button');
+  removeBtn.className = 'markup-remove-btn';
+  removeBtn.textContent = 'Remove Markup Details';
+  removeBtn.onclick = function () { row.remove(); removeBtn.remove(); };
+  list.insertBefore(removeBtn, addBtn);
 }
