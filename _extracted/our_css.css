@@ -149,17 +149,8 @@
   }
   .section-header {
     display: flex; align-items: center; padding: 15px 16px;
-    cursor: pointer; min-height: 44px; user-select: none; -webkit-user-select: none;
-    transition: background 0.15s;
+    min-height: 44px; border-bottom: 1px solid var(--pl-border-table);
   }
-  .section-header:active { background: var(--pl-bg); }
-  .section-header .chevron {
-    width: 20px; height: 20px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center;
-    margin-right: 10px; transition: transform 0.2s ease-out;
-    color: var(--pl-text-disabled); font-size: 12px;
-  }
-  .section.expanded .section-header .chevron { transform: rotate(90deg); }
   .section-header .header-text { flex: 1; min-width: 0; }
   .section-header .title { font-size: 16px; font-weight: 600; color: var(--pl-text); }
   .section-header .header-actions { flex-shrink: 0; margin-left: 8px; display: flex; gap: 4px; }
@@ -171,9 +162,6 @@
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
-  .section-body { max-height: 0; overflow: hidden; transition: max-height 0.25s ease-out; }
-  .section.expanded .section-body { max-height: 6000px; }
-  .section.expanded .section-header { border-bottom: 1px solid var(--pl-border-table); }
   .section-content { padding: 4px 16px 18px; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */

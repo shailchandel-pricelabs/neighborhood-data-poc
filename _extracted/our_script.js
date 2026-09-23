@@ -1,7 +1,3 @@
-function toggleSection(id) {
-  document.getElementById(id).classList.toggle('expanded');
-}
-
 /* ── Shared Font Awesome star glyph (fa-star solid), used anywhere a
    rating is rendered via JS so it matches the FA icons used in markup ── */
 const ND_STAR_ICON = '<svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.1em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg>';
@@ -177,8 +173,14 @@ function ndSeededRand(seed) {
   };
 }
 
-/* ── shared axis config, reused by all three charts (Classic style) ── */
-const ND_CHART_SPACING = [8, 44, 22, 4];
+/* ── shared axis config, reused by all three charts (Classic style).
+   Y-axis sits on the LEFT, matching desktop's own chart convention
+   (and every other chart library default) — it was previously on the
+   right (Upstox-style) with 44px reserved for it, which left the plot
+   area visibly narrower than the card while the right side sat empty.
+   Left-aligned axis labels are narrower (2-4 digits) so the reserved
+   margin can shrink too, giving the plot area most of the card width. ── */
+const ND_CHART_SPACING = [8, 8, 22, 34];
 function ndXAxisConfig(cats, step) {
   return {
     categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
@@ -189,7 +191,7 @@ function ndXAxisConfig(cats, step) {
 function ndYAxisConfig(opts) {
   opts = opts || {};
   return {
-    title: { text: null }, opposite: true, gridLineWidth: 0, tickAmount: 3, max: opts.max,
+    title: { text: null }, opposite: false, gridLineWidth: 0, tickAmount: 3, max: opts.max,
     labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, formatter: opts.yFormatter },
     crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', format: opts.yCrosshairFormat || '{value:.0f}', style: { color: '#fff', fontSize: '10px' } } }
   };
@@ -299,7 +301,7 @@ function fpInitChart(days) {
         type: 'arearange',
         name: '25th–50th',
         data: band2550.map(p => [p[1], p[2]]),
-        color: '#A8D8FF',
+        color: '#FCDCDD',
         zIndex: 3
       }
     ]
@@ -317,7 +319,7 @@ function fpTooltipHtml(chart, idx) {
   return '' +
     '<div class="hc-tt-date">' + date + '</div>' +
     '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#333333"></span>Listing Price: <b>$' + price + '</b></div>' +
-    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A8D8FF"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>' +
+    '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>' +
     '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>' +
     '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
 }

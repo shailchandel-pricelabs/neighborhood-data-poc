@@ -255,6 +255,12 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
   position: sticky !important; top: 0 !important; z-index: 20;
 }
 .phone-frame header .css-1v6aiw5 { flex: 1 1 auto !important; width: auto !important; min-width: 0; }
+/* .css-1fydlbq carries a real "mobileDrawerHeaderShadow" box-shadow meant
+   for a header that overlaps scrolling content behind it elsewhere in the
+   live app. In our bottom-sheet/full-screen headers it isn't overlapping
+   anything — it just renders as a stray horizontal shadow band under the
+   title row. Suppressed for our modal headers specifically. */
+.phone-frame .chakra-modal__header .css-1fydlbq { box-shadow: none !important; }
 /* Shared header icon-group: captured with matching CSS on the Calendar page but
    not the Pricing Dashboard page (same component, but its own stylesheet was
    built from a scan that never saw the header's classes). Same values either way. */
