@@ -180,17 +180,21 @@ function ndSeededRand(seed) {
    area visibly narrower than the card while the right side sat empty.
    Left-aligned axis labels are narrower (2-4 digits) so the reserved
    margin can shrink too, giving the plot area most of the card width. ── */
-const ND_CHART_SPACING = [8, 0, 22, 0];
+const ND_CHART_SPACING = [8, 2, 22, 0];
 /* Highcharts auto-reserves axis width beyond what the label text actually
    needs (measured ~71px total for 3-char "$350"-style labels when left
    to auto-calculate) — the gap between the plot area and the card's right
    edge that was flagged as wasted space. Setting marginLeft/marginRight
-   explicitly overrides that auto-calculation so the plot area's left edge
-   lines up with the section's own title/hero text and its right edge
-   lines up with the rightmost header icon button, instead of sitting
-   inset from both by the auto-reserved margin + default spacing. */
-const ND_CHART_MARGIN_LEFT = 30;
-const ND_CHART_MARGIN_RIGHT = 4;
+   explicitly overrides that auto-calculation so the plot area's edges
+   line up with the section's own title/icon-button edges instead of
+   sitting inset by the auto-reserved margin + default spacing. Highcharts
+   silently ellipsis-crops a y-axis label ("$350" -> "$…") once its
+   rendered width exceeds the reserved marginLeft — measured the exact
+   cutover for our 10px label font at 38px, so 40px is used with a small
+   safety margin rather than the tighter (and broken) 30-36px tried
+   earlier in this pass. */
+const ND_CHART_MARGIN_LEFT = 40;
+const ND_CHART_MARGIN_RIGHT = 6;
 function ndXAxisConfig(cats, step) {
   return {
     categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
@@ -237,7 +241,12 @@ function ndSeriesById(chart, id) {
    desktop) rather than dots sitting on the price/occupancy line. ── */
 function ndEventPlotBands(events, color) {
   color = color || 'rgba(213,104,251,0.16)';
-  return events.map(function (i) { return { from: i - 0.42, to: i + 0.42, color: color, zIndex: 0 }; });
+  /* No explicit zIndex: Highcharts' own default already renders plot
+     bands behind the series group. Setting zIndex:0 here previously
+     pulled the band into the same z-ordering pass as the series and,
+     on the column (monthly) charts, made it paint ON TOP of the bars
+     instead of behind them. */
+  return events.map(function (i) { return { from: i - 0.42, to: i + 0.42, color: color }; });
 }
 
 /* ── Future Prices: build data for N days, at either daily or monthly
@@ -302,8 +311,11 @@ let fpGranularity = 'daily';
 
 /* Pure chart builder — renders into any container at any height, so the
    same code drives both the in-card chart and the fullscreen detail view
-   (item 8) without duplicating the series/config logic. */
-function fpRenderChart(containerId, height) {
+   (item 8) without duplicating the series/config logic. idPrefix selects
+   which pinned info-card ('fp-info-*' or 'fs-info-*' for the fullscreen
+   clone) gets updated as the user scrubs. */
+function fpRenderChart(containerId, height, idPrefix) {
+  idPrefix = idPrefix || 'fp';
   const el = document.getElementById(containerId);
   if (!el || !window.Highcharts) return null;
   const { cats, listing, markupCol, p25, p50, p75, p90, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
@@ -331,7 +343,7 @@ function fpRenderChart(containerId, height) {
       zooming: { type: undefined },
       panning: { enabled: false },
       events: {
-        load: function () { fpUpdateHero(this, this.series[0].points.length - 1); }
+        load: function () { fpUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); }
       }
     },
     xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
@@ -353,59 +365,52 @@ function fpRenderChart(containerId, height) {
     series: series
   });
   const wrap = el.closest('.hc-chart-wrap');
-  attachScrub(chart, wrap, fpUpdateHero, fpTooltipHtml);
+  attachScrub(chart, wrap, function (c, idx) { fpUpdateInfoCard(c, idx, idPrefix); });
   return chart;
 }
 
 function fpInitChart(days) {
   if (!document.getElementById('fp-hc-chart')) return;
-  if (days) fpDays = days;
+  if (days) fpDays = Math.min(days, 90);
   if (fpChart) { fpChart.destroy(); fpChart = null; }
-  fpChart = fpRenderChart('fp-hc-chart', 200);
+  fpChart = fpRenderChart('fp-hc-chart', 200, 'fp');
   fpRenderLegend();
 }
 
-function fpTooltipHtml(chart, idx) {
-  const date = chart.xAxis[0].categories[idx];
-  const price = ndSeriesById(chart, 'fp-s-listing').points[idx].y;
-  let rows = '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#333333"></span>Listing Price: <b>$' + price + '</b></div>';
+/* ── Pinned drag-tooltip: populates the always-visible info card above
+   the chart (date, headline price, and the full percentile/markup
+   breakdown) from whichever point is currently scrubbed, or today's
+   point by default. Replaces the old static hero number (ambiguous —
+   unclear which date it described) and the floating tooltip (which a
+   touch drag would cover with the user's own finger). ── */
+function fpUpdateInfoCard(chart, index, idPrefix) {
+  const listingS = ndSeriesById(chart, 'fp-s-listing');
+  const points = listingS && listingS.points;
+  if (!points || !points.length) return;
+  const i = Math.max(0, Math.min(index, points.length - 1));
+  const dateEl = document.getElementById(idPrefix + '-info-date');
+  const priceEl = document.getElementById(idPrefix + '-info-price');
+  const rowsEl = document.getElementById(idPrefix + '-info-rows');
+  if (dateEl) dateEl.textContent = chart.xAxis[0].categories[i];
+  if (priceEl) priceEl.textContent = '$' + points[i].y;
+  if (!rowsEl) return;
+  let rows = '';
   if (fpGranularity === 'monthly') {
     const markupS = ndSeriesById(chart, 'fp-s-markup');
-    if (markupS) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#C7C7C7"></span>With Markup: <b>$' + markupS.points[idx].y + '</b></div>';
+    if (markupS) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#C7C7C7"></span>With Markup: <b>$' + markupS.points[i].y + '</b></div>';
     [['fp-s-p25', '25th'], ['fp-s-p50', '50th'], ['fp-s-p75', '75th'], ['fp-s-p90', '90th']].forEach(function (pair) {
       const s = ndSeriesById(chart, pair[0]);
-      if (s) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + s.color + '"></span>' + pair[1] + ' Percentile: <b>$' + s.points[idx].y + '</b></div>';
+      if (s) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + s.color + '"></span>' + pair[1] + ' Percentile: <b>$' + s.points[i].y + '</b></div>';
     });
   } else {
-    const b2550 = ndSeriesById(chart, 'fp-s-2550').points[idx];
-    const b5075 = ndSeriesById(chart, 'fp-s-5075').points[idx];
-    const b7590 = ndSeriesById(chart, 'fp-s-7590').points[idx];
+    const b2550 = ndSeriesById(chart, 'fp-s-2550').points[i];
+    const b5075 = ndSeriesById(chart, 'fp-s-5075').points[i];
+    const b7590 = ndSeriesById(chart, 'fp-s-7590').points[i];
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>';
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>';
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
   }
-  return '<div class="hc-tt-date">' + date + '</div>' + rows;
-}
-
-function fpUpdateHero(chart, index) {
-  const listingS = ndSeriesById(chart, 'fp-s-listing');
-  const points = listingS.points;
-  if (!points || !points.length) return;
-  const i = Math.max(0, Math.min(index, points.length - 1));
-  const price = points[i].y;
-  const p50S = ndSeriesById(chart, 'fp-s-p50');
-  const median = p50S ? p50S.points[i].y : Math.round((ndSeriesById(chart, 'fp-s-5075').points[i].low));
-  const diff = price - median;
-  const pct = median ? Math.round(Math.abs(diff) / median * 100) : 0;
-  document.getElementById('fp-hero-price').textContent = '$' + price;
-  const deltaEl = document.getElementById('fp-hero-delta');
-  if (diff >= 0) {
-    deltaEl.className = 'price-hero-delta up';
-    deltaEl.textContent = '▲ $' + diff + ' (' + pct + '%) above market median';
-  } else {
-    deltaEl.className = 'price-hero-delta down';
-    deltaEl.textContent = '▼ $' + Math.abs(diff) + ' (' + pct + '%) below market median';
-  }
+  rowsEl.innerHTML = rows;
 }
 
 /* ── Legend rebuilt per-granularity since monthly (columns + percentile
@@ -430,9 +435,36 @@ function fpRenderLegend() {
       '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>';
 }
 
-/* ── "+ More" overlays: My Upcoming Bookings / My Last Year Bookings /
-   My Same Time Last Year Bookings, added or removed as real chart series
-   (previously purely decorative checkboxes). ── */
+/* ── "+ More" overlays: Upcoming Bookings / Last Year Bookings / Last
+   Year Bookings (Same Time), shown as short horizontal "stay bar"
+   segments near the chart's baseline — matching desktop's own booking
+   overlay style and, being compact discrete marks rather than a second
+   full-width line, much easier to read on a narrow mobile screen than a
+   continuous line running through the whole price chart. ── */
+function fpBookingSegments(rand, days, count) {
+  const segments = [];
+  let i = 0;
+  while (i < days - 1 && segments.length < count) {
+    if (rand() < 0.3) {
+      const len = 1 + Math.floor(rand() * 3);
+      const end = Math.min(days - 1, i + len);
+      segments.push([i, end]);
+      i = end + 2 + Math.floor(rand() * 3);
+    } else {
+      i++;
+    }
+  }
+  return segments;
+}
+function ndSegmentsToLineData(segments, y) {
+  const data = [];
+  segments.forEach(function (seg, idx) {
+    if (idx > 0) data.push(null);
+    data.push([seg[0], y]);
+    data.push([seg[1], y]);
+  });
+  return data;
+}
 function fpToggleOverlay(el, kind) {
   el.classList.toggle('checked');
   const on = el.classList.contains('checked');
@@ -441,17 +473,23 @@ function fpToggleOverlay(el, kind) {
   const existing = ndSeriesById(fpChart, id);
   if (!on) { if (existing) existing.remove(); return; }
   if (existing) return;
-  const listingData = ndSeriesById(fpChart, 'fp-s-listing').data.map(p => p.y);
   const rand = ndSeededRand(fpDays * 11 + kind.length * 17 + 3);
+  const axisMin = fpChart.yAxis[0].min, axisMax = fpChart.yAxis[0].max;
+  const range = axisMax - axisMin;
+  const laneIndex = { upcoming: 0, lastyear: 1, stly: 2 }[kind];
+  const laneY = Math.round(axisMin + range * (0.02 + laneIndex * 0.035));
   const meta = {
-    upcoming: { name: 'My Upcoming Bookings', color: '#544FC5', type: 'scatter', marker: { enabled: true, radius: 4, symbol: 'circle', lineWidth: 1.5, lineColor: '#fff', states: { hover: { enabled: false } } } },
-    lastyear: { name: 'My Last Year Bookings', color: '#7A7A7A', type: 'line', dashStyle: 'Dash', lineWidth: 1.5 },
-    stly: { name: 'My Same Time Last Year Bookings', color: '#2CAFFE', type: 'line', dashStyle: 'ShortDot', lineWidth: 1.5 }
+    upcoming: { name: 'Upcoming Bookings', color: '#31C48D' },
+    lastyear: { name: 'Last Year Bookings', color: '#274690' },
+    stly: { name: 'Last Year Bookings (Same Time)', color: '#D62828' }
   }[kind];
-  const data = kind === 'upcoming'
-    ? listingData.map((v, i) => rand() < 0.32 ? [i, v] : null).filter(function (p) { return p; })
-    : listingData.map((v, i) => Math.round(v * (kind === 'lastyear' ? 0.9 : 0.96) + Math.sin(i / 4) * 6));
-  fpChart.addSeries(Object.assign({ id: id, data: data, zIndex: 6, enableMouseTracking: false }, meta), true);
+  const segments = fpBookingSegments(rand, fpDays, kind === 'upcoming' ? 4 : 6);
+  const data = ndSegmentsToLineData(segments, laneY);
+  fpChart.addSeries({
+    id: id, type: 'line', name: meta.name, color: meta.color, data: data,
+    lineWidth: 4, marker: { enabled: false }, enableMouseTracking: false,
+    connectNulls: false, zIndex: 6
+  }, true);
 }
 
 function fpSetRange(el, days) {
@@ -517,9 +555,10 @@ function occBuildData(days, granularity) {
 let occChart = null;
 let occDays = 30;
 let occGranularity = 'daily';
-let occPacingEnabled = true;
+let occPacingEnabled = false;
 
-function occRenderChart(containerId, height) {
+function occRenderChart(containerId, height, idPrefix) {
+  idPrefix = idPrefix || 'occ';
   const el = document.getElementById(containerId);
   if (!el || !window.Highcharts) return null;
   const { cats, market, lyToday, lyFinal, pickup, pickupLY, events } = occBuildData(occDays, occGranularity);
@@ -546,7 +585,7 @@ function occRenderChart(containerId, height) {
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
-      events: { load: function () { occUpdateHero(this, this.series[0].points.length - 1); } }
+      events: { load: function () { occUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); } }
     },
     xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
     yAxis: ndYAxisConfig({
@@ -562,22 +601,32 @@ function occRenderChart(containerId, height) {
     series: series
   });
   const wrap = el.closest('.hc-chart-wrap');
-  attachScrub(chart, wrap, occUpdateHero, occTooltipHtml);
+  attachScrub(chart, wrap, function (c, idx) { occUpdateInfoCard(c, idx, idPrefix); });
   return chart;
 }
 
 function occInitChart(days) {
   if (!document.getElementById('occ-hc-chart')) return;
-  if (days) occDays = days;
+  if (days) occDays = Math.min(days, 90);
   if (occChart) { occChart.destroy(); occChart = null; }
-  occChart = occRenderChart('occ-hc-chart', 220);
+  occChart = occRenderChart('occ-hc-chart', 220, 'occ');
   occRenderLegend();
 }
 
-function occTooltipHtml(chart, idx) {
-  const date = chart.xAxis[0].categories[idx];
+/* ── Pinned drag-tooltip for Occupancy, same pattern as Future Prices'
+   fpUpdateInfoCard: date + headline value in the card header, the rest
+   of the series broken out as rows below. ── */
+function occUpdateInfoCard(chart, index, idPrefix) {
+  const marketS = ndSeriesById(chart, 'occ-s-market');
+  if (!marketS || !marketS.points.length) return;
+  const i = Math.max(0, Math.min(index, marketS.points.length - 1));
+  const dateEl = document.getElementById(idPrefix + '-info-date');
+  const priceEl = document.getElementById(idPrefix + '-info-price');
+  const rowsEl = document.getElementById(idPrefix + '-info-rows');
+  if (dateEl) dateEl.textContent = chart.xAxis[0].categories[i];
+  if (priceEl) priceEl.textContent = marketS.points[i].y + '%';
+  if (!rowsEl) return;
   const defs = [
-    ['occ-s-market', '#F37579', 'Market Occupancy'],
     ['occ-s-lytoday', '#B5B5B5', 'Last Year (Today)'],
     ['occ-s-lyfinal', '#B5B5B5', 'Last Year (Final)'],
     ['occ-s-pickup', '#31C48D', '7-day Pickup'],
@@ -586,29 +635,10 @@ function occTooltipHtml(chart, idx) {
   let rows = '';
   defs.forEach(function (d) {
     const s = ndSeriesById(chart, d[0]);
-    if (!s || !s.points[idx]) return;
-    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + d[1] + '"></span>' + d[2] + ': <b>' + s.points[idx].y + '%</b></div>';
+    if (!s || !s.points[i]) return;
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + d[1] + '"></span>' + d[2] + ': <b>' + s.points[i].y + '%</b></div>';
   });
-  return '<div class="hc-tt-date">' + date + '</div>' + rows;
-}
-
-function occUpdateHero(chart, index) {
-  const marketS = ndSeriesById(chart, 'occ-s-market');
-  if (!marketS || !marketS.points.length) return;
-  const i = Math.max(0, Math.min(index, marketS.points.length - 1));
-  const cur = marketS.points[i].y;
-  const lyFinalS = ndSeriesById(chart, 'occ-s-lyfinal');
-  const ly = lyFinalS ? lyFinalS.points[i].y : cur;
-  const diff = cur - ly;
-  document.getElementById('occ-hero-value').textContent = cur + '%';
-  const deltaEl = document.getElementById('occ-hero-delta');
-  if (diff >= 0) {
-    deltaEl.className = 'price-hero-delta up';
-    deltaEl.textContent = '▲ ' + diff + '% above last year';
-  } else {
-    deltaEl.className = 'price-hero-delta down';
-    deltaEl.textContent = '▼ ' + Math.abs(diff) + '% below last year';
-  }
+  rowsEl.innerHTML = rows;
 }
 
 /* ── Legend rebuilt per-granularity/pacing-state ── */
@@ -626,7 +656,7 @@ function occRenderLegend() {
     html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px;opacity:0.5"></div> Pickup (LY)</div>';
   }
   html += '<div class="legend-item"><span class="legend-band-event"></span> Events</div>';
-  html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ Pacing</div>';
+  html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ More</div>';
   el.innerHTML = html;
 }
 
@@ -691,7 +721,10 @@ function histInitChart(key) {
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
-      column: { borderWidth: 0, borderRadius: 3, pointPadding: 0.15, groupPadding: 0.08 },
+      column: {
+        borderWidth: 0, borderRadius: 3, pointPadding: 0.15, groupPadding: 0.08,
+        dataLabels: { enabled: true, formatter: function () { return fmt(this.y); }, style: { fontSize: '9px', fontWeight: '700', color: 'var(--pl-text)', textOutline: 'none' } }
+      },
       series: { marker: { enabled: false }, states: { hover: { enabled: false } }, animation: { duration: 250 } }
     },
     series: series
@@ -868,21 +901,61 @@ function selectRadio(el) {
 }
 
 /* ── Fullscreen chart detail view (item 8): a mobile-first push screen,
-   reusing the same fp/occ chart-building functions at a larger height
-   rather than a separate "zoomed" implementation. ── */
+   reusing the same fp/occ chart-building functions at a larger size
+   rather than a separate "zoomed" implementation. Forced into landscape:
+   real orientation-lock only applies inside the true Fullscreen API,
+   which this in-app "sheet" isn't, so the reliable cross-browser option
+   is rotating the sheet itself 90° within the device frame — sized so
+   the box is exactly the frame's own dimensions swapped, which after the
+   rotation fills the frame edge-to-edge with a wide, landscape-shaped
+   layout instead of a portrait one. ── */
 let fsChart = null;
+function ndApplyForceLandscape(el) {
+  const frame = document.querySelector('.phone-frame');
+  if (!frame) return;
+  const w = frame.clientWidth, h = frame.clientHeight;
+  el.classList.add('force-landscape');
+  el.style.width = h + 'px';
+  el.style.height = w + 'px';
+  /* Position with plain pixel left/top rather than top:50%/left:50% plus
+     a percentage translate — chaining a percentage translate() with a
+     rotate() in the same transform list rotates the translate's own
+     offset too (CSS applies transform functions right-to-left), which
+     silently swapped/corrupted the centering. Pixel left/top plus a
+     lone rotate() sidesteps that ordering trap entirely. */
+  el.style.left = ((w - h) / 2) + 'px';
+  el.style.top = ((h - w) / 2) + 'px';
+  el.style.right = 'auto';
+  el.style.bottom = 'auto';
+  el.style.transform = 'rotate(90deg)';
+  return w;
+}
+function ndClearForceLandscape(el) {
+  el.classList.remove('force-landscape');
+  ['width', 'height', 'top', 'left', 'right', 'bottom', 'transform'].forEach(function (p) { el.style[p] = ''; });
+}
 function ndOpenChartFullscreen(which) {
   document.getElementById('fs-chart-title').textContent = which === 'fp' ? 'Future Prices' : 'Occupancy';
   const sheet = document.getElementById('sheet-chart-fullscreen');
   sheet.style.display = 'flex';
   sheet.dataset.chart = which;
+  const frameWidth = ndApplyForceLandscape(sheet);
+  if (sheet.requestFullscreen) {
+    sheet.requestFullscreen().then(function () {
+      screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(function () {});
+    }).catch(function () {});
+  }
   if (fsChart) { fsChart.destroy(); fsChart = null; }
   setTimeout(function () {
-    fsChart = which === 'fp' ? fpRenderChart('fs-hc-chart', 380) : occRenderChart('fs-hc-chart', 380);
+    const chartHeight = Math.max(180, (frameWidth || 375) - 120);
+    fsChart = which === 'fp' ? fpRenderChart('fs-hc-chart', chartHeight, 'fs') : occRenderChart('fs-hc-chart', chartHeight, 'fs');
   }, 30);
 }
 function ndCloseChartFullscreen() {
-  document.getElementById('sheet-chart-fullscreen').style.display = 'none';
+  const sheet = document.getElementById('sheet-chart-fullscreen');
+  sheet.style.display = 'none';
+  ndClearForceLandscape(sheet);
+  if (document.fullscreenElement) { document.exitFullscreen().catch(function () {}); }
   if (fsChart) { fsChart.destroy(); fsChart = null; }
 }
 

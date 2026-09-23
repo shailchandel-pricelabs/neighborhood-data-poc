@@ -13,27 +13,30 @@
     </div>
     <div class="section-body">
       <div class="section-content">
-        <!-- Trading-app style price header -->
-        <div class="price-hero">
-          <div class="price-hero-value" id="fp-hero-price">$228</div>
-          <div class="price-hero-delta down" id="fp-hero-delta">▼ $17 (7%) below market median</div>
-        </div>
-        <div class="pill-toggles granularity-toggle">
+        <div class="pill-toggles granularity-toggle chart-top-toggle">
           <div class="pill active" onclick="fpSetGranularity(this,'daily')">Daily</div>
           <div class="pill" onclick="fpSetGranularity(this,'monthly')">Monthly</div>
+        </div>
+        <!-- Pinned drag tooltip: always-visible info card, populated from
+             the currently scrubbed point (defaults to today) instead of a
+             floating tooltip that a touch drag would otherwise cover. -->
+        <div class="chart-info-card" id="fp-info-card">
+          <div class="info-card-top">
+            <span class="info-card-date" id="fp-info-date">—</span>
+            <span class="info-card-price" id="fp-info-price">—</span>
+          </div>
+          <div class="info-card-rows" id="fp-info-rows"></div>
         </div>
         <div class="hc-chart-wrap">
           <button class="hc-expand-btn" title="Expand" onclick="ndOpenChartFullscreen('fp')"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.8em;height:0.8em" fill="currentColor"><path d="M32 32C14.3 32 0 46.3 0 64L0 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0 0-96zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128c0-17.7-14.3-32-32-32l-128 0zM448 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96-96 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-128z"></path></svg></button>
           <div id="fp-hc-chart" class="hc-chart"></div>
-          <div class="hc-tooltip"></div>
         </div>
-        <!-- Bottom segmented range control (trading-app placement) -->
+        <!-- Bottom segmented range control (trading-app placement) — capped
+             at 90 days; longer horizons belong on desktop. -->
         <div class="range-seg" id="fp-range-seg">
           <div class="range-seg-item active" onclick="fpSetRange(this,30)">30D</div>
           <div class="range-seg-item" onclick="fpSetRange(this,60)">60D</div>
           <div class="range-seg-item" onclick="fpSetRange(this,90)">90D</div>
-          <div class="range-seg-item" onclick="fpSetRange(this,180)">180D</div>
-          <div class="range-seg-item" onclick="fpSetRange(this,360)">360D</div>
         </div>
         <div class="legend" id="fp-legend"></div>
       </div>
@@ -53,25 +56,25 @@
     </div>
     <div class="section-body">
       <div class="section-content">
-        <div class="price-hero">
-          <div class="price-hero-value" id="occ-hero-value">78%</div>
-          <div class="price-hero-delta up" id="occ-hero-delta">▲ 6% above last year</div>
-        </div>
-        <div class="pill-toggles granularity-toggle">
+        <div class="pill-toggles granularity-toggle chart-top-toggle">
           <div class="pill active" onclick="occSetGranularity(this,'daily')">Daily</div>
           <div class="pill" onclick="occSetGranularity(this,'monthly')">Monthly</div>
+        </div>
+        <div class="chart-info-card" id="occ-info-card">
+          <div class="info-card-top">
+            <span class="info-card-date" id="occ-info-date">—</span>
+            <span class="info-card-price" id="occ-info-price">—</span>
+          </div>
+          <div class="info-card-rows" id="occ-info-rows"></div>
         </div>
         <div class="hc-chart-wrap">
           <button class="hc-expand-btn" title="Expand" onclick="ndOpenChartFullscreen('occ')"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.8em;height:0.8em" fill="currentColor"><path d="M32 32C14.3 32 0 46.3 0 64L0 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0 0-96zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128c0-17.7-14.3-32-32-32l-128 0zM448 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96-96 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-128z"></path></svg></button>
           <div id="occ-hc-chart" class="hc-chart" style="height:220px"></div>
-          <div class="hc-tooltip"></div>
         </div>
         <div class="range-seg" id="occ-range-seg">
           <div class="range-seg-item active" onclick="occSetRange(this,30)">30D</div>
           <div class="range-seg-item" onclick="occSetRange(this,60)">60D</div>
           <div class="range-seg-item" onclick="occSetRange(this,90)">90D</div>
-          <div class="range-seg-item" onclick="occSetRange(this,180)">180D</div>
-          <div class="range-seg-item" onclick="occSetRange(this,360)">360D</div>
         </div>
         <div class="legend" id="occ-legend"></div>
       </div>
@@ -90,9 +93,9 @@
     </div>
     <div class="section-body">
       <div class="section-content">
-        <div class="pill-toggles">
-          <div class="pill active" onclick="histSetYears(this,1)">Last 1 year</div>
-          <div class="pill" onclick="histSetYears(this,2)">Last 2 year</div>
+        <div class="pill-toggles pill-toggles-hist">
+          <div class="pill active" onclick="histSetYears(this,1)">Summary of last 1 year</div>
+          <div class="pill" onclick="histSetYears(this,2)">Summary of last 2 years</div>
         </div>
         <div class="metric-grid">
           <div class="metric-card selected" onclick="switchHistoryMetric(this,'occ')">

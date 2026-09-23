@@ -114,37 +114,32 @@
     border-top-right-radius: var(--radius-md); background: var(--pl-card);
   }
 
-  /* ── Comp Set Banner (desktop-style "Current Compset" card, redesigned
-     for mobile: icon + type pill + count/source on one line, a real
-     tappable Edit button rather than a plain text link) ── */
+  /* ── Comp Set Banner (desktop-style "Current Compset" strip): neutral
+     grey background rather than a blue callout — the blue accent is kept
+     only on the compset-type pill itself, matching desktop — with a
+     standard bordered white button for editing rather than a text link. ── */
   .comp-banner {
-    margin: 12px 12px 0; padding: 12px;
-    background: var(--pl-highlight-blue); border: 1px solid var(--pl-blue-surface);
-    border-radius: var(--radius-lg); display: flex; align-items: center; gap: 10px;
+    margin: 12px 12px 0; padding: 10px 12px;
+    background: var(--pl-bg); border: 1px solid var(--pl-border);
+    border-radius: var(--radius-lg); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
-  .comp-banner .banner-icon {
-    width: 34px; height: 34px; border-radius: var(--radius-md); flex-shrink: 0;
-    background: var(--pl-card); color: var(--pl-blue); display: flex;
-    align-items: center; justify-content: center; font-size: 15px;
+  .comp-banner .banner-text-row {
+    flex: 1; min-width: 0; display: flex; flex-wrap: wrap; align-items: center;
+    gap: 6px; font-size: 12.5px; row-gap: 4px;
   }
-  .comp-banner .banner-body { flex: 1; min-width: 0; }
-  .comp-banner .banner-label {
-    font-size: 10px; font-weight: 700; color: var(--pl-blue); text-transform: uppercase;
-    letter-spacing: 0.4px; margin-bottom: 2px;
+  .comp-banner .banner-label-inline { color: var(--pl-text); font-weight: 600; white-space: nowrap; }
+  .comp-banner .banner-pill {
+    color: var(--pl-blue); font-weight: 600; border: 1px solid var(--pl-blue);
+    border-radius: var(--radius-base); padding: 2px 8px; background: #fff; white-space: nowrap;
   }
-  .comp-banner .banner-text { font-size: 13px; font-weight: 400; color: var(--pl-text); line-height: 1.3; }
-  .comp-banner strong { font-weight: 600; }
-  .comp-banner .banner-meta {
-    font-size: 11px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 2px;
+  .comp-banner .banner-meta-inline { color: var(--pl-text-secondary); font-weight: 400; white-space: nowrap; }
+  .comp-banner .banner-edit-btn {
+    flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+    background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--pl-text);
+    box-shadow: var(--shadow-sm); cursor: pointer; font-family: 'IBM Plex Sans', sans-serif;
   }
-  .comp-banner .banner-meta .dot-sep { margin: 0 4px; }
-  .comp-banner .edit-link {
-    flex-shrink: 0; white-space: nowrap; font-size: 12px; font-weight: 700;
-    color: var(--pl-blue); background: var(--pl-card); border: 1px solid var(--pl-blue);
-    border-radius: var(--radius-full); padding: 7px 12px; cursor: pointer;
-    text-decoration: none; transition: background 0.15s;
-  }
-  .comp-banner .edit-link:active { background: var(--pl-blue-surface); }
+  .comp-banner .banner-edit-btn:active { background: var(--pl-bg); }
 
   /* ── Full-screen destination (Neighbourhood Data): a real push screen,
      not a bottom sheet — no rounded top corners, no drag handle, slides
@@ -232,6 +227,14 @@
     justify-content: flex-start; margin-bottom: 4px; padding: 0; border-bottom: none; gap: 4px;
   }
   .granularity-toggle .pill { padding: 5px 12px; min-height: 26px; font-size: 12px; }
+  /* Moved to the top of the section (above the pinned info card/chart)
+     rather than sitting between the old hero number and the chart. */
+  .chart-top-toggle { margin-top: 2px; margin-bottom: 10px; }
+
+  /* Market History's own duration toggle: left-aligned like a normal
+     control row, no trailing divider since it sits right above the
+     metric cards rather than above a chart. */
+  .pill-toggles-hist { justify-content: flex-start; border-bottom: none; padding-bottom: 0; }
 
   /* Pill with dropdown caret */
   .pill.has-menu::after {
@@ -282,13 +285,22 @@
   .axis-label { font-size: 11px; fill: var(--pl-text-disabled); font-family: 'IBM Plex Sans', sans-serif; font-weight: 400; }
   .bar-val-label { font-size: 9px; fill: var(--pl-text-secondary); font-family: 'IBM Plex Sans', sans-serif; font-weight: 600; }
 
-  /* ── Highcharts container + trading-app hero price (Robinhood/Coinbase-style) ── */
+  /* ── Highcharts container ── */
   .hc-chart { width: 100%; height: 200px; margin: 4px 0; }
-  .price-hero { padding: 2px 0 10px; }
-  .price-hero-value { font-size: 30px; font-weight: 700; color: var(--pl-text); line-height: 1.1; letter-spacing: -0.5px; }
-  .price-hero-delta { font-size: 13px; font-weight: 600; margin-top: 3px; }
-  .price-hero-delta.up { color: var(--pl-green); }
-  .price-hero-delta.down { color: var(--pl-primary); }
+
+  /* ── Pinned drag-tooltip card: a permanently-visible info card above the
+     chart, populated from the point currently being scrubbed (or today's
+     point by default) instead of a static, context-free hero number and
+     a floating tooltip a touch drag would otherwise cover. ── */
+  .chart-info-card {
+    background: var(--pl-bg); border-radius: var(--radius-md);
+    padding: 8px 10px; margin-bottom: 6px;
+  }
+  .info-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
+  .info-card-date { font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); }
+  .info-card-price { font-size: 20px; font-weight: 700; color: var(--pl-text); letter-spacing: -0.3px; }
+  .info-card-rows { margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
+  .info-card-rows .hc-tt-row { font-size: 11px; }
   .range-seg {
     display: flex; justify-content: space-between; gap: 4px; margin-top: 8px;
     padding-top: 10px; border-top: 1px solid var(--pl-border-table);
@@ -317,11 +329,22 @@
   .hc-expand-btn:active { background: var(--pl-bg); }
 
   /* ── Fullscreen chart sheet: mobile-first detail view for scrubbing a
-     single chart without the rest of the section around it ── */
-  .hc-fullscreen-body { padding: 8px 12px 24px; display: flex; flex-direction: column; height: 100%; }
-  .hc-fullscreen-body .price-hero { padding-top: 8px; }
+     single chart without the rest of the section around it. Forced into
+     landscape (item asks for it explicitly) by rotating the sheet itself
+     90° within the device frame — real orientation-lock APIs only work
+     inside the true Fullscreen API, which this in-app "sheet" isn't, so
+     the rotation trick is the reliable cross-browser option here. ── */
+  .hc-fullscreen-body { padding: 8px 12px 20px; display: flex; flex-direction: column; height: 100%; min-height: 0; }
+  .hc-fullscreen-body .chart-info-card { flex-shrink: 0; }
   .hc-fullscreen-body .hc-chart-wrap { flex: 1; min-height: 0; }
   .hc-fullscreen-body .hc-chart { height: 100% !important; }
+  #sheet-chart-fullscreen.force-landscape { transform-origin: center center; transition: none; }
+  #sheet-chart-fullscreen.force-landscape .chakra-modal__header { flex-shrink: 0; }
+  /* The base .nd-fullscreen slide-in animation controls `transform` for its
+     0.22s duration, which raced with the rotate transform applied right
+     after display is toggled on — this sheet's rotation IS its entrance,
+     so the slide animation is skipped entirely rather than fought with. */
+  #sheet-chart-fullscreen.nd-fullscreen { animation: none; }
   .hc-tooltip {
     position: absolute; top: 2px; z-index: 60;
     background: #fff; border-radius: var(--radius-md); box-shadow: var(--shadow-md);
