@@ -126,7 +126,14 @@
   /* "Neighbourhood Data" is a much longer footer-nav label than its
      neighbors ("Calendar", "More") — let it wrap onto two lines and
      shrink slightly instead of overflowing into the adjacent tabs. */
-  .nd-nav-label-long { white-space: normal !important; text-align: center; font-size: 10px !important; line-height: 1.2; max-width: 62px; }
+  /* Rather than shrinking this label's font below its neighbors' or
+     wrapping it onto a second line (which grew the whole footer bar
+     taller than the device frame's fixed-height screen and got the
+     entire row clipped by its overflow:hidden), keep it on one line at
+     the same size and let it spill horizontally into the surrounding
+     tab gaps from its own centered column — the "extra space between
+     tabs" the single-line text actually needs. */
+  .nd-nav-label-long { white-space: nowrap !important; position: relative; z-index: 5; }
 
   /* ── Comp Set Banner (desktop-style "Current Compset" strip): plain
      white background, a light neutral (not blue) tag for the compset
@@ -218,28 +225,28 @@
   }
   .chart-controls .spacer { flex: 1; }
 
-  /* ── Pill Toggles ── */
+  /* ── Pill Toggles: a single connected segmented control (one rounded
+     pill divided by thin dividers) rather than separately-spaced pills —
+     matching the app's own Open/Accepted/Rejected tab style. ── */
   .pill-toggles {
-    display: flex; gap: 8px; justify-content: flex-end;
-    margin-bottom: 12px; padding: 8px 0; border-bottom: 1px solid rgba(0,0,0,0.1);
+    display: inline-flex; width: fit-content; gap: 0;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-full); overflow: hidden;
+    margin-bottom: 12px;
   }
   .pill {
-    padding: 8px 12px; border-radius: var(--radius-md); font-size: 14px; font-weight: 600;
-    border: none; background: transparent; color: var(--pl-text-secondary);
-    cursor: pointer; min-height: 34px; display: flex; align-items: center;
-    transition: color 0.15s, background 0.15s; white-space: nowrap;
-    position: relative;
+    padding: 8px 16px; border-radius: 0; font-size: 14px; font-weight: 600;
+    border: none; border-right: 1px solid var(--pl-border); background: var(--pl-card); color: var(--pl-text);
+    cursor: pointer; min-height: 34px; display: flex; align-items: center; justify-content: center;
+    transition: color 0.15s, background 0.15s, border-color 0.15s; white-space: nowrap;
   }
-  .pill:hover { color: var(--pl-primary); }
-  .pill.active { background: var(--pl-primary-light); color: var(--pl-primary); }
+  .pill:last-child { border-right: none; }
+  .pill.active { background: var(--pl-primary-light); color: var(--pl-primary); border-right-color: var(--pl-primary); }
 
   /* Compact Daily/Monthly granularity toggle — sits right under the hero
      price, independent per chart (Future Prices and Occupancy each have
      their own, unlike desktop's single global setting). */
-  .granularity-toggle {
-    justify-content: flex-start; margin-bottom: 4px; padding: 0; border-bottom: none; gap: 4px;
-  }
-  .granularity-toggle .pill { padding: 5px 12px; min-height: 26px; font-size: 12px; }
+  .granularity-toggle { margin-bottom: 4px; }
+  .granularity-toggle .pill { padding: 5px 14px; min-height: 26px; font-size: 12px; }
   /* Moved to the top of the section (above the pinned info card/chart)
      rather than sitting between the old hero number and the chart. */
   .chart-top-toggle { margin-top: 2px; margin-bottom: 10px; }
@@ -248,12 +255,7 @@
      now just short "1 year"/"2 year" pills rather than repeating the
      word "Summary" inside each button. */
   .hist-summary-label { font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); margin-bottom: 6px; }
-  .pill-toggles-hist { justify-content: flex-start; border-bottom: none; padding-bottom: 0; gap: 6px; margin-bottom: 12px; }
-  .pill-toggles-hist .pill {
-    padding: 5px 14px; min-height: 26px; font-size: 12px; font-weight: 600;
-    background: transparent; border: 1px solid var(--pl-border); flex: 0 0 auto;
-  }
-  .pill-toggles-hist .pill.active { background: var(--pl-primary-light); border-color: var(--pl-primary); }
+  .pill-toggles-hist .pill { padding: 5px 14px; min-height: 26px; font-size: 12px; }
 
   /* Pill with dropdown caret */
   .pill.has-menu::after {

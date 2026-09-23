@@ -282,6 +282,32 @@ function ndHideTooltip(wrapEl) {
   if (tt) tt.classList.remove('visible');
 }
 
+/* ── Legend/tooltip swatches that actually render as a dashed or dotted
+   line when the underlying series is — a plain solid block previously
+   stood in for every line style, which misrepresented which lines were
+   solid vs. dashed vs. dotted on the chart itself. ── */
+function ndSwatchHTML(color, dashStyle, isBlock) {
+  if (isBlock) {
+    return '<div class="legend-swatch" style="background:' + color + ';height:8px;width:8px;border-radius:2px"></div>';
+  }
+  if (dashStyle === 'Dot' || dashStyle === 'ShortDot') {
+    return '<div class="legend-swatch" style="height:2px;background-image:repeating-linear-gradient(to right,' + color + ' 0,' + color + ' 2px,transparent 2px,transparent 5px)"></div>';
+  }
+  if (dashStyle === 'Dash') {
+    return '<div class="legend-swatch" style="height:2px;background-image:repeating-linear-gradient(to right,' + color + ' 0,' + color + ' 5px,transparent 5px,transparent 8px)"></div>';
+  }
+  return '<div class="legend-swatch" style="background:' + color + ';height:3px"></div>';
+}
+function ndDotHTML(color, dashStyle) {
+  if (dashStyle === 'Dot' || dashStyle === 'ShortDot') {
+    return '<span class="hc-tt-dot" style="width:10px;height:2px;border-radius:0;background-image:repeating-linear-gradient(to right,' + color + ' 0,' + color + ' 2px,transparent 2px,transparent 5px)"></span>';
+  }
+  if (dashStyle === 'Dash') {
+    return '<span class="hc-tt-dot" style="width:10px;height:2px;border-radius:0;background-image:repeating-linear-gradient(to right,' + color + ' 0,' + color + ' 5px,transparent 5px,transparent 8px)"></span>';
+  }
+  return '<span class="hc-tt-dot" style="background:' + color + '"></span>';
+}
+
 /* ── Lookup a series by its explicit `id` rather than by position, so
    tooltip/hero code works the same whether the chart is showing its
    daily (line/arearange) or monthly (column) series set. ── */
@@ -305,8 +331,8 @@ function ndEventPlotBands(events, color) {
    granularity (independent of Occupancy's own toggle — each chart
    aggregates on its own, there's no shared/global setting). Daily mode
    renders as a line + percentile arearange bands; monthly mode renders
-   as columns (Listing Price / Listing Price with Markup) plus percentile
-   lines in a grey→red gradient, matching desktop's own monthly view. ── */
+   as a Listing Price column plus percentile lines in a grey→red
+   gradient, matching desktop's own monthly view. ── */
 function fpBuildData(days, granularity) {
   const rand = ndSeededRand(days * 7 + 1);
   const base = 228;
@@ -327,7 +353,7 @@ function fpBuildData(days, granularity) {
     });
   }
   const buckets = granularity === 'monthly' ? bucketByMonth(rows) : rows.map(r => [r]);
-  const cats = [], listing = [], markupCol = [], p25 = [], p50 = [], p75 = [], p90 = [];
+  const cats = [], listing = [], p25 = [], p50 = [], p75 = [], p90 = [];
   const band2550 = [], band5075 = [], band7590 = [], events = [];
   buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
@@ -335,16 +361,14 @@ function fpBuildData(days, granularity) {
       ? first.date.toLocaleDateString('en-US', { month: 'short' })
       : first.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const avg = key => Math.round(rowsInBucket.reduce((s, r) => s + r[key], 0) / rowsInBucket.length);
-    const priceAvg = avg('price');
-    listing.push(priceAvg);
-    markupCol.push(Math.round(priceAvg * 1.06));
+    listing.push(avg('price'));
     p25.push(avg('p25')); p50.push(avg('p50')); p75.push(avg('p75')); p90.push(avg('p90'));
     band2550.push([i, avg('p25'), avg('p50')]);
     band5075.push([i, avg('p50'), avg('p75')]);
     band7590.push([i, avg('p75'), avg('p90')]);
     if (rowsInBucket.some(r => r.isEvent) && events.length < 5) events.push(i);
   });
-  return { cats, listing, markupCol, p25, p50, p75, p90, band2550, band5075, band7590, events };
+  return { cats, listing, p25, p50, p75, p90, band2550, band5075, band7590, events };
 }
 function bucketByMonth(rows) {
   const buckets = [];
@@ -370,11 +394,10 @@ function fpRenderChart(containerId, height, idPrefix) {
   idPrefix = idPrefix || 'fp';
   const el = document.getElementById(containerId);
   if (!el || !window.Highcharts) return null;
-  const { cats, listing, markupCol, p25, p50, p75, p90, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
+  const { cats, listing, p25, p50, p75, p90, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
   const isMonthly = fpGranularity === 'monthly';
   const series = isMonthly ? [
     { type: 'column', id: 'fp-s-listing', name: 'Listing Price', data: listing, color: '#4A4A4A', zIndex: 3 },
-    { type: 'column', id: 'fp-s-markup', name: 'Listing Price with Markup', data: markupCol, color: '#C7C7C7', zIndex: 2 },
     { type: 'line', id: 'fp-s-p25', name: '25th Percentile', data: p25, color: '#C8CDD3', lineWidth: 1.5, zIndex: 5 },
     { type: 'line', id: 'fp-s-p50', name: '50th Percentile', data: p50, color: '#F6B4B6', lineWidth: 1.5, zIndex: 5 },
     { type: 'line', id: 'fp-s-p75', name: '75th Percentile', data: p75, color: '#F37579', lineWidth: 1.5, zIndex: 5 },
@@ -455,8 +478,6 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
   if (!rowsEl) return;
   let rows = '';
   if (fpGranularity === 'monthly') {
-    const markupS = ndSeriesById(chart, 'fp-s-markup');
-    if (markupS) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#C7C7C7"></span>With Markup: <b>$' + markupS.points[i].y + '</b></div>';
     [['fp-s-p25', '25th'], ['fp-s-p50', '50th'], ['fp-s-p75', '75th'], ['fp-s-p90', '90th']].forEach(function (pair) {
       const s = ndSeriesById(chart, pair[0]);
       if (s) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + s.color + '"></span>' + pair[1] + ' Percentile: <b>$' + s.points[i].y + '</b></div>';
@@ -479,7 +500,6 @@ function fpRenderLegend() {
   if (!el) return;
   el.innerHTML = fpGranularity === 'monthly'
     ? '<div class="legend-item"><div class="legend-swatch" style="background:#4A4A4A;height:8px;width:8px;border-radius:2px"></div> Listing Price</div>' +
-      '<div class="legend-item"><div class="legend-swatch" style="background:#C7C7C7;height:8px;width:8px;border-radius:2px"></div> With Markup</div>' +
       '<div class="legend-item"><div class="legend-swatch" style="background:#C8CDD3;height:3px"></div> 25th</div>' +
       '<div class="legend-item"><div class="legend-swatch" style="background:#F6B4B6;height:3px"></div> 50th</div>' +
       '<div class="legend-item"><div class="legend-swatch" style="background:#F37579;height:3px"></div> 75th</div>' +
@@ -684,17 +704,18 @@ function occUpdateInfoCard(chart, index, idPrefix) {
   if (dateEl) dateEl.textContent = chart.xAxis[0].categories[i];
   if (priceEl) priceEl.textContent = marketS.points[i].y + '%';
   if (!rowsEl) return;
+  const isMonthly = occGranularity === 'monthly';
   const defs = [
-    ['occ-s-lytoday', '#B5B5B5', 'Last Year (Today)'],
-    ['occ-s-lyfinal', '#B5B5B5', 'Last Year (Final)'],
-    ['occ-s-pickup', '#31C48D', '7-day Pickup'],
-    ['occ-s-pickupLY', '#31C48D', '7-day Pickup (LY)']
+    ['occ-s-lytoday', '#B5B5B5', 'Last Year (Today)', null],
+    ['occ-s-lyfinal', isMonthly ? '#FDE3E4' : '#B5B5B5', 'Last Year (Final)', isMonthly ? null : 'Dot'],
+    ['occ-s-pickup', '#31C48D', '7-day Pickup', null],
+    ['occ-s-pickupLY', '#31C48D', '7-day Pickup (LY)', 'Dot']
   ];
   let rows = '';
   defs.forEach(function (d) {
     const s = ndSeriesById(chart, d[0]);
     if (!s || !s.points[i]) return;
-    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + d[1] + '"></span>' + d[2] + ': <b>' + s.points[i].y + '%</b></div>';
+    rows += '<div class="hc-tt-row">' + ndDotHTML(d[1], d[3]) + d[2] + ': <b>' + s.points[i].y + '%</b></div>';
   });
   rowsEl.innerHTML = rows;
 }
@@ -704,14 +725,13 @@ function occRenderLegend() {
   const el = document.getElementById('occ-legend');
   if (!el) return;
   const isMonthly = occGranularity === 'monthly';
-  const sw = isMonthly ? 'height:8px;width:8px;border-radius:2px' : 'height:3px';
   let html =
-    '<div class="legend-item"><div class="legend-swatch" style="background:#F37579;' + sw + '"></div> Market Occupancy</div>' +
-    '<div class="legend-item"><div class="legend-swatch" style="background:' + (isMonthly ? '#F8C6C8' : '#B5B5B5') + ';' + sw + '"></div> Last Year (Today)</div>' +
-    '<div class="legend-item"><div class="legend-swatch" style="background:' + (isMonthly ? '#FDE3E4' : '#B5B5B5') + ';' + sw + '"></div> Last Year (Final)</div>';
+    '<div class="legend-item">' + ndSwatchHTML('#F37579', null, isMonthly) + ' Market Occupancy</div>' +
+    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#F8C6C8' : '#B5B5B5', null, isMonthly) + ' Last Year (Today)</div>' +
+    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#FDE3E4' : '#B5B5B5', isMonthly ? null : 'Dot', isMonthly) + ' Last Year (Final)</div>';
   if (occPacingEnabled) {
-    html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px"></div> 7-day Pickup</div>';
-    html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px;opacity:0.5"></div> Pickup (LY)</div>';
+    html += '<div class="legend-item">' + ndSwatchHTML('#31C48D', null, false) + ' 7-day Pickup</div>';
+    html += '<div class="legend-item">' + ndSwatchHTML('#31C48D', 'Dot', false) + ' Pickup (LY)</div>';
   }
   html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ More</div>';
   el.innerHTML = html;
@@ -808,10 +828,12 @@ function histUpdateInfoCard(chart, index) {
   const priceEl = document.getElementById('hist-info-price');
   const rowsEl = document.getElementById('hist-info-rows');
   if (dateEl) dateEl.textContent = histMonths[i];
-  if (priceEl) priceEl.textContent = fmt(m.y2026[i]);
+  /* Prefix the year explicitly — a bare "$234" here didn't say whether
+     it was this year's value or last year's. */
+  if (priceEl) priceEl.textContent = '2026: ' + fmt(m.y2026[i]);
   if (!rowsEl) return;
   rowsEl.innerHTML = histYears === 2
-    ? '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + HIST_COLOR_PREV + '"></span>2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
+    ? '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_PREV) + '2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
     : '';
 }
 
