@@ -129,6 +129,15 @@
     white-space: nowrap; flex-shrink: 0; font-size: 13px;
   }
 
+  /* ── Full-screen destination (Neighbourhood Data): a real push screen,
+     not a bottom sheet — no rounded top corners, no drag handle, slides
+     in from the right like Calendar's own navigation rather than up from
+     the bottom like an options/help sheet. ── */
+  .nd-fullscreen { border-radius: 0 !important; min-height: 100% !important; animation: ndSlideInRight 0.22s ease-out; }
+  @keyframes ndSlideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
+  .nd-fullscreen .css-1fydlbq { justify-content: flex-start; gap: 14px; }
+  .nd-fullscreen .css-1vakbk4 .chakra-button { font-size: 15px; }
+
   /* ── Sections / Accordion — card list, mobile-app inspired (Robinhood/Coinbase
      grouped-card style: rounded cards floating on a soft grey backdrop rather
      than flush hairline rows) ── */

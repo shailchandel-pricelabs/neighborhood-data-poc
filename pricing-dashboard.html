@@ -175,11 +175,24 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
   min-height: 60vh; border-radius: 16px 16px 0 0; background: var(--chakra-colors-productWhite);
 }
 .phone-frame #sheet-backdrop { position: absolute !important; }
+/* The Override FAB's real positioned ancestor was a Chakra Tabs wrapper
+   (.css-8vzbhk) sized to the full scrollable calendar content (1000px+),
+   not the phone screen — so "bottom: 96px" resolved against that tall box
+   and the button rendered hundreds of pixels below the visible viewport.
+   Neutralizing that wrapper's position lets the button's containing block
+   resolve up to .phone-frame instead, so it floats correctly above the
+   tab bar as the calendar scrolls beneath it. */
+.phone-frame .css-8vzbhk { position: static !important; }
 .phone-frame #mobile-app-override-button-calendar-container {
   position: absolute !important; top: auto !important; left: auto !important;
   right: 16px !important; bottom: 96px !important; z-index: 50;
 }
-.phone-frame .css-1wpd4pz { position: static !important; }
+/* Real header wrapper is position:fixed in the live app, so its sibling
+   content carries a margin-top equal to the header's height to avoid
+   sitting underneath it. Our header is sticky (in normal flow) instead,
+   so that compensation is redundant here — it was leaving a blank ~64px
+   gap between the header and the price card. */
+.phone-frame .css-1wpd4pz { position: static !important; margin-top: 0 !important; }
 
 /* ── iPhone 16 device frame (POC presentation only, not extracted from the
    real app): matches the iPhone 16's logical/point resolution — 393×852pt
