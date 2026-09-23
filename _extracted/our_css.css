@@ -114,13 +114,22 @@
     border-top-right-radius: var(--radius-md); background: var(--pl-card);
   }
 
-  /* ── Comp Set Banner (desktop-style "Current Compset" strip): neutral
-     grey background rather than a blue callout — the blue accent is kept
-     only on the compset-type pill itself, matching desktop — with a
-     standard bordered white button for editing rather than a text link. ── */
+  /* ── Neighbourhood Data tab description, matching desktop's own
+     explanatory copy above the Current Compset strip. ── */
+  .nd-tab-description {
+    margin: 10px 12px 0; font-size: 13px; font-weight: 400; line-height: 1.5;
+    color: var(--pl-text-secondary);
+  }
+  .nd-tab-description strong { color: var(--pl-text); font-weight: 600; }
+  .nd-tab-description a { color: var(--pl-blue); font-weight: 600; text-decoration: none; }
+
+  /* ── Comp Set Banner (desktop-style "Current Compset" strip): white
+     background for the strip itself, with the light-blue filled pill
+     kept for the compset-type badge (matching desktop) and a standard
+     bordered white button for editing rather than a text link. ── */
   .comp-banner {
-    margin: 12px 12px 0; padding: 10px 12px;
-    background: var(--pl-bg); border: 1px solid var(--pl-border);
+    margin: 10px 12px 0; padding: 10px 12px;
+    background: var(--pl-card); border: 1px solid var(--pl-border);
     border-radius: var(--radius-lg); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
   .comp-banner .banner-text-row {
@@ -129,8 +138,8 @@
   }
   .comp-banner .banner-label-inline { color: var(--pl-text); font-weight: 600; white-space: nowrap; }
   .comp-banner .banner-pill {
-    color: var(--pl-blue); font-weight: 600; border: 1px solid var(--pl-blue);
-    border-radius: var(--radius-base); padding: 2px 8px; background: #fff; white-space: nowrap;
+    color: var(--pl-blue); font-weight: 600; border: 1px solid var(--pl-blue-surface);
+    border-radius: var(--radius-base); padding: 2px 8px; background: var(--pl-blue-surface); white-space: nowrap;
   }
   .comp-banner .banner-meta-inline { color: var(--pl-text-secondary); font-weight: 400; white-space: nowrap; }
   .comp-banner .banner-edit-btn {
@@ -164,7 +173,7 @@
      grouped-card style: rounded cards floating on a soft grey backdrop rather
      than flush hairline rows) ── */
   .nd-sheet-body { background: var(--pl-bg); }
-  .nd-sections { padding: 10px 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .nd-sections { padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 14px; }
   .section {
     background: var(--pl-card); margin: 0; border-radius: var(--radius-lg);
     box-shadow: var(--shadow-base); overflow: hidden;
@@ -184,7 +193,7 @@
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
-  .section-content { padding: 4px 16px 18px; }
+  .section-content { padding: 6px 16px 20px; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */
   .chart-controls {
@@ -234,7 +243,12 @@
   /* Market History's own duration toggle: left-aligned like a normal
      control row, no trailing divider since it sits right above the
      metric cards rather than above a chart. */
-  .pill-toggles-hist { justify-content: flex-start; border-bottom: none; padding-bottom: 0; }
+  .pill-toggles-hist { justify-content: flex-start; border-bottom: none; padding-bottom: 0; gap: 6px; }
+  .pill-toggles-hist .pill {
+    padding: 5px 10px; min-height: 26px; font-size: 12px; font-weight: 600;
+    background: transparent; border: 1px solid var(--pl-border);
+  }
+  .pill-toggles-hist .pill.active { background: var(--pl-primary-light); border-color: var(--pl-primary); }
 
   /* Pill with dropdown caret */
   .pill.has-menu::after {
@@ -293,14 +307,18 @@
      point by default) instead of a static, context-free hero number and
      a floating tooltip a touch drag would otherwise cover. ── */
   .chart-info-card {
-    background: var(--pl-bg); border-radius: var(--radius-md);
+    background: #F8F9FB; border: 1px solid #EEF0F3; border-radius: var(--radius-md);
     padding: 8px 10px; margin-bottom: 6px;
   }
   .info-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
   .info-card-date { font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); }
   .info-card-price { font-size: 20px; font-weight: 700; color: var(--pl-text); letter-spacing: -0.3px; }
   .info-card-rows { margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
+  /* Softer than the default .hc-tt-row (dark, high-contrast value text) —
+     this card sits permanently on screen rather than appearing briefly
+     during a scrub, so a lighter, less shouty value color reads better. */
   .info-card-rows .hc-tt-row { font-size: 11px; }
+  .info-card-rows .hc-tt-row b { color: var(--pl-text-secondary); font-weight: 600; }
   .range-seg {
     display: flex; justify-content: space-between; gap: 4px; margin-top: 8px;
     padding-top: 10px; border-top: 1px solid var(--pl-border-table);
@@ -486,6 +504,17 @@
 
   /* ── Competitor Calendar tab (dedicated top-level sheet) ── */
   .comp-sheet-content { padding: 10px 12px 20px; }
+
+  /* Empty state — the tab's default until at least one competitor has
+     been added, matching a brand-new account. */
+  .cc-empty-state {
+    background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
+    padding: 48px 24px; text-align: center; display: flex; flex-direction: column; align-items: center;
+  }
+  .cc-empty-icon { color: var(--pl-icon-disabled); margin-bottom: 14px; }
+  .cc-empty-title { font-size: 16px; font-weight: 700; color: var(--pl-text); margin-bottom: 4px; }
+  .cc-empty-sub { font-size: 13px; font-weight: 400; color: var(--pl-text-secondary); margin-bottom: 18px; }
+
   .comp-manage-bar {
     background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
     padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -527,13 +556,41 @@
     display: flex; align-items: center; justify-content: center;
   }
   .comp-table-cell.price.avail { color: var(--pl-blue); }
-  .comp-table-cell.price.unavail { color: var(--pl-text-disabled); font-weight: 400; }
+  .comp-table-cell.price.unavail {
+    color: var(--pl-text-disabled); font-weight: 400;
+    /* Diagonal hash, matching desktop's own booked/unavailable treatment,
+       rather than relying on text color alone to carry the meaning. */
+    background-image: repeating-linear-gradient(-45deg, var(--pl-border-table) 0, var(--pl-border-table) 1px, transparent 1px, transparent 6px);
+  }
+  /* Weekend columns get a light blue tint (both header and cells) so the
+     table reads at a glance without having to check the date labels. */
+  .comp-table-cell.weekend { background: var(--pl-highlight-blue); }
+  .comp-table-header-row .comp-table-cell.weekend { background: #E4EDFB; }
+  .comp-table-cell.price.avail.weekend { background: var(--pl-highlight-blue); }
+  .comp-table-cell.price.unavail.weekend {
+    background-color: var(--pl-highlight-blue);
+    background-image: repeating-linear-gradient(-45deg, var(--pl-blue-surface) 0, var(--pl-blue-surface) 1px, transparent 1px, transparent 6px);
+  }
   .comp-table-name-cell {
     flex: 0 0 140px; width: 140px; justify-content: flex-start; text-align: left; gap: 8px;
     position: sticky; left: 0; background: #fff; z-index: 2;
     box-shadow: 2px 0 4px rgba(0,0,0,0.05);
   }
   .comp-table-header-row .comp-table-name-cell { background: var(--pl-bg); z-index: 3; }
+  /* "Your Listing" pinned row — visually distinct so it reads as the
+     baseline everything else is compared against, always first. */
+  .comp-table-row.your-listing-row { background: var(--pl-highlight-blue); font-weight: 700; }
+  .comp-table-row.your-listing-row:active { background: var(--pl-blue-surface); }
+  .comp-table-row.your-listing-row .comp-table-cell.price { font-weight: 700; }
+  .comp-table-row.your-listing-row .your-listing-cell { background: var(--pl-highlight-blue); }
+  .comp-table-row.your-listing-row .comp-table-name { color: var(--pl-blue); }
+  .comp-table-row.your-listing-row .comp-table-meta a { color: var(--pl-blue); text-decoration: none; font-weight: 600; }
+  .cc-legend-unavail {
+    width: 14px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0;
+    background-color: var(--pl-bg);
+    background-image: repeating-linear-gradient(-45deg, var(--pl-border-table) 0, var(--pl-border-table) 1px, transparent 1px, transparent 5px);
+    border: 1px solid var(--pl-border-table);
+  }
   .comp-table-thumb {
     width: 26px; height: 26px; border-radius: 6px; background: var(--pl-bg);
     display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
@@ -552,6 +609,13 @@
     background: var(--pl-bg); margin-bottom: 4px;
   }
   .comp-search-input:focus { outline: none; border-color: var(--pl-primary); background: var(--pl-card); }
+  .comp-auto-select-btn {
+    width: 100%; margin: 10px 0 4px; padding: 10px 0; display: flex; align-items: center; justify-content: center;
+    gap: 8px; border: 1px solid var(--pl-border); border-radius: var(--radius-full); background: var(--pl-card);
+    color: var(--pl-text); font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .comp-auto-select-btn:active { background: var(--pl-bg); }
+  .comp-auto-select-hint { font-size: 11px; font-weight: 400; color: var(--pl-text-disabled); text-align: center; margin-bottom: 10px; }
   .comp-row-list { display: flex; flex-direction: column; gap: 6px; }
   .comp-row {
     display: flex; align-items: center; gap: 10px; padding: 8px;
@@ -732,7 +796,13 @@
     background: var(--pl-card); border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.12); overflow-y: auto;
     animation: bsSlideUp 0.2s ease-out;
+    /* A visible scrollbar track was eating into the sheet's own width on
+       taller sheets (e.g. Manage Competitors) — an overlay-style thin
+       scrollbar keeps the full width for content instead. */
+    scrollbar-width: thin;
   }
+  .bottom-sheet::-webkit-scrollbar { width: 4px; }
+  .bottom-sheet::-webkit-scrollbar-thumb { background: var(--pl-border); border-radius: 2px; }
   @keyframes bsSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .bs-handle {
     width: 36px; height: 4px; border-radius: 2px; background: var(--pl-border);

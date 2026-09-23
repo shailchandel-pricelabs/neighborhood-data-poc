@@ -1335,13 +1335,22 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     border-top-right-radius: var(--radius-md); background: var(--pl-card);
   }
 
-  /* ── Comp Set Banner (desktop-style "Current Compset" strip): neutral
-     grey background rather than a blue callout — the blue accent is kept
-     only on the compset-type pill itself, matching desktop — with a
-     standard bordered white button for editing rather than a text link. ── */
+  /* ── Neighbourhood Data tab description, matching desktop's own
+     explanatory copy above the Current Compset strip. ── */
+  .nd-tab-description {
+    margin: 10px 12px 0; font-size: 13px; font-weight: 400; line-height: 1.5;
+    color: var(--pl-text-secondary);
+  }
+  .nd-tab-description strong { color: var(--pl-text); font-weight: 600; }
+  .nd-tab-description a { color: var(--pl-blue); font-weight: 600; text-decoration: none; }
+
+  /* ── Comp Set Banner (desktop-style "Current Compset" strip): white
+     background for the strip itself, with the light-blue filled pill
+     kept for the compset-type badge (matching desktop) and a standard
+     bordered white button for editing rather than a text link. ── */
   .comp-banner {
-    margin: 12px 12px 0; padding: 10px 12px;
-    background: var(--pl-bg); border: 1px solid var(--pl-border);
+    margin: 10px 12px 0; padding: 10px 12px;
+    background: var(--pl-card); border: 1px solid var(--pl-border);
     border-radius: var(--radius-lg); display: flex; align-items: center; gap: 10px; flex-wrap: wrap;
   }
   .comp-banner .banner-text-row {
@@ -1350,8 +1359,8 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   }
   .comp-banner .banner-label-inline { color: var(--pl-text); font-weight: 600; white-space: nowrap; }
   .comp-banner .banner-pill {
-    color: var(--pl-blue); font-weight: 600; border: 1px solid var(--pl-blue);
-    border-radius: var(--radius-base); padding: 2px 8px; background: #fff; white-space: nowrap;
+    color: var(--pl-blue); font-weight: 600; border: 1px solid var(--pl-blue-surface);
+    border-radius: var(--radius-base); padding: 2px 8px; background: var(--pl-blue-surface); white-space: nowrap;
   }
   .comp-banner .banner-meta-inline { color: var(--pl-text-secondary); font-weight: 400; white-space: nowrap; }
   .comp-banner .banner-edit-btn {
@@ -1385,7 +1394,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      grouped-card style: rounded cards floating on a soft grey backdrop rather
      than flush hairline rows) ── */
   .nd-sheet-body { background: var(--pl-bg); }
-  .nd-sections { padding: 10px 12px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .nd-sections { padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 14px; }
   .section {
     background: var(--pl-card); margin: 0; border-radius: var(--radius-lg);
     box-shadow: var(--shadow-base); overflow: hidden;
@@ -1405,7 +1414,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
-  .section-content { padding: 4px 16px 18px; }
+  .section-content { padding: 6px 16px 20px; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */
   .chart-controls {
@@ -1455,7 +1464,12 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   /* Market History's own duration toggle: left-aligned like a normal
      control row, no trailing divider since it sits right above the
      metric cards rather than above a chart. */
-  .pill-toggles-hist { justify-content: flex-start; border-bottom: none; padding-bottom: 0; }
+  .pill-toggles-hist { justify-content: flex-start; border-bottom: none; padding-bottom: 0; gap: 6px; }
+  .pill-toggles-hist .pill {
+    padding: 5px 10px; min-height: 26px; font-size: 12px; font-weight: 600;
+    background: transparent; border: 1px solid var(--pl-border);
+  }
+  .pill-toggles-hist .pill.active { background: var(--pl-primary-light); border-color: var(--pl-primary); }
 
   /* Pill with dropdown caret */
   .pill.has-menu::after {
@@ -1514,14 +1528,18 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      point by default) instead of a static, context-free hero number and
      a floating tooltip a touch drag would otherwise cover. ── */
   .chart-info-card {
-    background: var(--pl-bg); border-radius: var(--radius-md);
+    background: #F8F9FB; border: 1px solid #EEF0F3; border-radius: var(--radius-md);
     padding: 8px 10px; margin-bottom: 6px;
   }
   .info-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
   .info-card-date { font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); }
   .info-card-price { font-size: 20px; font-weight: 700; color: var(--pl-text); letter-spacing: -0.3px; }
   .info-card-rows { margin-top: 4px; display: flex; flex-direction: column; gap: 3px; }
+  /* Softer than the default .hc-tt-row (dark, high-contrast value text) —
+     this card sits permanently on screen rather than appearing briefly
+     during a scrub, so a lighter, less shouty value color reads better. */
   .info-card-rows .hc-tt-row { font-size: 11px; }
+  .info-card-rows .hc-tt-row b { color: var(--pl-text-secondary); font-weight: 600; }
   .range-seg {
     display: flex; justify-content: space-between; gap: 4px; margin-top: 8px;
     padding-top: 10px; border-top: 1px solid var(--pl-border-table);
@@ -1707,6 +1725,17 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
 
   /* ── Competitor Calendar tab (dedicated top-level sheet) ── */
   .comp-sheet-content { padding: 10px 12px 20px; }
+
+  /* Empty state — the tab's default until at least one competitor has
+     been added, matching a brand-new account. */
+  .cc-empty-state {
+    background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
+    padding: 48px 24px; text-align: center; display: flex; flex-direction: column; align-items: center;
+  }
+  .cc-empty-icon { color: var(--pl-icon-disabled); margin-bottom: 14px; }
+  .cc-empty-title { font-size: 16px; font-weight: 700; color: var(--pl-text); margin-bottom: 4px; }
+  .cc-empty-sub { font-size: 13px; font-weight: 400; color: var(--pl-text-secondary); margin-bottom: 18px; }
+
   .comp-manage-bar {
     background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
     padding: 14px 16px; display: flex; align-items: center; justify-content: space-between; gap: 10px;
@@ -1748,13 +1777,41 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     display: flex; align-items: center; justify-content: center;
   }
   .comp-table-cell.price.avail { color: var(--pl-blue); }
-  .comp-table-cell.price.unavail { color: var(--pl-text-disabled); font-weight: 400; }
+  .comp-table-cell.price.unavail {
+    color: var(--pl-text-disabled); font-weight: 400;
+    /* Diagonal hash, matching desktop's own booked/unavailable treatment,
+       rather than relying on text color alone to carry the meaning. */
+    background-image: repeating-linear-gradient(-45deg, var(--pl-border-table) 0, var(--pl-border-table) 1px, transparent 1px, transparent 6px);
+  }
+  /* Weekend columns get a light blue tint (both header and cells) so the
+     table reads at a glance without having to check the date labels. */
+  .comp-table-cell.weekend { background: var(--pl-highlight-blue); }
+  .comp-table-header-row .comp-table-cell.weekend { background: #E4EDFB; }
+  .comp-table-cell.price.avail.weekend { background: var(--pl-highlight-blue); }
+  .comp-table-cell.price.unavail.weekend {
+    background-color: var(--pl-highlight-blue);
+    background-image: repeating-linear-gradient(-45deg, var(--pl-blue-surface) 0, var(--pl-blue-surface) 1px, transparent 1px, transparent 6px);
+  }
   .comp-table-name-cell {
     flex: 0 0 140px; width: 140px; justify-content: flex-start; text-align: left; gap: 8px;
     position: sticky; left: 0; background: #fff; z-index: 2;
     box-shadow: 2px 0 4px rgba(0,0,0,0.05);
   }
   .comp-table-header-row .comp-table-name-cell { background: var(--pl-bg); z-index: 3; }
+  /* "Your Listing" pinned row — visually distinct so it reads as the
+     baseline everything else is compared against, always first. */
+  .comp-table-row.your-listing-row { background: var(--pl-highlight-blue); font-weight: 700; }
+  .comp-table-row.your-listing-row:active { background: var(--pl-blue-surface); }
+  .comp-table-row.your-listing-row .comp-table-cell.price { font-weight: 700; }
+  .comp-table-row.your-listing-row .your-listing-cell { background: var(--pl-highlight-blue); }
+  .comp-table-row.your-listing-row .comp-table-name { color: var(--pl-blue); }
+  .comp-table-row.your-listing-row .comp-table-meta a { color: var(--pl-blue); text-decoration: none; font-weight: 600; }
+  .cc-legend-unavail {
+    width: 14px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0;
+    background-color: var(--pl-bg);
+    background-image: repeating-linear-gradient(-45deg, var(--pl-border-table) 0, var(--pl-border-table) 1px, transparent 1px, transparent 5px);
+    border: 1px solid var(--pl-border-table);
+  }
   .comp-table-thumb {
     width: 26px; height: 26px; border-radius: 6px; background: var(--pl-bg);
     display: flex; align-items: center; justify-content: center; font-size: 13px; flex-shrink: 0;
@@ -1773,6 +1830,13 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     background: var(--pl-bg); margin-bottom: 4px;
   }
   .comp-search-input:focus { outline: none; border-color: var(--pl-primary); background: var(--pl-card); }
+  .comp-auto-select-btn {
+    width: 100%; margin: 10px 0 4px; padding: 10px 0; display: flex; align-items: center; justify-content: center;
+    gap: 8px; border: 1px solid var(--pl-border); border-radius: var(--radius-full); background: var(--pl-card);
+    color: var(--pl-text); font-family: 'IBM Plex Sans', sans-serif; font-size: 13px; font-weight: 700; cursor: pointer;
+  }
+  .comp-auto-select-btn:active { background: var(--pl-bg); }
+  .comp-auto-select-hint { font-size: 11px; font-weight: 400; color: var(--pl-text-disabled); text-align: center; margin-bottom: 10px; }
   .comp-row-list { display: flex; flex-direction: column; gap: 6px; }
   .comp-row {
     display: flex; align-items: center; gap: 10px; padding: 8px;
@@ -1953,7 +2017,13 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     background: var(--pl-card); border-radius: 16px 16px 0 0;
     box-shadow: 0 -4px 20px rgba(0,0,0,0.12); overflow-y: auto;
     animation: bsSlideUp 0.2s ease-out;
+    /* A visible scrollbar track was eating into the sheet's own width on
+       taller sheets (e.g. Manage Competitors) — an overlay-style thin
+       scrollbar keeps the full width for content instead. */
+    scrollbar-width: thin;
   }
+  .bottom-sheet::-webkit-scrollbar { width: 4px; }
+  .bottom-sheet::-webkit-scrollbar-thumb { background: var(--pl-border); border-radius: 2px; }
   @keyframes bsSlideUp { from { transform: translateY(100%); } to { transform: translateY(0); } }
   .bs-handle {
     width: 36px; height: 4px; border-radius: 2px; background: var(--pl-border);
@@ -2174,6 +2244,9 @@ body { background: #d9dbe0; }
   <div class="chakra-modal__body css-d8ne84" style="padding:0;display:flex;flex-direction:column;flex:1;min-height:0;">
     <div class="nd-sheet-body">
       <!-- ═══ Comp Set Banner (desktop-style "Current Compset" strip) ═══ -->
+<div class="nd-tab-description">
+  Compare prices, occupancy, and market metrics against nearby properties. Neighbourhood Data is currently using nearby <strong>1–2 BR</strong> listings as your market comp set. You can adjust this below. <a href="#" onclick="event.preventDefault()">Learn More</a>
+</div>
 <div class="comp-banner">
   <div class="banner-text-row">
     <span class="banner-label-inline">Current Compset:</span>
@@ -2256,7 +2329,7 @@ body { background: #d9dbe0; }
         </div>
         <div class="hc-chart-wrap">
           <button class="hc-expand-btn" title="Expand" onclick="ndOpenChartFullscreen('occ')"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.8em;height:0.8em" fill="currentColor"><path d="M32 32C14.3 32 0 46.3 0 64L0 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0 0-96zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128c0-17.7-14.3-32-32-32l-128 0zM448 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96-96 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-128z"></path></svg></button>
-          <div id="occ-hc-chart" class="hc-chart" style="height:220px"></div>
+          <div id="occ-hc-chart" class="hc-chart" style="height:250px"></div>
         </div>
         <div class="range-seg" id="occ-range-seg">
           <div class="range-seg-item active" onclick="occSetRange(this,30)">30D</div>
@@ -2307,7 +2380,7 @@ body { background: #d9dbe0; }
           </div>
         </div>
         <div class="hc-chart-wrap">
-          <div id="hist-hc-chart" class="hc-chart" style="height:190px"></div>
+          <div id="hist-hc-chart" class="hc-chart" style="height:220px"></div>
           <div class="hc-tooltip"></div>
         </div>
         <div class="legend" id="hist-legend"></div>
@@ -2389,7 +2462,7 @@ body { background: #d9dbe0; }
   </div>
 </div>
 
-<div id="sheet-chart-fullscreen" role="dialog" class="chakra-modal__content css-ej5jt3 nd-fullscreen" style="position: absolute; inset: 0; transform: none; z-index: 2020; display: none; flex-direction: column;">
+<div id="sheet-chart-fullscreen" role="dialog" class="chakra-modal__content css-ej5jt3 nd-fullscreen" style="position: absolute; inset: 0; transform: none; z-index: 2200; display: none; flex-direction: column;">
   <header class="chakra-modal__header css-1jf69i2">
     <div class="css-1fydlbq">
       <div class="css-1vakbk4"><button type="button" class="chakra-button css-1x8iiyz" aria-label="Back" onclick="ndCloseChartFullscreen()"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M7.4 273.4C2.7 268.8 0 262.6 0 256s2.7-12.8 7.4-17.4l176-168c9.6-9.2 24.8-8.8 33.9 .8s8.8 24.8-.8 33.9L83.9 232 424 232c13.3 0 24 10.7 24 24s-10.7 24-24 24L83.9 280 216.6 406.6c9.6 9.2 9.9 24.3 .8 33.9s-24.3 9.9-33.9 .8l-176-168z"></path></svg></button></div>
@@ -2429,11 +2502,28 @@ body { background: #d9dbe0; }
       <div class="nd-sections comp-sheet-content">
       <!-- ═══ Competitor Calendar — dedicated tab (promoted out of Neighbourhood Data) ═══ -->
 
+<!-- Empty state: the default until at least one competitor is added,
+     matching a brand-new account rather than starting pre-populated. -->
+<div class="cc-empty-state" id="cc-empty-state">
+  <div class="cc-empty-icon"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:2.2em;height:2.2em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div>
+  <div class="cc-empty-title">No Listings Added</div>
+  <div class="cc-empty-sub">Choose listings to compare in the competitor calendar</div>
+  <button class="comp-add-btn" onclick="ndOpenSheet('bs-add-competitors')">Manage Competitors</button>
+</div>
+
+<div id="cc-populated" style="display:none">
+
 <!-- Manage-competitors banner: count + prominent Add action (was a buried
      "Edit competitors →" link behind a gear icon; now the primary entry point) -->
 <div class="comp-manage-bar">
   <div class="comp-manage-count"><strong class="comp-count-badge" id="comp-count-badge">9</strong> competitors in your set</div>
   <button class="comp-add-btn" onclick="ndOpenSheet('bs-add-competitors')">+ Add</button>
+</div>
+
+<!-- Host / Guest price display toggle -->
+<div class="pill-toggles comp-view-toggle">
+  <div class="pill active" onclick="ccSetPriceMode(this,'host')">Host Prices</div>
+  <div class="pill" onclick="ccSetPriceMode(this,'guest')">Guest Prices</div>
 </div>
 
 <!-- Calendar / Table / Map view toggle -->
@@ -2604,21 +2694,25 @@ body { background: #d9dbe0; }
 <div class="comp-view" id="cc-view-table" style="display:none">
   <div class="comp-table-hint">Scroll to compare dates · tap a row for details</div>
   <div class="comp-table-wrap">
-<div class="comp-table-header-row"><div class="comp-table-cell comp-table-name-cell sticky">Competitor</div><div class="comp-table-cell">Sep 10</div><div class="comp-table-cell">Sep 11</div><div class="comp-table-cell">Sep 12</div><div class="comp-table-cell">Sep 13</div><div class="comp-table-cell">Sep 14</div><div class="comp-table-cell">Sep 15</div><div class="comp-table-cell">Sep 16</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Luxe King Suite','4.98','1BR','$195','$182','$210')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Luxe King Suite</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.98 · 1BR · 0.3 mi</div></div></div><div class="comp-table-cell price avail">$185</div><div class="comp-table-cell price avail">$192</div><div class="comp-table-cell price avail">$208</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$202</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$185</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('New! 1 Bed Hideaway','—','1BR','$165','$152','$180')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">New! 1 Bed Hideaway</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> — · 1BR · 0.4 mi</div></div></div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$174</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$175</div><div class="comp-table-cell price avail">$168</div><div class="comp-table-cell price avail">$173</div><div class="comp-table-cell price avail">$155</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Modern Studio Apt','4.85','Studio','$142','$129','$157')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Modern Studio Apt</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.85 · Studio · 0.5 mi</div></div></div><div class="comp-table-cell price avail">$137</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price avail">$138</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$143</div><div class="comp-table-cell price avail">$151</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Sunny 2BR Condo','4.91','2BR','$225','$212','$240')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Sunny 2BR Condo</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.91 · 2BR · 0.6 mi</div></div></div><div class="comp-table-cell price avail">$216</div><div class="comp-table-cell price avail">$232</div><div class="comp-table-cell price avail">$227</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$235</div><div class="comp-table-cell price avail">$226</div><div class="comp-table-cell price avail">$237</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Charming 1BR Loft','4.76','1BR','$178','$165','$193')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Charming 1BR Loft</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.76 · 1BR · 0.7 mi</div></div></div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$192</div><div class="comp-table-cell price avail">$170</div><div class="comp-table-cell price avail">$171</div><div class="comp-table-cell price avail">$182</div><div class="comp-table-cell price avail">$179</div><div class="comp-table-cell price avail">$179</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Trendy East Austin','4.88','1BR','$190','$177','$205')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Trendy East Austin</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.88 · 1BR · 0.8 mi</div></div></div><div class="comp-table-cell price avail">$188</div><div class="comp-table-cell price avail">$201</div><div class="comp-table-cell price avail">$199</div><div class="comp-table-cell price avail">$197</div><div class="comp-table-cell price avail">$185</div><div class="comp-table-cell price avail">$188</div><div class="comp-table-cell price avail">$200</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Quiet Garden Studio','4.70','Studio','$128','$115','$143')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Quiet Garden Studio</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.70 · Studio · 0.9 mi</div></div></div><div class="comp-table-cell price avail">$125</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price avail">$125</div><div class="comp-table-cell price avail">$128</div><div class="comp-table-cell price avail">$120</div><div class="comp-table-cell price avail">$136</div><div class="comp-table-cell price avail">$128</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Central 2BR Flat','4.82','2BR','$210','$197','$225')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Central 2BR Flat</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.82 · 2BR · 1.0 mi</div></div></div><div class="comp-table-cell price avail">$215</div><div class="comp-table-cell price avail">$220</div><div class="comp-table-cell price avail">$208</div><div class="comp-table-cell price avail">$223</div><div class="comp-table-cell price avail">$208</div><div class="comp-table-cell price avail">$213</div><div class="comp-table-cell price avail">$212</div></div>
-<div class="comp-table-row" onclick="openCompCalendar('Bright Corner 1BR','4.65','1BR','$155','$142','$170')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Bright Corner 1BR</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.65 · 1BR · 1.1 mi</div></div></div><div class="comp-table-cell price avail">$149</div><div class="comp-table-cell price avail">$147</div><div class="comp-table-cell price avail">$148</div><div class="comp-table-cell price avail">$150</div><div class="comp-table-cell price avail">$158</div><div class="comp-table-cell price avail">$157</div><div class="comp-table-cell price avail">$159</div></div>
+<div class="comp-table-header-row"><div class="comp-table-cell comp-table-name-cell sticky">Competitor</div><div class="comp-table-cell">Sep 10</div><div class="comp-table-cell">Sep 11</div><div class="comp-table-cell weekend">Sep 12</div><div class="comp-table-cell weekend">Sep 13</div><div class="comp-table-cell">Sep 14</div><div class="comp-table-cell">Sep 15</div><div class="comp-table-cell">Sep 16</div></div>
+<div class="comp-table-row your-listing-row"><div class="comp-table-cell comp-table-name-cell sticky your-listing-cell"><div class="comp-table-name-text"><div class="comp-table-name">Your Listing</div><div class="comp-table-meta"><a href="#" onclick="event.preventDefault();event.stopPropagation()">Edit Markup, Fee Details</a></div></div></div><div class="comp-table-cell price avail">$162</div><div class="comp-table-cell price avail">$168</div><div class="comp-table-cell price avail weekend">$189</div><div class="comp-table-cell price unavail weekend">—</div><div class="comp-table-cell price avail">$155</div><div class="comp-table-cell price avail">$158</div><div class="comp-table-cell price avail">$149</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Luxe King Suite','4.98','1BR','$195','$182','$210')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Luxe King Suite</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.98 · 1BR · 0.3 mi</div></div></div><div class="comp-table-cell price avail">$185</div><div class="comp-table-cell price avail">$192</div><div class="comp-table-cell price avail weekend">$208</div><div class="comp-table-cell price unavail weekend">—</div><div class="comp-table-cell price avail">$202</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$185</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('New! 1 Bed Hideaway','—','1BR','$165','$152','$180')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">New! 1 Bed Hideaway</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> — · 1BR · 0.4 mi</div></div></div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$174</div><div class="comp-table-cell price unavail weekend">—</div><div class="comp-table-cell price avail weekend">$175</div><div class="comp-table-cell price avail">$168</div><div class="comp-table-cell price avail">$173</div><div class="comp-table-cell price avail">$155</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Modern Studio Apt','4.85','Studio','$142','$129','$157')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Modern Studio Apt</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.85 · Studio · 0.5 mi</div></div></div><div class="comp-table-cell price avail">$137</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price avail weekend">$138</div><div class="comp-table-cell price avail weekend">$142</div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$143</div><div class="comp-table-cell price avail">$151</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Sunny 2BR Condo','4.91','2BR','$225','$212','$240')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Sunny 2BR Condo</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.91 · 2BR · 0.6 mi</div></div></div><div class="comp-table-cell price avail">$216</div><div class="comp-table-cell price avail">$232</div><div class="comp-table-cell price avail weekend">$227</div><div class="comp-table-cell price unavail weekend">—</div><div class="comp-table-cell price avail">$235</div><div class="comp-table-cell price avail">$226</div><div class="comp-table-cell price avail">$237</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Charming 1BR Loft','4.76','1BR','$178','$165','$193')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Charming 1BR Loft</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.76 · 1BR · 0.7 mi</div></div></div><div class="comp-table-cell price unavail">—</div><div class="comp-table-cell price avail">$192</div><div class="comp-table-cell price avail weekend">$170</div><div class="comp-table-cell price avail weekend">$171</div><div class="comp-table-cell price avail">$182</div><div class="comp-table-cell price avail">$179</div><div class="comp-table-cell price avail">$179</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Trendy East Austin','4.88','1BR','$190','$177','$205')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Trendy East Austin</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.88 · 1BR · 0.8 mi</div></div></div><div class="comp-table-cell price avail">$188</div><div class="comp-table-cell price avail">$201</div><div class="comp-table-cell price avail weekend">$199</div><div class="comp-table-cell price avail weekend">$197</div><div class="comp-table-cell price avail">$185</div><div class="comp-table-cell price avail">$188</div><div class="comp-table-cell price avail">$200</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Quiet Garden Studio','4.70','Studio','$128','$115','$143')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Quiet Garden Studio</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.70 · Studio · 0.9 mi</div></div></div><div class="comp-table-cell price avail">$125</div><div class="comp-table-cell price avail">$142</div><div class="comp-table-cell price avail weekend">$125</div><div class="comp-table-cell price avail weekend">$128</div><div class="comp-table-cell price avail">$120</div><div class="comp-table-cell price avail">$136</div><div class="comp-table-cell price avail">$128</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Central 2BR Flat','4.82','2BR','$210','$197','$225')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Central 2BR Flat</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.82 · 2BR · 1.0 mi</div></div></div><div class="comp-table-cell price avail">$215</div><div class="comp-table-cell price avail">$220</div><div class="comp-table-cell price avail weekend">$208</div><div class="comp-table-cell price avail weekend">$223</div><div class="comp-table-cell price avail">$208</div><div class="comp-table-cell price avail">$213</div><div class="comp-table-cell price avail">$212</div></div>
+<div class="comp-table-row" onclick="openCompCalendar('Bright Corner 1BR','4.65','1BR','$155','$142','$170')"><div class="comp-table-cell comp-table-name-cell sticky"><div class="comp-table-thumb"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg></div><div class="comp-table-name-text"><div class="comp-table-name">Bright Corner 1BR</div><div class="comp-table-meta"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M316.9 18C311.6 7 300.4 0 288.1 0s-23.4 7-28.8 18L195 150.3 51.4 171.5c-12 1.8-22 10.2-25.7 21.7s-.7 24.2 7.9 32.7L137.8 329 113.2 474.7c-2 12 3 24.2 12.9 31.3s23 8 33.8 2.3l128.3-68.5 128.3 68.5c10.8 5.7 23.9 4.9 33.8-2.3s14.9-19.3 12.9-31.3L438.5 329 542.7 225.9c8.6-8.5 11.7-21.2 7.9-32.7s-13.7-19.9-25.7-21.7L381.2 150.3 316.9 18z"></path></svg> 4.65 · 1BR · 1.1 mi</div></div></div><div class="comp-table-cell price avail">$149</div><div class="comp-table-cell price avail">$147</div><div class="comp-table-cell price avail weekend">$148</div><div class="comp-table-cell price avail weekend">$150</div><div class="comp-table-cell price avail">$158</div><div class="comp-table-cell price avail">$157</div><div class="comp-table-cell price avail">$159</div></div>
   </div>
   <div class="legend" style="margin-top:10px">
     <div class="legend-item"><div class="legend-swatch" style="background:#1976F3;height:8px;width:8px;border-radius:2px"></div> Priced</div>
-    <div class="legend-item"><div class="legend-swatch" style="background:var(--pl-text-disabled);height:8px;width:8px;border-radius:2px"></div> Unavailable</div>
+    <div class="legend-item"><div class="legend-swatch cc-legend-unavail"></div> Booked / Unavailable</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--pl-blue-surface);border:1px solid var(--pl-blue);height:8px;width:8px;border-radius:2px"></div> Weekend</div>
+    <div class="legend-item"><div class="legend-swatch" style="background:var(--pl-highlight-blue);border:1px solid var(--pl-blue);height:8px;width:8px;border-radius:2px"></div> Your Listing</div>
   </div>
+  <div class="comp-table-hint" id="cc-price-footnote" style="margin-top:4px">Nightly rates before adding fee or taxes; base amount set by the host.</div>
 </div>
 
 <!-- ── Map view (promoted from Neighbourhood Data's old "Competitor Map"
@@ -2654,6 +2748,8 @@ body { background: #d9dbe0; }
     <span class="map-legend-item"><span class="map-legend-you"></span> You</span>
   </div>
 </div>
+
+</div><!-- /#cc-populated -->
 
       </div>
     </div>
@@ -2890,6 +2986,8 @@ body { background: #d9dbe0; }
     </div>
     <div class="bs-body">
       <input class="comp-search-input" type="text" placeholder="Search nearby listings by name or address" oninput="filterCompSuggestions(this.value)">
+      <button class="comp-auto-select-btn" onclick="ccAutoSelectCloseMatches()"><svg viewBox="0 0 576 512" xmlns="http://www.w3.org/2000/svg" style="width:0.9em;height:0.9em" fill="currentColor"><path d="M575.8 255.5c0 18-15 32.1-32 32.1l-32 0 .7 160.2c0 2.7-.2 5.4-.5 8.1l0 16.2c0 22.1-17.9 40-40 40l-16 0c-1.1 0-2.2 0-3.3-.1c-1.4 .1-2.8 .1-4.2 .1L416 512l-24 0c-22.1 0-40-17.9-40-40l0-24 0-64c0-17.7-14.3-32-32-32l-64 0c-17.7 0-32 14.3-32 32l0 64 0 24c0 22.1-17.9 40-40 40l-24 0-31.9 0c-1.5 0-3-.1-4.5-.2c-1.2 .1-2.4 .2-3.6 .2l-16 0c-22.1 0-40-17.9-40-40l0-112c0-.9 0-1.9 .1-2.8l0-69.7-32 0c-18 0-32-14-32-32.1c0-9 3-17 10-24L266.4 8c7-7 15-8 22-8s15 2 21 7L564.8 231.5c8 7 12 15 11 24z"></path></svg> Auto-select Close Matches</button>
+      <p class="comp-auto-select-hint">We'll pick listings with similar bedrooms, amenities, and reviews.</p>
 
       <div class="bs-section-label">Your competitors (<span class="comp-count-badge" id="add-comp-current-count">9</span>)</div>
       <div class="comp-row-list" id="add-comp-current-list">
@@ -3102,6 +3200,34 @@ function toggleViewAll() {
   }
 }
 
+/* ── Competitor Calendar: Host vs. Guest price display. Host prices are
+   the base nightly rate set by the host (what's already in the markup);
+   Guest prices layer on an estimated PMS markup + fee, matching
+   desktop's own "Host Prices"/"Guest Prices" toggle. The host value is
+   captured lazily from each cell's own text the first time it's needed,
+   so no separate dataset has to be hand-maintained per cell. ── */
+let ccPriceMode = 'host';
+function ccSetPriceMode(el, mode) {
+  el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  ccPriceMode = mode;
+  document.querySelectorAll('#cc-view-table .comp-table-cell.price').forEach(function (cell) {
+    if (cell.dataset.host === undefined) {
+      const raw = cell.textContent.replace(/[^0-9.]/g, '');
+      cell.dataset.host = raw;
+    }
+    if (!cell.dataset.host) return;
+    const hostVal = parseFloat(cell.dataset.host);
+    cell.textContent = '$' + (mode === 'guest' ? Math.round(hostVal * 1.13) : hostVal);
+  });
+  const note = document.getElementById('cc-price-footnote');
+  if (note) {
+    note.textContent = mode === 'guest'
+      ? 'Nightly rates including fee and PMS markups.'
+      : 'Nightly rates before adding fee or taxes; base amount set by the host.';
+  }
+}
+
 /* ── Competitor Calendar: Calendar / Table / Map view toggle ── */
 function ndSetCompView(el, mode) {
   el.closest('.comp-view-toggle').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -3121,6 +3247,47 @@ function updateCompCounts() {
   if (link && !document.getElementById('comp-all-list').classList.contains('visible')) {
     link.textContent = 'View all ' + count + ' competitors →';
   }
+  ccUpdateEmptyState();
+}
+
+/* ── Competitor Calendar empty state: the tab defaults to "no listings
+   added" (matching a brand-new account) rather than starting pre-seeded
+   with a comp set, with the populated calendar/table/map views revealed
+   only once at least one competitor has actually been added. ── */
+function ccUpdateEmptyState() {
+  const empty = document.getElementById('cc-empty-state');
+  const populated = document.getElementById('cc-populated');
+  if (!empty || !populated) return;
+  const hasCompetitors = document.querySelectorAll('#add-comp-current-list .comp-row').length > 0;
+  empty.style.display = hasCompetitors ? 'none' : '';
+  populated.style.display = hasCompetitors ? '' : 'none';
+}
+function ccInitEmptyState() {
+  const currentList = document.getElementById('add-comp-current-list');
+  const suggestedList = document.getElementById('add-comp-suggested-list');
+  if (!currentList || !suggestedList || currentList.dataset.ccInit) return;
+  currentList.dataset.ccInit = '1';
+  /* Move the pre-seeded sample competitors into "Suggested nearby" and
+     flip their buttons back to "+ Add", simulating a fresh account that
+     hasn't chosen a comp set yet — the Manage Competitors flow itself
+     (add/remove, search) still works exactly the same either way. */
+  Array.from(currentList.querySelectorAll('.comp-row')).forEach(row => {
+    const btn = row.querySelector('.comp-row-btn');
+    btn.textContent = '+ Add';
+    btn.classList.remove('remove');
+    btn.classList.add('add');
+    btn.setAttribute('onclick', 'addCompetitorRow(this)');
+    suggestedList.insertBefore(row, suggestedList.firstChild);
+  });
+  updateCompCounts();
+}
+/* "Auto-select Close Matches" (item: Change Compset empty state) — adds
+   the first few suggested nearby listings in one tap rather than making
+   the user add each one individually. */
+function ccAutoSelectCloseMatches() {
+  const suggested = document.querySelectorAll('#add-comp-suggested-list .comp-row-btn.add');
+  Array.from(suggested).slice(0, 4).forEach(btn => addCompetitorRow(btn));
+  ndCloseSheet('bs-add-competitors');
 }
 function addCompetitorRow(btn) {
   const row = btn.closest('.comp-row');
@@ -3404,7 +3571,7 @@ function fpInitChart(days) {
   if (!document.getElementById('fp-hc-chart')) return;
   if (days) fpDays = Math.min(days, 90);
   if (fpChart) { fpChart.destroy(); fpChart = null; }
-  fpChart = fpRenderChart('fp-hc-chart', 200, 'fp');
+  fpChart = fpRenderChart('fp-hc-chart', 230, 'fp');
   fpRenderLegend();
 }
 
@@ -3640,7 +3807,7 @@ function occInitChart(days) {
   if (!document.getElementById('occ-hc-chart')) return;
   if (days) occDays = Math.min(days, 90);
   if (occChart) { occChart.destroy(); occChart = null; }
-  occChart = occRenderChart('occ-hc-chart', 220, 'occ');
+  occChart = occRenderChart('occ-hc-chart', 250, 'occ');
   occRenderLegend();
 }
 
@@ -3713,8 +3880,8 @@ function occTogglePacing(el) {
    History widget) — "Last 1 year" shows just the current 12 months,
    "Last 2 year" shows this year alongside last year, paired per month,
    with a tap tooltip giving both years' values. ── */
-const HIST_COLOR_PREV = '#F69396';
-const HIST_COLOR_CURRENT = '#A15457';
+const HIST_COLOR_PREV = '#F8C6C8';
+const HIST_COLOR_CURRENT = '#F37579';
 const histMetricData = {
   occ: { name: 'Market Occupancy', suffix: '%', y2026: [58, 61, 65, 70, 68, 72, 75, 74, 72, 69, 66, 72], y2025: [54, 56, 60, 64, 63, 66, 69, 68, 66, 64, 61, 66] },
   adr: { name: 'Market ADR', prefix: '$', y2026: [198, 205, 212, 220, 226, 231, 240, 238, 234, 228, 222, 234], y2025: [192, 199, 206, 213, 219, 224, 233, 231, 227, 221, 215, 227] },
@@ -3740,15 +3907,15 @@ function histInitChart(key) {
       ]
     : [{ type: 'column', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }];
   histChart = Highcharts.chart('hist-hc-chart', {
-    chart: { height: 190, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
+    chart: { height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
     xAxis: {
       categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
       labels: { style: { fontSize: '10px', color: '#7A7A7A' } },
       crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
     },
-    yAxis: ndYAxisConfig({
+    yAxis: Object.assign(ndYAxisConfig({
       yFormatter: function () { return (m.prefix || '') + this.value; }
-    }),
+    }), { maxPadding: 0.18 }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
@@ -3777,8 +3944,8 @@ function renderHistLegend() {
   if (!el) return;
   el.innerHTML = histYears === 2
     ? '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_PREV + ';height:8px;width:8px;border-radius:2px"></div> 2025</div>' +
-      '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026 (current)</div>'
-    : '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026 (current)</div>';
+      '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026</div>'
+    : '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026</div>';
 }
 
 function switchHistoryMetric(el, key) {
@@ -3834,6 +4001,7 @@ function ndInitCharts() {
   if (document.getElementById('fp-hc-chart') && !fpChart) fpInitChart();
   if (document.getElementById('occ-hc-chart') && !occChart) occInitChart();
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
+  ccInitEmptyState();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);

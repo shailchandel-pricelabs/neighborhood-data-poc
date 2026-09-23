@@ -71,6 +71,34 @@ function toggleViewAll() {
   }
 }
 
+/* ── Competitor Calendar: Host vs. Guest price display. Host prices are
+   the base nightly rate set by the host (what's already in the markup);
+   Guest prices layer on an estimated PMS markup + fee, matching
+   desktop's own "Host Prices"/"Guest Prices" toggle. The host value is
+   captured lazily from each cell's own text the first time it's needed,
+   so no separate dataset has to be hand-maintained per cell. ── */
+let ccPriceMode = 'host';
+function ccSetPriceMode(el, mode) {
+  el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
+  el.classList.add('active');
+  ccPriceMode = mode;
+  document.querySelectorAll('#cc-view-table .comp-table-cell.price').forEach(function (cell) {
+    if (cell.dataset.host === undefined) {
+      const raw = cell.textContent.replace(/[^0-9.]/g, '');
+      cell.dataset.host = raw;
+    }
+    if (!cell.dataset.host) return;
+    const hostVal = parseFloat(cell.dataset.host);
+    cell.textContent = '$' + (mode === 'guest' ? Math.round(hostVal * 1.13) : hostVal);
+  });
+  const note = document.getElementById('cc-price-footnote');
+  if (note) {
+    note.textContent = mode === 'guest'
+      ? 'Nightly rates including fee and PMS markups.'
+      : 'Nightly rates before adding fee or taxes; base amount set by the host.';
+  }
+}
+
 /* ── Competitor Calendar: Calendar / Table / Map view toggle ── */
 function ndSetCompView(el, mode) {
   el.closest('.comp-view-toggle').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
@@ -90,6 +118,47 @@ function updateCompCounts() {
   if (link && !document.getElementById('comp-all-list').classList.contains('visible')) {
     link.textContent = 'View all ' + count + ' competitors →';
   }
+  ccUpdateEmptyState();
+}
+
+/* ── Competitor Calendar empty state: the tab defaults to "no listings
+   added" (matching a brand-new account) rather than starting pre-seeded
+   with a comp set, with the populated calendar/table/map views revealed
+   only once at least one competitor has actually been added. ── */
+function ccUpdateEmptyState() {
+  const empty = document.getElementById('cc-empty-state');
+  const populated = document.getElementById('cc-populated');
+  if (!empty || !populated) return;
+  const hasCompetitors = document.querySelectorAll('#add-comp-current-list .comp-row').length > 0;
+  empty.style.display = hasCompetitors ? 'none' : '';
+  populated.style.display = hasCompetitors ? '' : 'none';
+}
+function ccInitEmptyState() {
+  const currentList = document.getElementById('add-comp-current-list');
+  const suggestedList = document.getElementById('add-comp-suggested-list');
+  if (!currentList || !suggestedList || currentList.dataset.ccInit) return;
+  currentList.dataset.ccInit = '1';
+  /* Move the pre-seeded sample competitors into "Suggested nearby" and
+     flip their buttons back to "+ Add", simulating a fresh account that
+     hasn't chosen a comp set yet — the Manage Competitors flow itself
+     (add/remove, search) still works exactly the same either way. */
+  Array.from(currentList.querySelectorAll('.comp-row')).forEach(row => {
+    const btn = row.querySelector('.comp-row-btn');
+    btn.textContent = '+ Add';
+    btn.classList.remove('remove');
+    btn.classList.add('add');
+    btn.setAttribute('onclick', 'addCompetitorRow(this)');
+    suggestedList.insertBefore(row, suggestedList.firstChild);
+  });
+  updateCompCounts();
+}
+/* "Auto-select Close Matches" (item: Change Compset empty state) — adds
+   the first few suggested nearby listings in one tap rather than making
+   the user add each one individually. */
+function ccAutoSelectCloseMatches() {
+  const suggested = document.querySelectorAll('#add-comp-suggested-list .comp-row-btn.add');
+  Array.from(suggested).slice(0, 4).forEach(btn => addCompetitorRow(btn));
+  ndCloseSheet('bs-add-competitors');
 }
 function addCompetitorRow(btn) {
   const row = btn.closest('.comp-row');
@@ -373,7 +442,7 @@ function fpInitChart(days) {
   if (!document.getElementById('fp-hc-chart')) return;
   if (days) fpDays = Math.min(days, 90);
   if (fpChart) { fpChart.destroy(); fpChart = null; }
-  fpChart = fpRenderChart('fp-hc-chart', 200, 'fp');
+  fpChart = fpRenderChart('fp-hc-chart', 230, 'fp');
   fpRenderLegend();
 }
 
@@ -609,7 +678,7 @@ function occInitChart(days) {
   if (!document.getElementById('occ-hc-chart')) return;
   if (days) occDays = Math.min(days, 90);
   if (occChart) { occChart.destroy(); occChart = null; }
-  occChart = occRenderChart('occ-hc-chart', 220, 'occ');
+  occChart = occRenderChart('occ-hc-chart', 250, 'occ');
   occRenderLegend();
 }
 
@@ -682,8 +751,8 @@ function occTogglePacing(el) {
    History widget) — "Last 1 year" shows just the current 12 months,
    "Last 2 year" shows this year alongside last year, paired per month,
    with a tap tooltip giving both years' values. ── */
-const HIST_COLOR_PREV = '#F69396';
-const HIST_COLOR_CURRENT = '#A15457';
+const HIST_COLOR_PREV = '#F8C6C8';
+const HIST_COLOR_CURRENT = '#F37579';
 const histMetricData = {
   occ: { name: 'Market Occupancy', suffix: '%', y2026: [58, 61, 65, 70, 68, 72, 75, 74, 72, 69, 66, 72], y2025: [54, 56, 60, 64, 63, 66, 69, 68, 66, 64, 61, 66] },
   adr: { name: 'Market ADR', prefix: '$', y2026: [198, 205, 212, 220, 226, 231, 240, 238, 234, 228, 222, 234], y2025: [192, 199, 206, 213, 219, 224, 233, 231, 227, 221, 215, 227] },
@@ -709,15 +778,15 @@ function histInitChart(key) {
       ]
     : [{ type: 'column', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }];
   histChart = Highcharts.chart('hist-hc-chart', {
-    chart: { height: 190, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
+    chart: { height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
     xAxis: {
       categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
       labels: { style: { fontSize: '10px', color: '#7A7A7A' } },
       crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
     },
-    yAxis: ndYAxisConfig({
+    yAxis: Object.assign(ndYAxisConfig({
       yFormatter: function () { return (m.prefix || '') + this.value; }
-    }),
+    }), { maxPadding: 0.18 }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
@@ -746,8 +815,8 @@ function renderHistLegend() {
   if (!el) return;
   el.innerHTML = histYears === 2
     ? '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_PREV + ';height:8px;width:8px;border-radius:2px"></div> 2025</div>' +
-      '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026 (current)</div>'
-    : '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026 (current)</div>';
+      '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026</div>'
+    : '<div class="legend-item"><div class="legend-swatch" style="background:' + HIST_COLOR_CURRENT + ';height:8px;width:8px;border-radius:2px"></div> 2026</div>';
 }
 
 function switchHistoryMetric(el, key) {
@@ -803,6 +872,7 @@ function ndInitCharts() {
   if (document.getElementById('fp-hc-chart') && !fpChart) fpInitChart();
   if (document.getElementById('occ-hc-chart') && !occChart) occInitChart();
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
+  ccInitEmptyState();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);
