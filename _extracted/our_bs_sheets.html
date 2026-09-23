@@ -34,38 +34,47 @@
 <!-- ═══ Bottom Sheet: Comp Set edit (mobile-friendly version of desktop's
      Comp Set editor — Competitor Room Types intentionally left out) ═══ -->
 <div class="bs-overlay" id="bs-comp-set-edit" onclick="ndCloseSheet('bs-comp-set-edit')">
-  <div class="bottom-sheet" onclick="event.stopPropagation()" style="max-height:85vh;display:flex;flex-direction:column">
+  <div class="bottom-sheet" onclick="event.stopPropagation()" style="max-height:88vh;display:flex;flex-direction:column">
     <div class="bs-handle"></div>
-    <div class="bs-header">
-      <div class="bs-title">Edit Comp Set</div>
-      <button class="bs-close" onclick="ndCloseSheet('bs-comp-set-edit')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    <div class="bs-header" style="flex-direction:column;align-items:flex-start;gap:2px">
+      <div style="display:flex;align-items:center;justify-content:space-between;width:100%">
+        <div class="bs-title">Comp Set</div>
+        <button class="bs-close" onclick="ndCloseSheet('bs-comp-set-edit')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+      </div>
+      <div class="bs-title-sub">Choose a compset to use for market data</div>
     </div>
     <div class="bs-body" style="flex:1;overflow-y:auto">
       <div class="bs-section-label">Compset Type</div>
       <div class="bs-radio-group">
-        <div class="bs-radio selected" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Nearby Room Types</span></div>
+        <div class="bs-radio selected" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Nearby Listings</span></div>
         <div class="bs-radio" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Market Dashboards</span></div>
       </div>
       <div class="bs-section-label">Bedrooms</div>
-      <div class="bedroom-chips">
-        <div class="bedroom-chip" onclick="toggleBedroomChip(this)">Studio</div>
-        <div class="bedroom-chip selected" onclick="toggleBedroomChip(this)">1 BR</div>
-        <div class="bedroom-chip selected" onclick="toggleBedroomChip(this)">2 BR</div>
-        <div class="bedroom-chip" onclick="toggleBedroomChip(this)">3 BR+</div>
+      <div class="bedroom-dropdown-wrap">
+        <button class="bedroom-dropdown-btn" id="bedroom-dropdown-btn" onclick="ndToggleBedroomDropdown()">
+          <span class="bedroom-chip-tag" id="bedroom-count-tag">2 Selected <span onclick="event.stopPropagation();ndClearBedrooms()">✕</span></span>
+          <svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.6em;height:0.6em;flex-shrink:0" fill="currentColor"><path d="M31 127c-9.4 9.4-9.4 24.6 0 33.9L143 273c9.4 9.4 24.6 9.4 33.9 0L289 161c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L160 222 65 127c-9.4-9.4-24.6-9.4-33.9 0z"></path></svg>
+        </button>
+        <div class="bedroom-dropdown-menu" id="bedroom-dropdown-menu">
+          <div class="bedroom-option" onclick="ndToggleBedroomOption(this,true)"><div class="bedroom-check-sq"></div> Select All</div>
+          <div class="bedroom-option" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq"></div> Room (49 Listings)</div>
+          <div class="bedroom-option selected" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 1 BR (184 Listings)</div>
+          <div class="bedroom-option selected" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 2 BR (109 Listings)</div>
+        </div>
       </div>
-      <div class="bs-section-label">Markup</div>
-      <div class="markup-toggle-row">
-        <span class="markup-toggle-label">Do you add markup for this listing on your PMS?</span>
-        <div class="bs-check" style="width:22px;height:22px" onclick="toggleMarkupFields(this)"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div>
+      <div class="bs-markup-question">Do you add markup for this listing on your PMS? <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;vertical-align:-0.1em" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></div>
+      <p class="bs-markup-explain">Enter your markup to simulate how your own listing's nightly rates appear with markup. This also helps us refine your base price recommendations. Note: this is for simulation purposes only and won't be pushed to your PMS</p>
+      <div class="bs-radio-group">
+        <div class="bs-radio selected" onclick="ndSelectMarkupChoice(this,false)"><div class="bs-dot"></div><span class="bs-opt-label">I don't Add a Markup</span></div>
+        <div class="bs-radio" onclick="ndSelectMarkupChoice(this,true)"><div class="bs-dot"></div><span class="bs-opt-label">I Add a Markup</span></div>
       </div>
       <div class="markup-fields" id="markup-fields">
         <div class="markup-field-row">
-          <input type="text" placeholder="Name" value="Cleaning">
-          <select><option>Percent</option><option>Fixed</option></select>
-          <input type="text" placeholder="Amount" value="10%">
+          <select><option>Fixed</option><option>Percent</option></select>
+          <input type="text" placeholder="0" value="0">
+          <span class="markup-usd">USD</span>
         </div>
-        <button class="markup-remove-btn" onclick="this.closest('.markup-field-row').remove();this.remove()">Remove Markup Details</button>
-        <button class="markup-add-btn" onclick="addMarkupRow()">+ Add Another</button>
+        <button class="markup-remove-btn" onclick="ndSelectMarkupChoice(null,false)"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;vertical-align:-0.1em" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM175 175c9.4-9.4 24.6-9.4 33.9 0l47 47 47-47c9.4-9.4 24.6-9.4 33.9 0s9.4 24.6 0 33.9l-47 47 47 47c9.4 9.4 9.4 24.6 0 33.9s-24.6 9.4-33.9 0l-47-47-47 47c-9.4 9.4-24.6 9.4-33.9 0s-9.4-24.6 0-33.9l47-47-47-47c-9.4-9.4-9.4-24.6 0-33.9z"></path></svg> Remove Markup Details</button>
       </div>
     </div>
     <div class="bs-footer-actions">

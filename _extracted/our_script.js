@@ -76,6 +76,19 @@ function updateCompCounts() {
   const count = document.querySelectorAll('#add-comp-current-list .comp-row').length;
   document.querySelectorAll('.comp-count-badge').forEach(el => { el.textContent = count; });
   ccUpdateEmptyState();
+  ccSyncTableRows();
+}
+
+/* ── Keep the Competitor Calendar table's rows in sync with whichever
+   competitors are actually in the "current" (added) list — the table
+   previously always showed every sample competitor regardless of the
+   count badge, so e.g. adding 4 still showed all 9 rows. ── */
+function ccSyncTableRows() {
+  const addedNames = new Set(Array.from(document.querySelectorAll('#add-comp-current-list .comp-row')).map(r => r.dataset.name));
+  document.querySelectorAll('#cc-populated .comp-table-row[data-name]').forEach(row => {
+    if (row.dataset.name === '__yours__') return;
+    row.style.display = addedNames.has(row.dataset.name) ? '' : 'none';
+  });
 }
 
 /* ── Competitor Calendar empty state: the section defaults to "no
@@ -754,7 +767,10 @@ function histInitChart(key) {
     : [{ type: 'column', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }];
   el.style.height = '220px';
   histChart = Highcharts.chart('hist-hc-chart', {
-    chart: { height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
+    chart: {
+      height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent',
+      events: { load: function () { histUpdateInfoCard(this, this.series[0].points.length - 1); } }
+    },
     xAxis: {
       categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
       labels: { style: { fontSize: '10px', color: '#7A7A7A' } },
@@ -776,14 +792,27 @@ function histInitChart(key) {
   });
   renderHistLegend();
   const histWrap = el.closest('.hc-chart-wrap');
-  attachScrub(histChart, histWrap, function () {}, function (chart, idx) {
-    const month = histMonths[idx];
-    let rows = '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + HIST_COLOR_CURRENT + '"></span>2026: <b>' + fmt(m.y2026[idx]) + '</b></div>';
-    if (histYears === 2) {
-      rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + HIST_COLOR_PREV + '"></span>2025: <b>' + fmt(m.y2025[idx]) + '</b></div>';
-    }
-    return '<div class="hc-tt-date">' + month + '</div>' + rows;
-  });
+  attachScrub(histChart, histWrap, function (chart, idx) { histUpdateInfoCard(chart, idx); });
+}
+
+/* ── Pinned drag-tooltip for Market History, same pattern as Future
+   Prices/Occupancy — a permanently-visible card above the chart instead
+   of a floating tooltip a touch drag would cover. ── */
+function histUpdateInfoCard(chart, index) {
+  const points = chart.series[0] && chart.series[0].points;
+  if (!points || !points.length) return;
+  const i = Math.max(0, Math.min(index, points.length - 1));
+  const m = histMetricData[histCurrentKey];
+  const fmt = v => (m.prefix || '') + v + (m.suffix || '');
+  const dateEl = document.getElementById('hist-info-date');
+  const priceEl = document.getElementById('hist-info-price');
+  const rowsEl = document.getElementById('hist-info-rows');
+  if (dateEl) dateEl.textContent = histMonths[i];
+  if (priceEl) priceEl.textContent = fmt(m.y2026[i]);
+  if (!rowsEl) return;
+  rowsEl.innerHTML = histYears === 2
+    ? '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + HIST_COLOR_PREV + '"></span>2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
+    : '';
 }
 
 function renderHistLegend() {
@@ -959,12 +988,11 @@ function ndOpenChartFullscreen(which) {
   const sheet = document.getElementById('sheet-chart-fullscreen');
   sheet.style.display = 'flex';
   sheet.dataset.chart = which;
+  /* "Fullscreen" here means filling the device frame in landscape via
+     the rotation trick below — not the real browser Fullscreen API,
+     which would break out of the phone-frame mockup entirely rather
+     than staying inside it. */
   const frameWidth = ndApplyForceLandscape(sheet);
-  if (sheet.requestFullscreen) {
-    sheet.requestFullscreen().then(function () {
-      screen.orientation && screen.orientation.lock && screen.orientation.lock('landscape').catch(function () {});
-    }).catch(function () {});
-  }
   if (fsChart) { fsChart.destroy(); fsChart = null; }
   setTimeout(function () {
     const chartHeight = Math.max(180, (frameWidth || 375) - 120);
@@ -975,36 +1003,58 @@ function ndCloseChartFullscreen() {
   const sheet = document.getElementById('sheet-chart-fullscreen');
   sheet.style.display = 'none';
   ndClearForceLandscape(sheet);
-  if (document.fullscreenElement) { document.exitFullscreen().catch(function () {}); }
   if (fsChart) { fsChart.destroy(); fsChart = null; }
 }
 
 /* ── Bedroom multi-select chips (Comp Set edit sheet) ── */
-function toggleBedroomChip(el) {
-  el.classList.toggle('selected');
+/* ── Comp Set edit sheet: Bedrooms multi-select dropdown (desktop shows
+   this as a "N Selected" tag that opens a checklist with per-option
+   listing counts, not a row of always-visible chips). ── */
+function ndToggleBedroomDropdown() {
+  document.getElementById('bedroom-dropdown-menu').classList.toggle('open');
+}
+function ndRenderBedroomTag() {
+  const selected = document.querySelectorAll('#bedroom-dropdown-menu .bedroom-option.selected');
+  const tag = document.getElementById('bedroom-count-tag');
+  if (tag) tag.firstChild.textContent = selected.length + ' Selected ';
+}
+function ndToggleBedroomOption(el, isSelectAll) {
+  const menu = document.getElementById('bedroom-dropdown-menu');
+  const options = Array.from(menu.querySelectorAll('.bedroom-option')).filter(o => o !== el || !isSelectAll);
+  if (isSelectAll) {
+    const allSelected = options.every(o => o.classList.contains('selected'));
+    options.forEach(o => o.classList.toggle('selected', !allSelected));
+  } else {
+    el.classList.toggle('selected');
+  }
+  menu.querySelectorAll('.bedroom-option').forEach(o => {
+    o.querySelector('.bedroom-check-sq').classList.toggle('checked', o.classList.contains('selected'));
+  });
+  ndRenderBedroomTag();
+}
+function ndClearBedrooms() {
+  const menu = document.getElementById('bedroom-dropdown-menu');
+  menu.querySelectorAll('.bedroom-option').forEach(o => {
+    o.classList.remove('selected');
+    o.querySelector('.bedroom-check-sq').classList.remove('checked');
+  });
+  ndRenderBedroomTag();
 }
 
-/* ── Markup toggle (Comp Set edit sheet): reveals name/type/amount fields,
-   same "does your PMS add markup" flow shown in the desktop editor. ── */
-function toggleMarkupFields(checkboxEl) {
-  checkboxEl.classList.toggle('checked');
+/* ── Comp Set edit sheet: "Do you add markup for this listing on your
+   PMS?" radio choice, matching desktop's own copy and flow — a plain
+   toggle checkbox previously stood in for this. ── */
+function ndSelectMarkupChoice(el, showFields) {
   const fields = document.getElementById('markup-fields');
-  if (fields) fields.classList.toggle('open', checkboxEl.classList.contains('checked'));
-}
-function addMarkupRow() {
-  const list = document.getElementById('markup-fields');
-  if (!list) return;
-  const row = document.createElement('div');
-  row.className = 'markup-field-row';
-  row.innerHTML =
-    '<input type="text" placeholder="Name">' +
-    '<select><option>Percent</option><option>Fixed</option></select>' +
-    '<input type="text" placeholder="Amount">';
-  const addBtn = list.querySelector('.markup-add-btn');
-  list.insertBefore(row, addBtn);
-  const removeBtn = document.createElement('button');
-  removeBtn.className = 'markup-remove-btn';
-  removeBtn.textContent = 'Remove Markup Details';
-  removeBtn.onclick = function () { row.remove(); removeBtn.remove(); };
-  list.insertBefore(removeBtn, addBtn);
+  if (el) {
+    el.closest('.bs-radio-group').querySelectorAll('.bs-radio').forEach(r => r.classList.remove('selected'));
+    el.classList.add('selected');
+  } else if (fields) {
+    // "Remove Markup Details" — revert to the "I don't Add a Markup" radio.
+    const group = fields.previousElementSibling;
+    if (group && group.classList.contains('bs-radio-group')) {
+      group.querySelectorAll('.bs-radio').forEach((r, i) => r.classList.toggle('selected', i === 0));
+    }
+  }
+  if (fields) fields.classList.toggle('open', showFields);
 }

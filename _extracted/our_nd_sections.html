@@ -93,9 +93,10 @@
     </div>
     <div class="section-body">
       <div class="section-content">
+        <div class="hist-summary-label">Summary</div>
         <div class="pill-toggles pill-toggles-hist">
-          <div class="pill active" onclick="histSetYears(this,1)">Summary of last 1 year</div>
-          <div class="pill" onclick="histSetYears(this,2)">Summary of last 2 years</div>
+          <div class="pill active" onclick="histSetYears(this,1)">1 year</div>
+          <div class="pill" onclick="histSetYears(this,2)">2 year</div>
         </div>
         <div class="metric-grid">
           <div class="metric-card selected" onclick="switchHistoryMetric(this,'occ')">
@@ -119,9 +120,15 @@
             <div class="metric-trend up">↑ 0.2 vs. last year</div>
           </div>
         </div>
+        <div class="chart-info-card" id="hist-info-card">
+          <div class="info-card-top">
+            <span class="info-card-date" id="hist-info-date">—</span>
+            <span class="info-card-price" id="hist-info-price">—</span>
+          </div>
+          <div class="info-card-rows" id="hist-info-rows"></div>
+        </div>
         <div class="hc-chart-wrap">
           <div id="hist-hc-chart" class="hc-chart" style="height:220px"></div>
-          <div class="hc-tooltip"></div>
         </div>
         <div class="legend" id="hist-legend"></div>
       </div>
