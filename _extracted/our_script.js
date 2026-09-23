@@ -38,51 +38,23 @@ document.querySelectorAll('.metric-card').forEach(c => {
   });
 });
 
-/* ── Comp grid scroll → dots ── */
-const compGrid = document.getElementById('comp-grid');
-const compDots = document.getElementById('comp-dots');
-if (compGrid && compDots) {
-  compGrid.addEventListener('scroll', () => {
-    const pageWidth = compGrid.offsetWidth;
-    const pageIndex = Math.round(compGrid.scrollLeft / pageWidth);
-    compDots.querySelectorAll('.dot').forEach((d, i) => {
-      d.classList.toggle('active', i === pageIndex);
-    });
-  });
-}
-
-/* ── View all competitors toggle ── */
-function toggleViewAll() {
-  const list = document.getElementById('comp-all-list');
-  const link = document.getElementById('comp-view-all');
-  const grid = document.getElementById('comp-grid');
-  const dots = document.getElementById('comp-dots');
-  const isVisible = list.classList.contains('visible');
-  if (isVisible) {
-    list.classList.remove('visible');
-    grid.style.display = '';
-    dots.style.display = '';
-    link.textContent = 'View all 9 competitors →';
-  } else {
-    list.classList.add('visible');
-    grid.style.display = 'none';
-    dots.style.display = 'none';
-    link.textContent = '← Back to grid view';
-  }
-}
-
-/* ── Competitor Calendar: Host vs. Guest price display. Host prices are
-   the base nightly rate set by the host (what's already in the markup);
-   Guest prices layer on an estimated PMS markup + fee, matching
-   desktop's own "Host Prices"/"Guest Prices" toggle. The host value is
-   captured lazily from each cell's own text the first time it's needed,
-   so no separate dataset has to be hand-maintained per cell. ── */
+/* ── Competitor Calendar: Host vs. Guest price display, as a single
+   dropdown button (matching desktop's own "Host Prices ▾" control)
+   rather than a two-pill toggle. Host prices are the base nightly rate
+   set by the host (what's already in the markup); Guest prices layer on
+   an estimated PMS markup + fee. The host value is captured lazily from
+   each cell's own text the first time it's needed, so no separate
+   dataset has to be hand-maintained per cell. ── */
 let ccPriceMode = 'host';
-function ccSetPriceMode(el, mode) {
-  el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
+function ccTogglePriceDropdown() {
+  document.getElementById('cc-price-dropdown-menu').classList.toggle('open');
+}
+function ccSetPriceMode(mode) {
   ccPriceMode = mode;
-  document.querySelectorAll('#cc-view-table .comp-table-cell.price').forEach(function (cell) {
+  document.getElementById('cc-price-dropdown-menu').classList.remove('open');
+  const btn = document.getElementById('cc-price-dropdown-btn');
+  if (btn) btn.firstChild.textContent = mode === 'guest' ? 'Guest Prices ' : 'Host Prices ';
+  document.querySelectorAll('#cc-populated .comp-table-cell.price').forEach(function (cell) {
     if (cell.dataset.host === undefined) {
       const raw = cell.textContent.replace(/[^0-9.]/g, '');
       cell.dataset.host = raw;
@@ -99,32 +71,17 @@ function ccSetPriceMode(el, mode) {
   }
 }
 
-/* ── Competitor Calendar: Calendar / Table / Map view toggle ── */
-function ndSetCompView(el, mode) {
-  el.closest('.comp-view-toggle').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
-  const views = { calendar: 'cc-view-calendar', table: 'cc-view-table', map: 'cc-view-map' };
-  Object.keys(views).forEach(key => {
-    const view = document.getElementById(views[key]);
-    if (view) view.style.display = key === mode ? '' : 'none';
-  });
-}
-
 /* ── Competitor Calendar: add / remove flow (search + suggested list) ── */
 function updateCompCounts() {
   const count = document.querySelectorAll('#add-comp-current-list .comp-row').length;
   document.querySelectorAll('.comp-count-badge').forEach(el => { el.textContent = count; });
-  const link = document.getElementById('comp-view-all');
-  if (link && !document.getElementById('comp-all-list').classList.contains('visible')) {
-    link.textContent = 'View all ' + count + ' competitors →';
-  }
   ccUpdateEmptyState();
 }
 
-/* ── Competitor Calendar empty state: the tab defaults to "no listings
-   added" (matching a brand-new account) rather than starting pre-seeded
-   with a comp set, with the populated calendar/table/map views revealed
-   only once at least one competitor has actually been added. ── */
+/* ── Competitor Calendar empty state: the section defaults to "no
+   listings added" (matching a brand-new account) rather than starting
+   pre-seeded with a comp set, revealing the populated table only once
+   at least one competitor has actually been added. ── */
 function ccUpdateEmptyState() {
   const empty = document.getElementById('cc-empty-state');
   const populated = document.getElementById('cc-populated');
@@ -249,7 +206,7 @@ function ndSeededRand(seed) {
    area visibly narrower than the card while the right side sat empty.
    Left-aligned axis labels are narrower (2-4 digits) so the reserved
    margin can shrink too, giving the plot area most of the card width. ── */
-const ND_CHART_SPACING = [8, 2, 22, 0];
+const ND_CHART_SPACING = [12, 2, 22, 0];
 /* Highcharts auto-reserves axis width beyond what the label text actually
    needs (measured ~71px total for 3-char "$350"-style labels when left
    to auto-calculate) — the gap between the plot area and the card's right
@@ -257,12 +214,11 @@ const ND_CHART_SPACING = [8, 2, 22, 0];
    explicitly overrides that auto-calculation so the plot area's edges
    line up with the section's own title/icon-button edges instead of
    sitting inset by the auto-reserved margin + default spacing. Highcharts
-   silently ellipsis-crops a y-axis label ("$350" -> "$…") once its
-   rendered width exceeds the reserved marginLeft — measured the exact
-   cutover for our 10px label font at 38px, so 40px is used with a small
-   safety margin rather than the tighter (and broken) 30-36px tried
-   earlier in this pass. */
-const ND_CHART_MARGIN_LEFT = 40;
+   silently ellipsis-crops a y-axis label ("$350" -> "$…", "100%" -> "10…")
+   once its rendered width exceeds the reserved marginLeft — "100%" (a
+   4th significant digit) needed more room than "$350"/"75%" did, so
+   46px is used for enough safety margin to cover it. */
+const ND_CHART_MARGIN_LEFT = 46;
 const ND_CHART_MARGIN_RIGHT = 6;
 function ndXAxisConfig(cats, step) {
   return {
@@ -273,11 +229,25 @@ function ndXAxisConfig(cats, step) {
 }
 function ndYAxisConfig(opts) {
   opts = opts || {};
-  return {
-    title: { text: null }, opposite: false, gridLineWidth: 0, tickAmount: 3, max: opts.max,
+  const cfg = {
+    title: { text: null }, opposite: false, gridLineWidth: 0, max: opts.max,
+    /* Highcharts' default endOnTick/startOnTick extend the axis to the
+       next "nice" round number beyond a configured max — e.g. an
+       Occupancy max:110 silently became 125, both semantically wrong
+       for a percentage and just wide enough to trip the axis label's
+       own ellipsis-crop once it landed right at the container's top
+       edge. Disabling both keeps the axis at exactly the configured
+       bounds — but only actually works when tickAmount isn't ALSO
+       forcing a fixed tick count, since Highcharts computes a tick
+       interval to fit that exact count and re-expands min/max to match
+       it regardless of endOnTick. So tickAmount is only applied when
+       there's no hard max to respect (charts that just auto-range). */
+    endOnTick: false, startOnTick: false,
     labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, formatter: opts.yFormatter },
     crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', format: opts.yCrosshairFormat || '{value:.0f}', style: { color: '#fff', fontSize: '10px' } } }
   };
+  if (opts.max === undefined) cfg.tickAmount = 3;
+  return cfg;
 }
 
 /* ── floating tooltip card: shown while scrubbing, positioned at the
@@ -402,6 +372,13 @@ function fpRenderChart(containerId, height, idPrefix) {
     { type: 'arearange', id: 'fp-s-7590', name: '75th–90th', data: band7590.map(p => [p[1], p[2]]), color: 'rgba(161,84,87,0.4)', zIndex: 1 },
     { type: 'arearange', id: 'fp-s-2550', name: '25th–50th', data: band2550.map(p => [p[1], p[2]]), color: '#FCDCDD', zIndex: 3 }
   ];
+  /* Highcharts clips its SVG to the container's own CSS height (it sets
+     overflow:hidden on the container) — a chart.height option alone
+     doesn't grow the div to match, so a container shorter than the
+     configured height silently crops the bottom of the plot (x-axis
+     labels first). Setting it explicitly here keeps the two in sync
+     regardless of what height gets passed in from any call site. */
+  el.style.height = height + 'px';
   const chart = Highcharts.chart(containerId, {
     chart: {
       height: height,
@@ -591,8 +568,7 @@ function occBuildData(days, granularity) {
       lyToday: Math.round(cur * 0.88 + (rand() - 0.5) * 6),
       lyFinal: Math.round(cur * 1.04 + (rand() - 0.5) * 6),
       pickup: Math.round(2 + rand() * 6),
-      pickupLY: Math.round(1 + rand() * 5),
-      isEvent: rand() < 0.06
+      pickupLY: Math.round(1 + rand() * 5)
     });
   }
   let buckets;
@@ -604,8 +580,8 @@ function occBuildData(days, granularity) {
     buckets = [];
     for (let i = 0; i < rows.length; i += step) buckets.push(rows.slice(i, i + 1));
   }
-  const cats = [], market = [], lyToday = [], lyFinal = [], pickup = [], pickupLY = [], events = [];
-  buckets.forEach((rowsInBucket, i) => {
+  const cats = [], market = [], lyToday = [], lyFinal = [], pickup = [], pickupLY = [];
+  buckets.forEach((rowsInBucket) => {
     const first = rowsInBucket[0];
     cats.push(granularity === 'monthly'
       ? first.date.toLocaleDateString('en-US', { month: 'short' })
@@ -616,9 +592,8 @@ function occBuildData(days, granularity) {
     lyFinal.push(Math.min(100, avg('lyFinal')));
     pickup.push(avg('pickup'));
     pickupLY.push(avg('pickupLY'));
-    if (rowsInBucket.some(r => r.isEvent) && events.length < 5) events.push(i);
   });
-  return { cats, market, lyToday, lyFinal, pickup, pickupLY, events };
+  return { cats, market, lyToday, lyFinal, pickup, pickupLY };
 }
 
 let occChart = null;
@@ -630,7 +605,7 @@ function occRenderChart(containerId, height, idPrefix) {
   idPrefix = idPrefix || 'occ';
   const el = document.getElementById(containerId);
   if (!el || !window.Highcharts) return null;
-  const { cats, market, lyToday, lyFinal, pickup, pickupLY, events } = occBuildData(occDays, occGranularity);
+  const { cats, market, lyToday, lyFinal, pickup, pickupLY } = occBuildData(occDays, occGranularity);
   const isMonthly = occGranularity === 'monthly';
   const series = isMonthly ? [
     { type: 'column', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', zIndex: 3 },
@@ -645,6 +620,7 @@ function occRenderChart(containerId, height, idPrefix) {
     series.push({ type: 'line', id: 'occ-s-pickup', name: '7-day Market Pickup', data: pickup, color: '#31C48D', lineWidth: 1.5, zIndex: 6 });
     series.push({ type: 'line', id: 'occ-s-pickupLY', name: '7-day Market Pickup (LY)', data: pickupLY, color: '#31C48D', lineWidth: 1.5, dashStyle: 'Dot', zIndex: 6 });
   }
+  el.style.height = height + 'px';
   const chart = Highcharts.chart(containerId, {
     chart: {
       height: height,
@@ -656,7 +632,7 @@ function occRenderChart(containerId, height, idPrefix) {
       panning: { enabled: false },
       events: { load: function () { occUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); } }
     },
-    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
+    xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
     yAxis: ndYAxisConfig({
       max: 110,
       yFormatter: function () { return this.value + '%'; }
@@ -724,7 +700,6 @@ function occRenderLegend() {
     html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px"></div> 7-day Pickup</div>';
     html += '<div class="legend-item"><div class="legend-swatch" style="background:#31C48D;height:3px;opacity:0.5"></div> Pickup (LY)</div>';
   }
-  html += '<div class="legend-item"><span class="legend-band-event"></span> Events</div>';
   html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ More</div>';
   el.innerHTML = html;
 }
@@ -777,6 +752,7 @@ function histInitChart(key) {
         { type: 'column', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }
       ]
     : [{ type: 'column', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }];
+  el.style.height = '220px';
   histChart = Highcharts.chart('hist-hc-chart', {
     chart: { height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent' },
     xAxis: {
@@ -920,41 +896,6 @@ function openCompCalendar(name, rating, type, price, min, max) {
   ndOpenSheet('bs-comp-calendar');
 }
 
-/* ── Competitor Map: tap a pin to reveal its info card (mobile-friendly
-   in-place tap, not a hover tooltip) ── */
-function ndShowMapPin(evt, name, rating, type, price, dist) {
-  evt.stopPropagation();
-  const container = evt.currentTarget.closest('.map-preview');
-  if (!container) return;
-  const rect = container.getBoundingClientRect();
-  const pinRect = evt.currentTarget.getBoundingClientRect();
-  const x = pinRect.left - rect.left + pinRect.width / 2;
-  const y = pinRect.top - rect.top + pinRect.height / 2;
-  let tip = container.querySelector('.map-pin-tip');
-  if (!tip) {
-    tip = document.createElement('div');
-    tip.className = 'map-pin-tip';
-    container.appendChild(tip);
-  }
-  tip.innerHTML =
-    '<div class="map-pin-tip-name">' + name + '</div>' +
-    '<div class="map-pin-tip-meta">' + ND_STAR_ICON + ' ' + rating + ' · ' + type + ' · ' + dist + '</div>' +
-    '<div class="map-pin-tip-price">' + price + ' <span>/night</span></div>' +
-    '<button class="map-pin-tip-btn" onclick="event.stopPropagation();ndOpenSheet(\'bs-add-competitors\')">+ Add to Comp Calendar</button>';
-  tip.classList.add('visible');
-  const tipW = 168, tipH = tip.offsetHeight || 120;
-  let left = x - tipW / 2;
-  left = Math.max(6, Math.min(left, rect.width - tipW - 6));
-  let top = y - tipH - 14;
-  if (top < 6) top = y + 16;
-  tip.style.left = left + 'px';
-  tip.style.top = top + 'px';
-}
-function ndCloseMapPin(container) {
-  const tip = container.querySelector('.map-pin-tip');
-  if (tip) tip.classList.remove('visible');
-}
-document.querySelectorAll('.map-preview').forEach(m => m.addEventListener('click', () => ndCloseMapPin(m)));
 
 /* ── Bottom Sheet ── */
 function ndOpenSheet(id) {
@@ -985,24 +926,33 @@ function ndApplyForceLandscape(el) {
   if (!frame) return;
   const w = frame.clientWidth, h = frame.clientHeight;
   el.classList.add('force-landscape');
-  el.style.width = h + 'px';
-  el.style.height = w + 'px';
+  /* The extracted real-app stylesheet has `.chakra-modal__content` rules
+     with `max-width: 100% !important` and (via .nd-fullscreen)
+     `min-height: 100% !important` — both silently clamped this sheet
+     back to the frame's own portrait box no matter what plain inline
+     width/height were set. Inline !important (via setProperty) is the
+     only thing that reliably outranks those regardless of selector
+     specificity. */
+  el.style.setProperty('width', h + 'px', 'important');
+  el.style.setProperty('height', w + 'px', 'important');
+  el.style.setProperty('max-width', h + 'px', 'important');
+  el.style.setProperty('min-height', w + 'px', 'important');
   /* Position with plain pixel left/top rather than top:50%/left:50% plus
      a percentage translate — chaining a percentage translate() with a
      rotate() in the same transform list rotates the translate's own
      offset too (CSS applies transform functions right-to-left), which
      silently swapped/corrupted the centering. Pixel left/top plus a
      lone rotate() sidesteps that ordering trap entirely. */
-  el.style.left = ((w - h) / 2) + 'px';
-  el.style.top = ((h - w) / 2) + 'px';
-  el.style.right = 'auto';
-  el.style.bottom = 'auto';
-  el.style.transform = 'rotate(90deg)';
+  el.style.setProperty('left', ((w - h) / 2) + 'px', 'important');
+  el.style.setProperty('top', ((h - w) / 2) + 'px', 'important');
+  el.style.setProperty('right', 'auto', 'important');
+  el.style.setProperty('bottom', 'auto', 'important');
+  el.style.setProperty('transform', 'rotate(90deg)', 'important');
   return w;
 }
 function ndClearForceLandscape(el) {
   el.classList.remove('force-landscape');
-  ['width', 'height', 'top', 'left', 'right', 'bottom', 'transform'].forEach(function (p) { el.style[p] = ''; });
+  ['width', 'height', 'max-width', 'min-height', 'top', 'left', 'right', 'bottom', 'transform'].forEach(function (p) { el.style.removeProperty(p); });
 }
 function ndOpenChartFullscreen(which) {
   document.getElementById('fs-chart-title').textContent = which === 'fp' ? 'Future Prices' : 'Occupancy';

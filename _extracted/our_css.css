@@ -123,10 +123,14 @@
   .nd-tab-description strong { color: var(--pl-text); font-weight: 600; }
   .nd-tab-description a { color: var(--pl-blue); font-weight: 600; text-decoration: none; }
 
-  /* ── Comp Set Banner (desktop-style "Current Compset" strip): white
-     background for the strip itself, with the light-blue filled pill
-     kept for the compset-type badge (matching desktop) and a standard
-     bordered white button for editing rather than a text link. ── */
+  /* "Neighbourhood Data" is a much longer footer-nav label than its
+     neighbors ("Calendar", "More") — let it wrap onto two lines and
+     shrink slightly instead of overflowing into the adjacent tabs. */
+  .nd-nav-label-long { white-space: normal !important; text-align: center; font-size: 10px !important; line-height: 1.2; max-width: 62px; }
+
+  /* ── Comp Set Banner (desktop-style "Current Compset" strip): plain
+     white background, a light neutral (not blue) tag for the compset
+     type, and a standard bordered white button for editing. ── */
   .comp-banner {
     margin: 10px 12px 0; padding: 10px 12px;
     background: var(--pl-card); border: 1px solid var(--pl-border);
@@ -138,8 +142,8 @@
   }
   .comp-banner .banner-label-inline { color: var(--pl-text); font-weight: 600; white-space: nowrap; }
   .comp-banner .banner-pill {
-    color: var(--pl-blue); font-weight: 600; border: 1px solid var(--pl-blue-surface);
-    border-radius: var(--radius-base); padding: 2px 8px; background: var(--pl-blue-surface); white-space: nowrap;
+    color: var(--pl-text-secondary); font-weight: 600;
+    white-space: nowrap;
   }
   .comp-banner .banner-meta-inline { color: var(--pl-text-secondary); font-weight: 400; white-space: nowrap; }
   .comp-banner .banner-edit-btn {
@@ -527,15 +531,28 @@
     font-family: 'IBM Plex Sans', sans-serif; flex-shrink: 0; transition: background 0.15s;
   }
   .comp-add-btn:active { background: var(--pl-primary-hover); }
-  .comp-view-toggle {
-    background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
-    padding: 6px; margin: 0; justify-content: stretch;
+
+  /* Host / Guest price dropdown — a plain bordered button + menu,
+     matching desktop's own "Host Prices ▾" control, not a colored
+     segmented toggle. */
+  .cc-price-dropdown-wrap { position: relative; margin: 10px 0 12px; }
+  .cc-price-dropdown-btn {
+    display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-md);
+    background: var(--pl-card); color: var(--pl-text); font-family: 'IBM Plex Sans', sans-serif;
+    font-size: 13px; font-weight: 600; cursor: pointer;
   }
-  .comp-view-toggle .pill { flex: 1; justify-content: center; min-height: 38px; }
-  .comp-view {
-    background: var(--pl-card); border-radius: var(--radius-lg); box-shadow: var(--shadow-base);
-    padding: 14px 16px;
+  .cc-price-dropdown-menu {
+    display: none; position: absolute; top: 100%; left: 0; margin-top: 4px;
+    background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-md);
+    box-shadow: var(--shadow-md); min-width: 150px; z-index: 20; overflow: hidden;
   }
+  .cc-price-dropdown-menu.open { display: block; }
+  .cc-price-dropdown-item {
+    padding: 10px 14px; font-size: 13px; font-weight: 600; color: var(--pl-text);
+    cursor: pointer; transition: background 0.1s;
+  }
+  .cc-price-dropdown-item:hover { background: var(--pl-bg); }
 
   /* ── Competitor rate table (mobile-friendly: sticky name column,
      horizontally-scrolling dates) ── */
@@ -555,21 +572,25 @@
     font-size: 12px; font-weight: 600; color: var(--pl-text);
     display: flex; align-items: center; justify-content: center;
   }
-  .comp-table-cell.price.avail { color: var(--pl-blue); }
+  /* Neutral dark text for priced cells, matching desktop's own plain
+     number display — blue is reserved for links/actions, not data. */
+  .comp-table-cell.price.avail { color: var(--pl-text); }
   .comp-table-cell.price.unavail {
     color: var(--pl-text-disabled); font-weight: 400;
     /* Diagonal hash, matching desktop's own booked/unavailable treatment,
        rather than relying on text color alone to carry the meaning. */
     background-image: repeating-linear-gradient(-45deg, var(--pl-border-table) 0, var(--pl-border-table) 1px, transparent 1px, transparent 6px);
   }
-  /* Weekend columns get a light blue tint (both header and cells) so the
-     table reads at a glance without having to check the date labels. */
-  .comp-table-cell.weekend { background: var(--pl-highlight-blue); }
-  .comp-table-header-row .comp-table-cell.weekend { background: #E4EDFB; }
-  .comp-table-cell.price.avail.weekend { background: var(--pl-highlight-blue); }
+  /* Weekend columns get a light neutral-grey tint (both header and
+     cells) so the table reads at a glance without checking the date
+     labels — kept off the blue palette, which desktop reserves for
+     links/actions only. */
+  .comp-table-cell.weekend { background: var(--pl-bg); }
+  .comp-table-header-row .comp-table-cell.weekend { background: #ECEDEF; }
+  .comp-table-cell.price.avail.weekend { background: var(--pl-bg); }
   .comp-table-cell.price.unavail.weekend {
-    background-color: var(--pl-highlight-blue);
-    background-image: repeating-linear-gradient(-45deg, var(--pl-blue-surface) 0, var(--pl-blue-surface) 1px, transparent 1px, transparent 6px);
+    background-color: var(--pl-bg);
+    background-image: repeating-linear-gradient(-45deg, var(--pl-border-table) 0, var(--pl-border-table) 1px, transparent 1px, transparent 6px);
   }
   .comp-table-name-cell {
     flex: 0 0 140px; width: 140px; justify-content: flex-start; text-align: left; gap: 8px;
@@ -577,13 +598,13 @@
     box-shadow: 2px 0 4px rgba(0,0,0,0.05);
   }
   .comp-table-header-row .comp-table-name-cell { background: var(--pl-bg); z-index: 3; }
-  /* "Your Listing" pinned row — visually distinct so it reads as the
-     baseline everything else is compared against, always first. */
-  .comp-table-row.your-listing-row { background: var(--pl-highlight-blue); font-weight: 700; }
-  .comp-table-row.your-listing-row:active { background: var(--pl-blue-surface); }
+  /* "Your Listing" pinned row — matching desktop's own plain white row
+     with a bold black name; only the "Edit" link stays blue. */
+  .comp-table-row.your-listing-row { background: var(--pl-card); font-weight: 700; }
+  .comp-table-row.your-listing-row:active { background: var(--pl-bg); }
   .comp-table-row.your-listing-row .comp-table-cell.price { font-weight: 700; }
-  .comp-table-row.your-listing-row .your-listing-cell { background: var(--pl-highlight-blue); }
-  .comp-table-row.your-listing-row .comp-table-name { color: var(--pl-blue); }
+  .comp-table-row.your-listing-row .your-listing-cell { background: var(--pl-card); }
+  .comp-table-row.your-listing-row .comp-table-name { color: var(--pl-text); }
   .comp-table-row.your-listing-row .comp-table-meta a { color: var(--pl-blue); text-decoration: none; font-weight: 600; }
   .cc-legend-unavail {
     width: 14px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0;
