@@ -135,7 +135,7 @@
      the bottom like an options/help sheet. ── */
   .nd-fullscreen { border-radius: 0 !important; min-height: 100% !important; animation: ndSlideInRight 0.22s ease-out; }
   @keyframes ndSlideInRight { from { transform: translateX(100%); } to { transform: translateX(0); } }
-  .nd-fullscreen .css-1fydlbq { justify-content: flex-start; gap: 14px; }
+  .nd-fullscreen .css-1fydlbq { justify-content: flex-start; }
   .nd-fullscreen .css-1vakbk4 .chakra-button { font-size: 15px; }
 
   /* ── Sections / Accordion — card list, mobile-app inspired (Robinhood/Coinbase
@@ -197,6 +197,14 @@
   }
   .pill:hover { color: var(--pl-primary); }
   .pill.active { background: var(--pl-primary-light); color: var(--pl-primary); }
+
+  /* Compact Daily/Monthly granularity toggle — sits right under the hero
+     price, independent per chart (Future Prices and Occupancy each have
+     their own, unlike desktop's single global setting). */
+  .granularity-toggle {
+    justify-content: flex-start; margin-bottom: 4px; padding: 0; border-bottom: none; gap: 4px;
+  }
+  .granularity-toggle .pill { padding: 5px 12px; min-height: 26px; font-size: 12px; }
 
   /* Pill with dropdown caret */
   .pill.has-menu::after {
