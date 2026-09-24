@@ -195,6 +195,15 @@
   }
   .section-header .header-text { flex: 1; min-width: 0; }
   .section-header .title { font-size: 16px; font-weight: 600; color: var(--pl-text); }
+  /* Flags a section that isn't a finished feature yet — Competitor
+     Calendar's real data isn't wired up the way Future Prices/Occupancy/
+     Market History's is, so it shouldn't read as equally "done". */
+  .wip-badge {
+    display: inline-block; vertical-align: middle; margin-left: 4px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.03em; color: var(--pl-text-secondary);
+    background: var(--pl-bg); border: 1px solid var(--pl-border); border-radius: var(--radius-sm);
+    padding: 2px 6px;
+  }
   .section-header .header-actions { flex-shrink: 0; margin-left: 8px; display: flex; gap: 4px; }
   .section-header .icon-btn {
     width: 32px; height: 32px; border: 1px solid var(--pl-border); background: var(--pl-card);
@@ -349,8 +358,23 @@
      90° within the device frame — real orientation-lock APIs only work
      inside the true Fullscreen API, which this in-app "sheet" isn't, so
      the rotation trick is the reliable cross-browser option here. ── */
-  .hc-fullscreen-body { padding: 8px 12px 20px; display: flex; flex-direction: column; height: 100%; min-height: 0; }
-  .hc-fullscreen-body .chart-info-card { flex-shrink: 0; }
+  /* Side-by-side rather than stacked: the info card only needs to show a
+     handful of short lines, so giving it a full-width row (as in the
+     portrait card) wasted a lot of the rotated view's real height on
+     text instead of chart. A narrow column alongside the chart lets the
+     chart claim the full height instead. */
+  .hc-fullscreen-body { padding: 8px 12px 20px; display: flex; flex-direction: row; gap: 10px; height: 100%; min-height: 0; }
+  .hc-fullscreen-body .chart-info-card {
+    flex: 0 0 22%; max-width: 220px; min-width: 132px;
+    height: 100%; overflow-y: auto; margin-bottom: 0;
+  }
+  .hc-fullscreen-body .info-card-top { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .hc-fullscreen-body .info-card-price { font-size: 17px; }
+  /* The narrow column doesn't have room for "25th–50th: $140–$193" on one
+     nowrap line the way the full-width portrait card does — stack the
+     value under its label instead of clipping or forcing a scrollbar. */
+  .hc-fullscreen-body .hc-tt-row { flex-direction: column; align-items: flex-start; gap: 1px; white-space: normal; }
+  .hc-fullscreen-body .hc-tt-row b { margin-left: 0; padding-left: 14px; }
   .hc-fullscreen-body .hc-chart-wrap { flex: 1; min-height: 0; }
   .hc-fullscreen-body .hc-chart { height: 100% !important; }
   #sheet-chart-fullscreen.force-landscape { transform-origin: center center; transition: none; }

@@ -939,6 +939,27 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
   if (eventLabel) {
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:rgba(213,104,251,0.6)"></span>Events & Holidays: <b>' + eventLabel + '</b></div>';
   }
+  /* The Upcoming/Last Year Bookings overlays (toggled on from Chart
+     Options) draw as short segments near the baseline — real, but with
+     no value actually readable off the line itself. When one is turned
+     on, the day it's currently scrubbed to gets its real count pulled
+     straight from the same REAL_DAILY row the segment itself was built
+     from (matching desktop's own tooltip, which lists each active
+     booking overlay as its own row here rather than leaving them
+     chart-only). Daily granularity only — REAL_DAILY is indexed by day,
+     and the overlays themselves aren't offered in monthly view. */
+  if (fpGranularity !== 'monthly') {
+    const raw = ndRealDay(i).row;
+    const overlayRow = (id, color, label, value) => {
+      const s = ndSeriesById(chart, id);
+      if (s && s.visible && value) {
+        rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + color + '"></span>' + label + ': <b>' + value + '</b></div>';
+      }
+    };
+    overlayRow('fp-overlay-upcoming', '#31C48D', 'Upcoming Bookings', raw[12]);
+    overlayRow('fp-overlay-lastyear', '#274690', 'Last Year Bookings', raw[13]);
+    overlayRow('fp-overlay-stly', '#D62828', 'Last Year Bookings (Same Time)', raw[13]);
+  }
   rowsEl.innerHTML = rows;
 }
 

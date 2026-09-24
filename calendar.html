@@ -1422,6 +1422,15 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   }
   .section-header .header-text { flex: 1; min-width: 0; }
   .section-header .title { font-size: 16px; font-weight: 600; color: var(--pl-text); }
+  /* Flags a section that isn't a finished feature yet — Competitor
+     Calendar's real data isn't wired up the way Future Prices/Occupancy/
+     Market History's is, so it shouldn't read as equally "done". */
+  .wip-badge {
+    display: inline-block; vertical-align: middle; margin-left: 4px;
+    font-size: 10px; font-weight: 700; letter-spacing: 0.03em; color: var(--pl-text-secondary);
+    background: var(--pl-bg); border: 1px solid var(--pl-border); border-radius: var(--radius-sm);
+    padding: 2px 6px;
+  }
   .section-header .header-actions { flex-shrink: 0; margin-left: 8px; display: flex; gap: 4px; }
   .section-header .icon-btn {
     width: 32px; height: 32px; border: 1px solid var(--pl-border); background: var(--pl-card);
@@ -1576,8 +1585,23 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      90° within the device frame — real orientation-lock APIs only work
      inside the true Fullscreen API, which this in-app "sheet" isn't, so
      the rotation trick is the reliable cross-browser option here. ── */
-  .hc-fullscreen-body { padding: 8px 12px 20px; display: flex; flex-direction: column; height: 100%; min-height: 0; }
-  .hc-fullscreen-body .chart-info-card { flex-shrink: 0; }
+  /* Side-by-side rather than stacked: the info card only needs to show a
+     handful of short lines, so giving it a full-width row (as in the
+     portrait card) wasted a lot of the rotated view's real height on
+     text instead of chart. A narrow column alongside the chart lets the
+     chart claim the full height instead. */
+  .hc-fullscreen-body { padding: 8px 12px 20px; display: flex; flex-direction: row; gap: 10px; height: 100%; min-height: 0; }
+  .hc-fullscreen-body .chart-info-card {
+    flex: 0 0 22%; max-width: 220px; min-width: 132px;
+    height: 100%; overflow-y: auto; margin-bottom: 0;
+  }
+  .hc-fullscreen-body .info-card-top { flex-direction: column; align-items: flex-start; gap: 2px; }
+  .hc-fullscreen-body .info-card-price { font-size: 17px; }
+  /* The narrow column doesn't have room for "25th–50th: $140–$193" on one
+     nowrap line the way the full-width portrait card does — stack the
+     value under its label instead of clipping or forcing a scrollbar. */
+  .hc-fullscreen-body .hc-tt-row { flex-direction: column; align-items: flex-start; gap: 1px; white-space: normal; }
+  .hc-fullscreen-body .hc-tt-row b { margin-left: 0; padding-left: 14px; }
   .hc-fullscreen-body .hc-chart-wrap { flex: 1; min-height: 0; }
   .hc-fullscreen-body .hc-chart { height: 100% !important; }
   #sheet-chart-fullscreen.force-landscape { transform-origin: center center; transition: none; }
@@ -2524,7 +2548,7 @@ body { background: #d9dbe0; }
      matching Future Prices/Occupancy/Market History) ═══ -->
 <div class="section" id="sec-competitor-calendar">
   <div class="section-header">
-    <div class="header-text"><div class="title">Competitor Calendar</div></div>
+    <div class="header-text"><div class="title">Competitor Calendar <span class="wip-badge">WIP</span></div></div>
     <div class="header-actions" onclick="event.stopPropagation()">
       <button class="icon-btn" title="About this chart" onclick="ndOpenSheet('bs-comp-help')"><svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M464 256A208 208 0 1 0 48 256a208 208 0 1 0 416 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm169.8-90.7c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></button>
     </div>
@@ -3961,6 +3985,27 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
   const eventLabel = chart.ndEventLabels && chart.ndEventLabels[i];
   if (eventLabel) {
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:rgba(213,104,251,0.6)"></span>Events & Holidays: <b>' + eventLabel + '</b></div>';
+  }
+  /* The Upcoming/Last Year Bookings overlays (toggled on from Chart
+     Options) draw as short segments near the baseline — real, but with
+     no value actually readable off the line itself. When one is turned
+     on, the day it's currently scrubbed to gets its real count pulled
+     straight from the same REAL_DAILY row the segment itself was built
+     from (matching desktop's own tooltip, which lists each active
+     booking overlay as its own row here rather than leaving them
+     chart-only). Daily granularity only — REAL_DAILY is indexed by day,
+     and the overlays themselves aren't offered in monthly view. */
+  if (fpGranularity !== 'monthly') {
+    const raw = ndRealDay(i).row;
+    const overlayRow = (id, color, label, value) => {
+      const s = ndSeriesById(chart, id);
+      if (s && s.visible && value) {
+        rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + color + '"></span>' + label + ': <b>' + value + '</b></div>';
+      }
+    };
+    overlayRow('fp-overlay-upcoming', '#31C48D', 'Upcoming Bookings', raw[12]);
+    overlayRow('fp-overlay-lastyear', '#274690', 'Last Year Bookings', raw[13]);
+    overlayRow('fp-overlay-stly', '#D62828', 'Last Year Bookings (Same Time)', raw[13]);
   }
   rowsEl.innerHTML = rows;
 }
