@@ -1599,9 +1599,20 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   .hc-fullscreen-body .info-card-price { font-size: 17px; }
   /* The narrow column doesn't have room for "25th–50th: $140–$193" on one
      nowrap line the way the full-width portrait card does — stack the
-     value under its label instead of clipping or forcing a scrollbar. */
-  .hc-fullscreen-body .hc-tt-row { flex-direction: column; align-items: flex-start; gap: 1px; white-space: normal; }
-  .hc-fullscreen-body .hc-tt-row b { margin-left: 0; padding-left: 14px; }
+     value under its label (dot+label stay together as one line via
+     .hc-tt-label, only the value drops to its own line below) instead
+     of clipping or forcing a scrollbar. A thin divider between rows
+     keeps each stat visually self-contained in a column where several
+     of them run one after another with no horizontal separation to
+     lean on. */
+  .hc-fullscreen-body .info-card-rows { gap: 0; }
+  .hc-fullscreen-body .hc-tt-row {
+    flex-direction: column; align-items: flex-start; gap: 2px; white-space: normal;
+    padding: 6px 0; border-bottom: 1px solid var(--pl-border-table);
+  }
+  .hc-fullscreen-body .hc-tt-row:first-child { padding-top: 0; }
+  .hc-fullscreen-body .hc-tt-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .hc-fullscreen-body .hc-tt-row b { margin-left: 0; padding-left: 0; font-size: 13px; }
   .hc-fullscreen-body .hc-chart-wrap { flex: 1; min-height: 0; }
   .hc-fullscreen-body .hc-chart { height: 100% !important; }
   #sheet-chart-fullscreen.force-landscape { transform-origin: center center; transition: none; }
@@ -1621,7 +1632,15 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   }
   .hc-tooltip.visible { opacity: 1; visibility: visible; transform: translateY(0); }
   .hc-tt-date { font-size: 11px; font-weight: 700; color: var(--pl-text); margin-bottom: 4px; }
+  /* The dot and its label live inside .hc-tt-label, a single flex item —
+     row only has two direct children (.hc-tt-label, the value) instead
+     of three (dot, label text, value), which matters once the row's own
+     layout switches to a column (see the fullscreen override below):
+     flex-direction:column stacks *direct children* onto their own
+     lines, so without this wrapper the dot would land on its own line,
+     separated from the label it's meant to identify. */
   .hc-tt-row { display: flex; align-items: center; gap: 5px; color: var(--pl-text-secondary); white-space: nowrap; }
+  .hc-tt-label { display: flex; align-items: center; gap: 5px; }
   .hc-tt-row b { color: var(--pl-text); font-weight: 600; margin-left: auto; padding-left: 10px; }
   .hc-tt-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
 
@@ -3767,6 +3786,19 @@ function ndDotHTML(color, dashStyle) {
   return '<span class="hc-tt-dot" style="background:' + color + '"></span>';
 }
 
+/* ── One consistent row builder for every info-card row (percentiles,
+   events, booking overlays, occupancy, history years). Grouping the dot
+   and label inside their own wrapper — rather than leaving the dot,
+   label text and value as three separate direct children of the row —
+   matters once the row's layout switches to a narrow column (the
+   fullscreen chart's info card): flex-direction:column stacks EVERY
+   direct child onto its own line, so without this wrapper the dot ended
+   up isolated on a line by itself, then the label alone, then the value
+   alone, breaking the visual link between a swatch and what it labels. */
+function ndTTRowHTML(color, label, value, dashStyle) {
+  return '<div class="hc-tt-row"><span class="hc-tt-label">' + ndDotHTML(color, dashStyle) + label + ':</span><b>' + value + '</b></div>';
+}
+
 /* ── Lookup a series by its explicit `id` rather than by position, so
    tooltip/hero code works the same whether the chart is showing its
    daily (line/arearange) or monthly (column) series set. ── */
@@ -3968,15 +4000,15 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
   if (fpGranularity === 'monthly') {
     [['fp-s-p25', '25th'], ['fp-s-p50', '50th'], ['fp-s-p75', '75th'], ['fp-s-p90', '90th']].forEach(function (pair) {
       const s = ndSeriesById(chart, pair[0]);
-      if (s) rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + s.color + '"></span>' + pair[1] + ' Percentile: <b>$' + s.points[i].y + '</b></div>';
+      if (s) rows += ndTTRowHTML(s.color, pair[1] + ' Percentile', '$' + s.points[i].y);
     });
   } else {
     const b2550 = ndSeriesById(chart, 'fp-s-2550').points[i];
     const b5075 = ndSeriesById(chart, 'fp-s-5075').points[i];
     const b7590 = ndSeriesById(chart, 'fp-s-7590').points[i];
-    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>';
-    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>';
-    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
+    rows += ndTTRowHTML('#FCDCDD', '25th–50th', '$' + b2550.low + '–$' + b2550.high);
+    rows += ndTTRowHTML('#F69396', '50th–75th', '$' + b5075.low + '–$' + b5075.high);
+    rows += ndTTRowHTML('#A15457', '75th–90th', '$' + b7590.low + '–$' + b7590.high);
   }
   /* Matches desktop's own tooltip, which calls out an "Events & Holidays"
      row on any date that has one (e.g. "Thanksgiving") rather than
@@ -3984,7 +4016,7 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
      row only appears on the dates that actually have one. */
   const eventLabel = chart.ndEventLabels && chart.ndEventLabels[i];
   if (eventLabel) {
-    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:rgba(213,104,251,0.6)"></span>Events & Holidays: <b>' + eventLabel + '</b></div>';
+    rows += ndTTRowHTML('rgba(213,104,251,0.6)', 'Events & Holidays', eventLabel);
   }
   /* The Upcoming/Last Year Bookings overlays (toggled on from Chart
      Options) draw as short segments near the baseline — real, but with
@@ -4000,7 +4032,7 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
     const overlayRow = (id, color, label, value) => {
       const s = ndSeriesById(chart, id);
       if (s && s.visible && value) {
-        rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:' + color + '"></span>' + label + ': <b>' + value + '</b></div>';
+        rows += ndTTRowHTML(color, label, value);
       }
     };
     overlayRow('fp-overlay-upcoming', '#31C48D', 'Upcoming Bookings', raw[12]);
@@ -4240,7 +4272,7 @@ function occUpdateInfoCard(chart, index, idPrefix) {
   defs.forEach(function (d) {
     const s = ndSeriesById(chart, d[0]);
     if (!s || !s.points[i]) return;
-    rows += '<div class="hc-tt-row">' + ndDotHTML(d[1], d[3]) + d[2] + ': <b>' + s.points[i].y + '%</b></div>';
+    rows += ndTTRowHTML(d[1], d[2], s.points[i].y + '%', d[3]);
   });
   rowsEl.innerHTML = rows;
 }
@@ -4350,9 +4382,9 @@ function histUpdateInfoCard(chart, index) {
      current year — previously 2026 was folded into the headline number
      as plain "2026: $234" text with no swatch, while 2025 got the normal
      dotted row, so the two years read inconsistently. */
-  rowsEl.innerHTML = '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_CURRENT) + '2026: <b>' + fmt(m.y2026[i]) + '</b></div>' +
+  rowsEl.innerHTML = ndTTRowHTML(HIST_COLOR_CURRENT, '2026', fmt(m.y2026[i])) +
     (histYears === 2
-      ? '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_PREV) + '2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
+      ? ndTTRowHTML(HIST_COLOR_PREV, '2025', fmt(m.y2025[i]))
       : '');
 }
 

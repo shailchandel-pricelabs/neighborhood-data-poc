@@ -372,9 +372,20 @@
   .hc-fullscreen-body .info-card-price { font-size: 17px; }
   /* The narrow column doesn't have room for "25th–50th: $140–$193" on one
      nowrap line the way the full-width portrait card does — stack the
-     value under its label instead of clipping or forcing a scrollbar. */
-  .hc-fullscreen-body .hc-tt-row { flex-direction: column; align-items: flex-start; gap: 1px; white-space: normal; }
-  .hc-fullscreen-body .hc-tt-row b { margin-left: 0; padding-left: 14px; }
+     value under its label (dot+label stay together as one line via
+     .hc-tt-label, only the value drops to its own line below) instead
+     of clipping or forcing a scrollbar. A thin divider between rows
+     keeps each stat visually self-contained in a column where several
+     of them run one after another with no horizontal separation to
+     lean on. */
+  .hc-fullscreen-body .info-card-rows { gap: 0; }
+  .hc-fullscreen-body .hc-tt-row {
+    flex-direction: column; align-items: flex-start; gap: 2px; white-space: normal;
+    padding: 6px 0; border-bottom: 1px solid var(--pl-border-table);
+  }
+  .hc-fullscreen-body .hc-tt-row:first-child { padding-top: 0; }
+  .hc-fullscreen-body .hc-tt-row:last-child { border-bottom: none; padding-bottom: 0; }
+  .hc-fullscreen-body .hc-tt-row b { margin-left: 0; padding-left: 0; font-size: 13px; }
   .hc-fullscreen-body .hc-chart-wrap { flex: 1; min-height: 0; }
   .hc-fullscreen-body .hc-chart { height: 100% !important; }
   #sheet-chart-fullscreen.force-landscape { transform-origin: center center; transition: none; }
@@ -394,7 +405,15 @@
   }
   .hc-tooltip.visible { opacity: 1; visibility: visible; transform: translateY(0); }
   .hc-tt-date { font-size: 11px; font-weight: 700; color: var(--pl-text); margin-bottom: 4px; }
+  /* The dot and its label live inside .hc-tt-label, a single flex item —
+     row only has two direct children (.hc-tt-label, the value) instead
+     of three (dot, label text, value), which matters once the row's own
+     layout switches to a column (see the fullscreen override below):
+     flex-direction:column stacks *direct children* onto their own
+     lines, so without this wrapper the dot would land on its own line,
+     separated from the label it's meant to identify. */
   .hc-tt-row { display: flex; align-items: center; gap: 5px; color: var(--pl-text-secondary); white-space: nowrap; }
+  .hc-tt-label { display: flex; align-items: center; gap: 5px; }
   .hc-tt-row b { color: var(--pl-text); font-weight: 600; margin-left: auto; padding-left: 10px; }
   .hc-tt-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
 
