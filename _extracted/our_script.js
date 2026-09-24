@@ -753,12 +753,13 @@ function fpBuildData(days, granularity) {
       date: date,
       price: row[4],
       p25: row[0], p50: row[1], p75: row[2], p90: row[3],
-      isEvent: !!row[11]
+      isEvent: !!row[11], eventLabel: row[11]
     });
   }
   const buckets = granularity === 'monthly' ? bucketByMonth(rows) : rows.map(r => [r]);
   const cats = [], listing = [], p25 = [], p50 = [], p75 = [], p90 = [];
   const band2550 = [], band5075 = [], band7590 = [], events = [];
+  const eventLabels = {};
   buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
     cats.push(granularity === 'monthly'
@@ -770,9 +771,13 @@ function fpBuildData(days, granularity) {
     band2550.push([i, avg('p25'), avg('p50')]);
     band5075.push([i, avg('p50'), avg('p75')]);
     band7590.push([i, avg('p75'), avg('p90')]);
-    if (rowsInBucket.some(r => r.isEvent) && events.length < 5) events.push(i);
+    const withEvent = rowsInBucket.find(r => r.isEvent);
+    if (withEvent) {
+      eventLabels[i] = withEvent.eventLabel;
+      if (events.length < 5) events.push(i);
+    }
   });
-  return { cats, listing, p25, p50, p75, p90, band2550, band5075, band7590, events };
+  return { cats, listing, p25, p50, p75, p90, band2550, band5075, band7590, events, eventLabels };
 }
 function bucketByMonth(rows) {
   const buckets = [];
@@ -798,7 +803,7 @@ function fpRenderChart(containerId, height, idPrefix) {
   idPrefix = idPrefix || 'fp';
   const el = document.getElementById(containerId);
   if (!el || !window.Highcharts) return null;
-  const { cats, listing, p25, p50, p75, p90, band2550, band5075, band7590, events } = fpBuildData(fpDays, fpGranularity);
+  const { cats, listing, p25, p50, p75, p90, band2550, band5075, band7590, events, eventLabels } = fpBuildData(fpDays, fpGranularity);
   const isMonthly = fpGranularity === 'monthly';
   const series = isMonthly ? [
     { type: 'column', id: 'fp-s-listing', name: 'Listing Price', data: listing, color: '#4A4A4A', zIndex: 3 },
@@ -858,6 +863,7 @@ function fpRenderChart(containerId, height, idPrefix) {
     },
     series: series
   });
+  chart.ndEventLabels = eventLabels;
   const wrap = el.closest('.hc-chart-wrap');
   attachScrub(chart, wrap, function (c, idx) { fpUpdateInfoCard(c, idx, idPrefix); });
   return chart;
@@ -901,6 +907,14 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#FCDCDD"></span>25th–50th: <b>$' + b2550.low + '–$' + b2550.high + '</b></div>';
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#F69396"></span>50th–75th: <b>$' + b5075.low + '–$' + b5075.high + '</b></div>';
     rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:#A15457"></span>75th–90th: <b>$' + b7590.low + '–$' + b7590.high + '</b></div>';
+  }
+  /* Matches desktop's own tooltip, which calls out an "Events & Holidays"
+     row on any date that has one (e.g. "Thanksgiving") rather than
+     leaving the purple event band on the chart as the only clue — this
+     row only appears on the dates that actually have one. */
+  const eventLabel = chart.ndEventLabels && chart.ndEventLabels[i];
+  if (eventLabel) {
+    rows += '<div class="hc-tt-row"><span class="hc-tt-dot" style="background:rgba(213,104,251,0.6)"></span>Events & Holidays: <b>' + eventLabel + '</b></div>';
   }
   rowsEl.innerHTML = rows;
 }
@@ -1292,7 +1306,7 @@ function ndShowScrubHint(wrapEl) {
   if (!hint) {
     hint = document.createElement('div');
     hint.className = 'hc-scrub-hint';
-    hint.textContent = 'Long-press or use two fingers to explore the chart';
+    hint.innerHTML = '<span>Long-press or use two fingers to explore the chart</span>';
     wrapEl.appendChild(hint);
   }
   clearTimeout(hint._hideTimer);
