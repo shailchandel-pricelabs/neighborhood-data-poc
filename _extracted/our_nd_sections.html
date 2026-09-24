@@ -95,23 +95,23 @@
         <div class="metric-grid">
           <div class="metric-card selected" onclick="switchHistoryMetric(this,'occ')">
             <div class="metric-label">Market Occupancy</div>
-            <div class="metric-value">72%</div>
-            <div class="metric-trend up">↑ 8% vs. last year</div>
+            <div class="metric-value" id="metric-value-occ">—</div>
+            <div class="metric-trend" id="metric-trend-occ"></div>
           </div>
           <div class="metric-card" onclick="switchHistoryMetric(this,'adr')">
             <div class="metric-label">Market ADR</div>
-            <div class="metric-value">$234</div>
-            <div class="metric-trend up">↑ 3% vs. last year</div>
+            <div class="metric-value" id="metric-value-adr">—</div>
+            <div class="metric-trend" id="metric-trend-adr"></div>
           </div>
           <div class="metric-card" onclick="switchHistoryMetric(this,'window')">
             <div class="metric-label">Booking Window</div>
-            <div class="metric-value">26 days</div>
-            <div class="metric-trend down">↓ 4 days vs. last year</div>
+            <div class="metric-value" id="metric-value-window">—</div>
+            <div class="metric-trend" id="metric-trend-window"></div>
           </div>
           <div class="metric-card" onclick="switchHistoryMetric(this,'los')">
             <div class="metric-label">Length of Stay</div>
-            <div class="metric-value">3 nights</div>
-            <div class="metric-trend up">↑ 0.2 vs. last year</div>
+            <div class="metric-value" id="metric-value-los">—</div>
+            <div class="metric-trend" id="metric-trend-los"></div>
           </div>
         </div>
         <!-- No separate headline number here (unlike fp/occ's card) — the
