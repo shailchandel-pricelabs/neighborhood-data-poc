@@ -190,7 +190,7 @@
     box-shadow: var(--shadow-base); overflow: hidden;
   }
   .section-header {
-    display: flex; align-items: center; padding: 15px 16px;
+    display: flex; align-items: center; padding: 15px 10px;
     min-height: 44px; border-bottom: 1px solid var(--pl-border-table);
   }
   .section-header .header-text { flex: 1; min-width: 0; }
@@ -204,7 +204,7 @@
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
-  .section-content { padding: 6px 16px 20px; }
+  .section-content { padding: 6px 10px 20px; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */
   .chart-controls {
@@ -326,16 +326,20 @@
      during a scrub, so a lighter, less shouty value color reads better. */
   .info-card-rows .hc-tt-row { font-size: 11px; }
   .info-card-rows .hc-tt-row b { color: var(--pl-text-secondary); font-weight: 600; }
-  .range-seg {
-    display: flex; justify-content: space-between; gap: 4px; margin-top: 8px;
-    padding-top: 10px; border-top: 1px solid var(--pl-border-table);
+  /* Row pairing the Daily/Monthly granularity toggle (left) with the
+     date-range dropdown (right) — replaces the old full-width 30D/60D/90D
+     segmented row that used to sit below the chart. */
+  .chart-toggle-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-top: 2px; margin-bottom: 10px;
   }
-  .range-seg-item {
-    flex: 1; text-align: center; padding: 7px 0; border-radius: var(--radius-full);
-    font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+  .chart-toggle-row .granularity-toggle { margin-bottom: 0; }
+  .range-pill {
+    position: relative; padding: 5px 12px 5px 14px; min-height: 26px; font-size: 12px;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    background: var(--pl-card); color: var(--pl-text-secondary); font-weight: 600;
   }
-  .range-seg-item.active { background: var(--pl-primary-light); color: var(--pl-primary); }
+  .range-pill .pill-dropdown { min-width: 150px; }
 
   /* ── Floating market-range tooltip card (shown while scrubbing) ── */
   .hc-chart-wrap { position: relative; }
@@ -789,18 +793,25 @@
   /* ── Comp Set sheet header subtitle ── */
   .bs-title-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); }
 
-  /* ── Bedrooms multi-select dropdown (Comp Set edit sheet) ── */
+  /* ── Bedrooms multi-select dropdown (Comp Set edit sheet). Each selected
+     bedroom type gets its own removable chip (below the trigger) instead
+     of one aggregate "N Selected" tag, so it's clear at a glance which
+     types are in the comp set. ── */
   .bedroom-dropdown-wrap { position: relative; margin-bottom: 4px; }
   .bedroom-dropdown-btn {
-    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    padding: 9px 12px; border: 1px solid var(--pl-primary); border-radius: var(--radius-base);
-    background: var(--pl-card); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border: 1px solid var(--pl-primary); border-radius: var(--radius-full);
+    background: var(--pl-card); color: var(--pl-primary); font-size: 13px; font-weight: 600; cursor: pointer;
   }
   .bedroom-chip-tag {
-    display: inline-flex; align-items: center; gap: 6px; background: var(--pl-bg);
-    border-radius: var(--radius-base); padding: 4px 8px; font-size: 13px; font-weight: 600; color: var(--pl-text);
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
   }
-  .bedroom-chip-tag span { color: var(--pl-text-disabled); font-size: 11px; cursor: pointer; }
+  .bedroom-chip-tag:empty { margin-top: 0; }
+  .bedroom-mini-chip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--pl-bg);
+    border-radius: var(--radius-full); padding: 5px 8px 5px 10px; font-size: 12px; font-weight: 600; color: var(--pl-text);
+  }
+  .bedroom-mini-chip span { color: var(--pl-text-disabled); font-size: 11px; cursor: pointer; }
   .bedroom-dropdown-menu {
     display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
     background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-md);

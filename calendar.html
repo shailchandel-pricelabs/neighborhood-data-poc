@@ -1411,7 +1411,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     box-shadow: var(--shadow-base); overflow: hidden;
   }
   .section-header {
-    display: flex; align-items: center; padding: 15px 16px;
+    display: flex; align-items: center; padding: 15px 10px;
     min-height: 44px; border-bottom: 1px solid var(--pl-border-table);
   }
   .section-header .header-text { flex: 1; min-width: 0; }
@@ -1425,7 +1425,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
-  .section-content { padding: 6px 16px 20px; }
+  .section-content { padding: 6px 10px 20px; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */
   .chart-controls {
@@ -1547,16 +1547,20 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      during a scrub, so a lighter, less shouty value color reads better. */
   .info-card-rows .hc-tt-row { font-size: 11px; }
   .info-card-rows .hc-tt-row b { color: var(--pl-text-secondary); font-weight: 600; }
-  .range-seg {
-    display: flex; justify-content: space-between; gap: 4px; margin-top: 8px;
-    padding-top: 10px; border-top: 1px solid var(--pl-border-table);
+  /* Row pairing the Daily/Monthly granularity toggle (left) with the
+     date-range dropdown (right) — replaces the old full-width 30D/60D/90D
+     segmented row that used to sit below the chart. */
+  .chart-toggle-row {
+    display: flex; align-items: center; justify-content: space-between; gap: 8px;
+    margin-top: 2px; margin-bottom: 10px;
   }
-  .range-seg-item {
-    flex: 1; text-align: center; padding: 7px 0; border-radius: var(--radius-full);
-    font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); cursor: pointer;
-    transition: background 0.15s, color 0.15s;
+  .chart-toggle-row .granularity-toggle { margin-bottom: 0; }
+  .range-pill {
+    position: relative; padding: 5px 12px 5px 14px; min-height: 26px; font-size: 12px;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    background: var(--pl-card); color: var(--pl-text-secondary); font-weight: 600;
   }
-  .range-seg-item.active { background: var(--pl-primary-light); color: var(--pl-primary); }
+  .range-pill .pill-dropdown { min-width: 150px; }
 
   /* ── Floating market-range tooltip card (shown while scrubbing) ── */
   .hc-chart-wrap { position: relative; }
@@ -2010,18 +2014,25 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   /* ── Comp Set sheet header subtitle ── */
   .bs-title-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); }
 
-  /* ── Bedrooms multi-select dropdown (Comp Set edit sheet) ── */
+  /* ── Bedrooms multi-select dropdown (Comp Set edit sheet). Each selected
+     bedroom type gets its own removable chip (below the trigger) instead
+     of one aggregate "N Selected" tag, so it's clear at a glance which
+     types are in the comp set. ── */
   .bedroom-dropdown-wrap { position: relative; margin-bottom: 4px; }
   .bedroom-dropdown-btn {
-    width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    padding: 9px 12px; border: 1px solid var(--pl-primary); border-radius: var(--radius-base);
-    background: var(--pl-card); cursor: pointer;
+    display: inline-flex; align-items: center; gap: 8px;
+    padding: 8px 14px; border: 1px solid var(--pl-primary); border-radius: var(--radius-full);
+    background: var(--pl-card); color: var(--pl-primary); font-size: 13px; font-weight: 600; cursor: pointer;
   }
   .bedroom-chip-tag {
-    display: inline-flex; align-items: center; gap: 6px; background: var(--pl-bg);
-    border-radius: var(--radius-base); padding: 4px 8px; font-size: 13px; font-weight: 600; color: var(--pl-text);
+    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
   }
-  .bedroom-chip-tag span { color: var(--pl-text-disabled); font-size: 11px; cursor: pointer; }
+  .bedroom-chip-tag:empty { margin-top: 0; }
+  .bedroom-mini-chip {
+    display: inline-flex; align-items: center; gap: 6px; background: var(--pl-bg);
+    border-radius: var(--radius-full); padding: 5px 8px 5px 10px; font-size: 12px; font-weight: 600; color: var(--pl-text);
+  }
+  .bedroom-mini-chip span { color: var(--pl-text-disabled); font-size: 11px; cursor: pointer; }
   .bedroom-dropdown-menu {
     display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
     background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-md);
@@ -2339,9 +2350,18 @@ body { background: #d9dbe0; }
     </div>
     <div class="section-body">
       <div class="section-content">
-        <div class="pill-toggles granularity-toggle chart-top-toggle">
-          <div class="pill active" onclick="fpSetGranularity(this,'daily')">Daily</div>
-          <div class="pill" onclick="fpSetGranularity(this,'monthly')">Monthly</div>
+        <div class="chart-toggle-row chart-top-toggle">
+          <div class="pill-toggles granularity-toggle">
+            <div class="pill active" onclick="fpSetGranularity(this,'daily')">Daily</div>
+            <div class="pill" onclick="fpSetGranularity(this,'monthly')">Monthly</div>
+          </div>
+          <div class="pill has-menu range-pill" id="fp-range-pill" onclick="togglePillMenu('fp-range-dropdown')">Next 30 Days
+            <div class="pill-dropdown" id="fp-range-dropdown">
+              <div class="dd-item active" onclick="event.stopPropagation();fpSetRange(this,30,'Next 30 Days')">Next 30 Days</div>
+              <div class="dd-item" onclick="event.stopPropagation();fpSetRange(this,60,'Next 60 Days')">Next 60 Days</div>
+              <div class="dd-item" onclick="event.stopPropagation();fpSetRange(this,90,'Next 90 Days')">Next 90 Days</div>
+            </div>
+          </div>
         </div>
         <!-- Pinned drag tooltip: always-visible info card, populated from
              the currently scrubbed point (defaults to today) instead of a
@@ -2356,13 +2376,6 @@ body { background: #d9dbe0; }
         <div class="hc-chart-wrap">
           <button class="hc-expand-btn" title="Expand" onclick="ndOpenChartFullscreen('fp')"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.8em;height:0.8em" fill="currentColor"><path d="M32 32C14.3 32 0 46.3 0 64L0 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0 0-96zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128c0-17.7-14.3-32-32-32l-128 0zM448 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96-96 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-128z"></path></svg></button>
           <div id="fp-hc-chart" class="hc-chart"></div>
-        </div>
-        <!-- Bottom segmented range control (trading-app placement) — capped
-             at 90 days; longer horizons belong on desktop. -->
-        <div class="range-seg" id="fp-range-seg">
-          <div class="range-seg-item active" onclick="fpSetRange(this,30)">30D</div>
-          <div class="range-seg-item" onclick="fpSetRange(this,60)">60D</div>
-          <div class="range-seg-item" onclick="fpSetRange(this,90)">90D</div>
         </div>
         <div class="legend" id="fp-legend"></div>
       </div>
@@ -2382,9 +2395,18 @@ body { background: #d9dbe0; }
     </div>
     <div class="section-body">
       <div class="section-content">
-        <div class="pill-toggles granularity-toggle chart-top-toggle">
-          <div class="pill active" onclick="occSetGranularity(this,'daily')">Daily</div>
-          <div class="pill" onclick="occSetGranularity(this,'monthly')">Monthly</div>
+        <div class="chart-toggle-row chart-top-toggle">
+          <div class="pill-toggles granularity-toggle">
+            <div class="pill active" onclick="occSetGranularity(this,'daily')">Daily</div>
+            <div class="pill" onclick="occSetGranularity(this,'monthly')">Monthly</div>
+          </div>
+          <div class="pill has-menu range-pill" id="occ-range-pill" onclick="togglePillMenu('occ-range-dropdown')">Next 30 Days
+            <div class="pill-dropdown" id="occ-range-dropdown">
+              <div class="dd-item active" onclick="event.stopPropagation();occSetRange(this,30,'Next 30 Days')">Next 30 Days</div>
+              <div class="dd-item" onclick="event.stopPropagation();occSetRange(this,60,'Next 60 Days')">Next 60 Days</div>
+              <div class="dd-item" onclick="event.stopPropagation();occSetRange(this,90,'Next 90 Days')">Next 90 Days</div>
+            </div>
+          </div>
         </div>
         <div class="chart-info-card" id="occ-info-card">
           <div class="info-card-top">
@@ -2396,11 +2418,6 @@ body { background: #d9dbe0; }
         <div class="hc-chart-wrap">
           <button class="hc-expand-btn" title="Expand" onclick="ndOpenChartFullscreen('occ')"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" style="width:0.8em;height:0.8em" fill="currentColor"><path d="M32 32C14.3 32 0 46.3 0 64L0 192c0 17.7 14.3 32 32 32s32-14.3 32-32l0-96 96 0c17.7 0 32-14.3 32-32s-14.3-32-32-32L32 32zM64 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 128c0 17.7 14.3 32 32 32l128 0c17.7 0 32-14.3 32-32s-14.3-32-32-32l-96 0 0-96zM320 32c-17.7 0-32 14.3-32 32s14.3 32 32 32l96 0 0 96c0 17.7 14.3 32 32 32s32-14.3 32-32l0-128c0-17.7-14.3-32-32-32l-128 0zM448 320c0-17.7-14.3-32-32-32s-32 14.3-32 32l0 96-96 0c-17.7 0-32 14.3-32 32s14.3 32 32 32l128 0c17.7 0 32-14.3 32-32l0-128z"></path></svg></button>
           <div id="occ-hc-chart" class="hc-chart" style="height:250px"></div>
-        </div>
-        <div class="range-seg" id="occ-range-seg">
-          <div class="range-seg-item active" onclick="occSetRange(this,30)">30D</div>
-          <div class="range-seg-item" onclick="occSetRange(this,60)">60D</div>
-          <div class="range-seg-item" onclick="occSetRange(this,90)">90D</div>
         </div>
         <div class="legend" id="occ-legend"></div>
       </div>
@@ -2678,14 +2695,15 @@ body { background: #d9dbe0; }
       <div class="bs-section-label">Bedrooms</div>
       <div class="bedroom-dropdown-wrap">
         <button class="bedroom-dropdown-btn" id="bedroom-dropdown-btn" onclick="ndToggleBedroomDropdown()">
-          <span class="bedroom-chip-tag" id="bedroom-count-tag">2 Selected <span onclick="event.stopPropagation();ndClearBedrooms()">✕</span></span>
           <svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.6em;height:0.6em;flex-shrink:0" fill="currentColor"><path d="M31 127c-9.4 9.4-9.4 24.6 0 33.9L143 273c9.4 9.4 24.6 9.4 33.9 0L289 161c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L160 222 65 127c-9.4-9.4-24.6-9.4-33.9 0z"></path></svg>
+          Bedrooms
         </button>
+        <div class="bedroom-chip-tag" id="bedroom-count-tag"></div>
         <div class="bedroom-dropdown-menu" id="bedroom-dropdown-menu">
-          <div class="bedroom-option" onclick="ndToggleBedroomOption(this,true)"><div class="bedroom-check-sq"></div> Select All</div>
-          <div class="bedroom-option" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq"></div> Room (49 Listings)</div>
-          <div class="bedroom-option selected" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 1 BR (184 Listings)</div>
-          <div class="bedroom-option selected" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 2 BR (109 Listings)</div>
+          <div class="bedroom-option" data-select-all="1" onclick="ndToggleBedroomOption(this,true)"><div class="bedroom-check-sq"></div> Select All</div>
+          <div class="bedroom-option" data-label="Room" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq"></div> Room (49 Listings)</div>
+          <div class="bedroom-option selected" data-label="1 BR" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 1 BR (184 Listings)</div>
+          <div class="bedroom-option selected" data-label="2 BR" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 2 BR (109 Listings)</div>
         </div>
       </div>
       <div class="bs-markup-question">Do you add markup for this listing on your PMS? <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;vertical-align:-0.1em" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></div>
@@ -2720,7 +2738,7 @@ body { background: #d9dbe0; }
     </div>
     <div class="bs-body">
       <p>Shows your listing's price compared to the market for upcoming dates. The solid line is your current price, while the shaded bands show the percentile range of comparable listings in your comp set. Switch to Monthly for a bar-chart summary with percentile lines, matching the desktop view.</p>
-      <p style="margin-top:10px">Use the time range pills to adjust how far ahead you're looking. Tap the gear icon to overlay your own upcoming or last year's bookings on the chart.</p>
+      <p style="margin-top:10px">Use the date range dropdown to adjust how far ahead you're looking. Tap the gear icon to overlay your own upcoming or last year's bookings on the chart.</p>
     </div>
   </div>
 </div>
@@ -3180,9 +3198,11 @@ function togglePillMenu(id) {
 }
 function selectPillOption(item, pillId, label) {
   const pill = document.getElementById(pillId);
-  // Update dropdown active state
-  item.closest('.pill-dropdown').querySelectorAll('.dd-item').forEach(d => d.classList.remove('active'));
+  // Update dropdown active state, then close the menu
+  const dd = item.closest('.pill-dropdown');
+  dd.querySelectorAll('.dd-item').forEach(d => d.classList.remove('active'));
   item.classList.add('active');
+  dd.classList.remove('open');
   // Update pill text (keep the ▾ via CSS ::after)
   pill.childNodes[0].textContent = label;
   // Activate this pill in the toggle row (works for both .pill-toggles and .chart-controls)
@@ -3245,6 +3265,22 @@ function ndXAxisConfig(cats, step) {
     labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, step: step },
     crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
   };
+}
+/* The pinned info card above each chart is empty ("—") when the chart is
+   created and only gets its real (often taller) content once the chart's
+   own `load` event fires and calls fpUpdateInfoCard/occUpdateInfoCard —
+   in the fullscreen sheet the card and chart share a flex column, so
+   that content growth shrinks the chart's actual flex:1 box *after* its
+   SVG was already sized to the pre-growth height, clipping whatever
+   falls outside it (the x-axis labels along the bottom). chart.reflow()
+   can't fix this because it skips dimensions that were explicitly passed
+   in the chart options — so this re-measures the container's now-settled
+   real height and forces the SVG to match via setSize() instead. */
+function ndResyncChartHeight(chart) {
+  const realHeight = chart.renderTo.clientHeight;
+  if (realHeight && Math.abs(realHeight - chart.chartHeight) > 1) {
+    chart.setSize(undefined, realHeight, false);
+  }
 }
 function ndYAxisConfig(opts) {
   opts = opts || {};
@@ -3431,7 +3467,15 @@ function fpRenderChart(containerId, height, idPrefix) {
       zooming: { type: undefined },
       panning: { enabled: false },
       events: {
-        load: function () { fpUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); }
+        /* The pinned info card is empty ("—") at chart-creation time and
+           only gets its real (taller) content here, on load — in the
+           fullscreen sheet that card sits above the chart inside a flex
+           column, so its growth shrinks the chart's own flex:1 area
+           *after* the SVG was already sized to the pre-growth height.
+           reflow() re-measures the now-settled container and resizes the
+           SVG to match, instead of leaving it clipped (hiding the x-axis
+           labels along the bottom edge). */
+        load: function () { fpUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); ndResyncChartHeight(this); }
       }
     },
     xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
@@ -3577,9 +3621,8 @@ function fpToggleOverlay(el, kind) {
   }, true);
 }
 
-function fpSetRange(el, days) {
-  el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
+function fpSetRange(el, days, label) {
+  selectPillOption(el, 'fp-range-pill', label);
   fpInitChart(days);
 }
 function fpSetGranularity(el, mode) {
@@ -3648,8 +3691,8 @@ function occRenderChart(containerId, height, idPrefix) {
   const isMonthly = occGranularity === 'monthly';
   const series = isMonthly ? [
     { type: 'column', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', zIndex: 3 },
-    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#F8C6C8', zIndex: 2 },
-    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#FDE3E4', zIndex: 1 }
+    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#C9C9C9', zIndex: 2 },
+    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#E6E6E6', zIndex: 1 }
   ] : [
     { type: 'line', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 },
     { type: 'line', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#B5B5B5', lineWidth: 1.5, zIndex: 4 },
@@ -3669,7 +3712,7 @@ function occRenderChart(containerId, height, idPrefix) {
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
-      events: { load: function () { occUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); } }
+      events: { load: function () { occUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); ndResyncChartHeight(this); } }
     },
     xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
     yAxis: ndYAxisConfig({
@@ -3713,7 +3756,7 @@ function occUpdateInfoCard(chart, index, idPrefix) {
   const isMonthly = occGranularity === 'monthly';
   const defs = [
     ['occ-s-lytoday', '#B5B5B5', 'Last Year (Today)', null],
-    ['occ-s-lyfinal', isMonthly ? '#FDE3E4' : '#B5B5B5', 'Last Year (Final)', isMonthly ? null : 'Dot'],
+    ['occ-s-lyfinal', isMonthly ? '#E6E6E6' : '#B5B5B5', 'Last Year (Final)', isMonthly ? null : 'Dot'],
     ['occ-s-pickup', '#31C48D', '7-day Pickup', null],
     ['occ-s-pickupLY', '#31C48D', '7-day Pickup (LY)', 'Dot']
   ];
@@ -3733,8 +3776,8 @@ function occRenderLegend() {
   const isMonthly = occGranularity === 'monthly';
   let html =
     '<div class="legend-item">' + ndSwatchHTML('#F37579', null, isMonthly) + ' Market Occupancy</div>' +
-    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#F8C6C8' : '#B5B5B5', null, isMonthly) + ' Last Year (Today)</div>' +
-    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#FDE3E4' : '#B5B5B5', isMonthly ? null : 'Dot', isMonthly) + ' Last Year (Final)</div>';
+    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#C9C9C9' : '#B5B5B5', null, isMonthly) + ' Last Year (Today)</div>' +
+    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#E6E6E6' : '#B5B5B5', isMonthly ? null : 'Dot', isMonthly) + ' Last Year (Final)</div>';
   if (occPacingEnabled) {
     html += '<div class="legend-item">' + ndSwatchHTML('#31C48D', null, false) + ' 7-day Pickup</div>';
     html += '<div class="legend-item">' + ndSwatchHTML('#31C48D', 'Dot', false) + ' Pickup (LY)</div>';
@@ -3743,9 +3786,8 @@ function occRenderLegend() {
   el.innerHTML = html;
 }
 
-function occSetRange(el, days) {
-  el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
+function occSetRange(el, days, label) {
+  selectPillOption(el, 'occ-range-pill', label);
   occInitChart(days);
 }
 function occSetGranularity(el, mode) {
@@ -3906,6 +3948,7 @@ function ndInitCharts() {
   if (document.getElementById('occ-hc-chart') && !occChart) occInitChart();
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
   ccInitEmptyState();
+  if (document.getElementById('bedroom-count-tag')) ndRenderBedroomTag();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);
@@ -4020,10 +4063,21 @@ function ndOpenChartFullscreen(which) {
      the rotation trick below — not the real browser Fullscreen API,
      which would break out of the phone-frame mockup entirely rather
      than staying inside it. */
-  const frameWidth = ndApplyForceLandscape(sheet);
+  ndApplyForceLandscape(sheet);
   if (fsChart) { fsChart.destroy(); fsChart = null; }
   setTimeout(function () {
-    const chartHeight = Math.max(180, (frameWidth || 375) - 120);
+    /* .hc-fullscreen-body .hc-chart has `height:100% !important` (needed
+       so the chart fills the flex:1 area under the pinned info card at
+       any rotated frame size) — that !important always wins over the
+       plain inline pixel height fpRenderChart/occRenderChart set before
+       creating the chart, so passing an estimated height here made the
+       SVG's own size (from the chart.height option) disagree with the
+       container's actual flex-derived box, and Highcharts clips
+       whatever falls outside that box — including the x-axis labels.
+       Reading the container's real, already-laid-out clientHeight keeps
+       the two in sync. */
+    const el = document.getElementById('fs-hc-chart');
+    const chartHeight = Math.max(120, (el ? el.clientHeight : 0) || 180);
     fsChart = which === 'fp' ? fpRenderChart('fs-hc-chart', chartHeight, 'fs') : occRenderChart('fs-hc-chart', chartHeight, 'fs');
   }, 30);
 }
@@ -4042,9 +4096,21 @@ function ndToggleBedroomDropdown() {
   document.getElementById('bedroom-dropdown-menu').classList.toggle('open');
 }
 function ndRenderBedroomTag() {
-  const selected = document.querySelectorAll('#bedroom-dropdown-menu .bedroom-option.selected');
+  const selected = Array.from(document.querySelectorAll('#bedroom-dropdown-menu .bedroom-option.selected:not([data-select-all])'));
   const tag = document.getElementById('bedroom-count-tag');
-  if (tag) tag.firstChild.textContent = selected.length + ' Selected ';
+  if (!tag) return;
+  tag.innerHTML = selected.map(o => {
+    const label = o.dataset.label || o.textContent.trim();
+    return '<span class="bedroom-mini-chip">' + label + '<span onclick="event.stopPropagation();ndRemoveBedroomChip(\'' + label + '\')">✕</span></span>';
+  }).join('');
+}
+function ndRemoveBedroomChip(label) {
+  const menu = document.getElementById('bedroom-dropdown-menu');
+  const opt = Array.from(menu.querySelectorAll('.bedroom-option')).find(o => (o.dataset.label || '') === label);
+  if (!opt) return;
+  opt.classList.remove('selected');
+  opt.querySelector('.bedroom-check-sq').classList.remove('checked');
+  ndRenderBedroomTag();
 }
 function ndToggleBedroomOption(el, isSelectAll) {
   const menu = document.getElementById('bedroom-dropdown-menu');
@@ -4060,15 +4126,6 @@ function ndToggleBedroomOption(el, isSelectAll) {
   });
   ndRenderBedroomTag();
 }
-function ndClearBedrooms() {
-  const menu = document.getElementById('bedroom-dropdown-menu');
-  menu.querySelectorAll('.bedroom-option').forEach(o => {
-    o.classList.remove('selected');
-    o.querySelector('.bedroom-check-sq').classList.remove('checked');
-  });
-  ndRenderBedroomTag();
-}
-
 /* ── Comp Set edit sheet: "Do you add markup for this listing on your
    PMS?" radio choice, matching desktop's own copy and flow — a plain
    toggle checkbox previously stood in for this. ── */

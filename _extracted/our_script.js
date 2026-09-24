@@ -174,9 +174,11 @@ function togglePillMenu(id) {
 }
 function selectPillOption(item, pillId, label) {
   const pill = document.getElementById(pillId);
-  // Update dropdown active state
-  item.closest('.pill-dropdown').querySelectorAll('.dd-item').forEach(d => d.classList.remove('active'));
+  // Update dropdown active state, then close the menu
+  const dd = item.closest('.pill-dropdown');
+  dd.querySelectorAll('.dd-item').forEach(d => d.classList.remove('active'));
   item.classList.add('active');
+  dd.classList.remove('open');
   // Update pill text (keep the ▾ via CSS ::after)
   pill.childNodes[0].textContent = label;
   // Activate this pill in the toggle row (works for both .pill-toggles and .chart-controls)
@@ -239,6 +241,22 @@ function ndXAxisConfig(cats, step) {
     labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, step: step },
     crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
   };
+}
+/* The pinned info card above each chart is empty ("—") when the chart is
+   created and only gets its real (often taller) content once the chart's
+   own `load` event fires and calls fpUpdateInfoCard/occUpdateInfoCard —
+   in the fullscreen sheet the card and chart share a flex column, so
+   that content growth shrinks the chart's actual flex:1 box *after* its
+   SVG was already sized to the pre-growth height, clipping whatever
+   falls outside it (the x-axis labels along the bottom). chart.reflow()
+   can't fix this because it skips dimensions that were explicitly passed
+   in the chart options — so this re-measures the container's now-settled
+   real height and forces the SVG to match via setSize() instead. */
+function ndResyncChartHeight(chart) {
+  const realHeight = chart.renderTo.clientHeight;
+  if (realHeight && Math.abs(realHeight - chart.chartHeight) > 1) {
+    chart.setSize(undefined, realHeight, false);
+  }
 }
 function ndYAxisConfig(opts) {
   opts = opts || {};
@@ -425,7 +443,15 @@ function fpRenderChart(containerId, height, idPrefix) {
       zooming: { type: undefined },
       panning: { enabled: false },
       events: {
-        load: function () { fpUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); }
+        /* The pinned info card is empty ("—") at chart-creation time and
+           only gets its real (taller) content here, on load — in the
+           fullscreen sheet that card sits above the chart inside a flex
+           column, so its growth shrinks the chart's own flex:1 area
+           *after* the SVG was already sized to the pre-growth height.
+           reflow() re-measures the now-settled container and resizes the
+           SVG to match, instead of leaving it clipped (hiding the x-axis
+           labels along the bottom edge). */
+        load: function () { fpUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); ndResyncChartHeight(this); }
       }
     },
     xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
@@ -571,9 +597,8 @@ function fpToggleOverlay(el, kind) {
   }, true);
 }
 
-function fpSetRange(el, days) {
-  el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
+function fpSetRange(el, days, label) {
+  selectPillOption(el, 'fp-range-pill', label);
   fpInitChart(days);
 }
 function fpSetGranularity(el, mode) {
@@ -642,8 +667,8 @@ function occRenderChart(containerId, height, idPrefix) {
   const isMonthly = occGranularity === 'monthly';
   const series = isMonthly ? [
     { type: 'column', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', zIndex: 3 },
-    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#F8C6C8', zIndex: 2 },
-    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#FDE3E4', zIndex: 1 }
+    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#C9C9C9', zIndex: 2 },
+    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#E6E6E6', zIndex: 1 }
   ] : [
     { type: 'line', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 },
     { type: 'line', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#B5B5B5', lineWidth: 1.5, zIndex: 4 },
@@ -663,7 +688,7 @@ function occRenderChart(containerId, height, idPrefix) {
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
-      events: { load: function () { occUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); } }
+      events: { load: function () { occUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); ndResyncChartHeight(this); } }
     },
     xAxis: ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))),
     yAxis: ndYAxisConfig({
@@ -707,7 +732,7 @@ function occUpdateInfoCard(chart, index, idPrefix) {
   const isMonthly = occGranularity === 'monthly';
   const defs = [
     ['occ-s-lytoday', '#B5B5B5', 'Last Year (Today)', null],
-    ['occ-s-lyfinal', isMonthly ? '#FDE3E4' : '#B5B5B5', 'Last Year (Final)', isMonthly ? null : 'Dot'],
+    ['occ-s-lyfinal', isMonthly ? '#E6E6E6' : '#B5B5B5', 'Last Year (Final)', isMonthly ? null : 'Dot'],
     ['occ-s-pickup', '#31C48D', '7-day Pickup', null],
     ['occ-s-pickupLY', '#31C48D', '7-day Pickup (LY)', 'Dot']
   ];
@@ -727,8 +752,8 @@ function occRenderLegend() {
   const isMonthly = occGranularity === 'monthly';
   let html =
     '<div class="legend-item">' + ndSwatchHTML('#F37579', null, isMonthly) + ' Market Occupancy</div>' +
-    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#F8C6C8' : '#B5B5B5', null, isMonthly) + ' Last Year (Today)</div>' +
-    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#FDE3E4' : '#B5B5B5', isMonthly ? null : 'Dot', isMonthly) + ' Last Year (Final)</div>';
+    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#C9C9C9' : '#B5B5B5', null, isMonthly) + ' Last Year (Today)</div>' +
+    '<div class="legend-item">' + ndSwatchHTML(isMonthly ? '#E6E6E6' : '#B5B5B5', isMonthly ? null : 'Dot', isMonthly) + ' Last Year (Final)</div>';
   if (occPacingEnabled) {
     html += '<div class="legend-item">' + ndSwatchHTML('#31C48D', null, false) + ' 7-day Pickup</div>';
     html += '<div class="legend-item">' + ndSwatchHTML('#31C48D', 'Dot', false) + ' Pickup (LY)</div>';
@@ -737,9 +762,8 @@ function occRenderLegend() {
   el.innerHTML = html;
 }
 
-function occSetRange(el, days) {
-  el.closest('.range-seg').querySelectorAll('.range-seg-item').forEach(p => p.classList.remove('active'));
-  el.classList.add('active');
+function occSetRange(el, days, label) {
+  selectPillOption(el, 'occ-range-pill', label);
   occInitChart(days);
 }
 function occSetGranularity(el, mode) {
@@ -900,6 +924,7 @@ function ndInitCharts() {
   if (document.getElementById('occ-hc-chart') && !occChart) occInitChart();
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
   ccInitEmptyState();
+  if (document.getElementById('bedroom-count-tag')) ndRenderBedroomTag();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);
@@ -1014,10 +1039,21 @@ function ndOpenChartFullscreen(which) {
      the rotation trick below — not the real browser Fullscreen API,
      which would break out of the phone-frame mockup entirely rather
      than staying inside it. */
-  const frameWidth = ndApplyForceLandscape(sheet);
+  ndApplyForceLandscape(sheet);
   if (fsChart) { fsChart.destroy(); fsChart = null; }
   setTimeout(function () {
-    const chartHeight = Math.max(180, (frameWidth || 375) - 120);
+    /* .hc-fullscreen-body .hc-chart has `height:100% !important` (needed
+       so the chart fills the flex:1 area under the pinned info card at
+       any rotated frame size) — that !important always wins over the
+       plain inline pixel height fpRenderChart/occRenderChart set before
+       creating the chart, so passing an estimated height here made the
+       SVG's own size (from the chart.height option) disagree with the
+       container's actual flex-derived box, and Highcharts clips
+       whatever falls outside that box — including the x-axis labels.
+       Reading the container's real, already-laid-out clientHeight keeps
+       the two in sync. */
+    const el = document.getElementById('fs-hc-chart');
+    const chartHeight = Math.max(120, (el ? el.clientHeight : 0) || 180);
     fsChart = which === 'fp' ? fpRenderChart('fs-hc-chart', chartHeight, 'fs') : occRenderChart('fs-hc-chart', chartHeight, 'fs');
   }, 30);
 }
@@ -1036,9 +1072,21 @@ function ndToggleBedroomDropdown() {
   document.getElementById('bedroom-dropdown-menu').classList.toggle('open');
 }
 function ndRenderBedroomTag() {
-  const selected = document.querySelectorAll('#bedroom-dropdown-menu .bedroom-option.selected');
+  const selected = Array.from(document.querySelectorAll('#bedroom-dropdown-menu .bedroom-option.selected:not([data-select-all])'));
   const tag = document.getElementById('bedroom-count-tag');
-  if (tag) tag.firstChild.textContent = selected.length + ' Selected ';
+  if (!tag) return;
+  tag.innerHTML = selected.map(o => {
+    const label = o.dataset.label || o.textContent.trim();
+    return '<span class="bedroom-mini-chip">' + label + '<span onclick="event.stopPropagation();ndRemoveBedroomChip(\'' + label + '\')">✕</span></span>';
+  }).join('');
+}
+function ndRemoveBedroomChip(label) {
+  const menu = document.getElementById('bedroom-dropdown-menu');
+  const opt = Array.from(menu.querySelectorAll('.bedroom-option')).find(o => (o.dataset.label || '') === label);
+  if (!opt) return;
+  opt.classList.remove('selected');
+  opt.querySelector('.bedroom-check-sq').classList.remove('checked');
+  ndRenderBedroomTag();
 }
 function ndToggleBedroomOption(el, isSelectAll) {
   const menu = document.getElementById('bedroom-dropdown-menu');
@@ -1054,15 +1102,6 @@ function ndToggleBedroomOption(el, isSelectAll) {
   });
   ndRenderBedroomTag();
 }
-function ndClearBedrooms() {
-  const menu = document.getElementById('bedroom-dropdown-menu');
-  menu.querySelectorAll('.bedroom-option').forEach(o => {
-    o.classList.remove('selected');
-    o.querySelector('.bedroom-check-sq').classList.remove('checked');
-  });
-  ndRenderBedroomTag();
-}
-
 /* ── Comp Set edit sheet: "Do you add markup for this listing on your
    PMS?" radio choice, matching desktop's own copy and flow — a plain
    toggle checkbox previously stood in for this. ── */

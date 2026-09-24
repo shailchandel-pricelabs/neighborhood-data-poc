@@ -52,14 +52,15 @@
       <div class="bs-section-label">Bedrooms</div>
       <div class="bedroom-dropdown-wrap">
         <button class="bedroom-dropdown-btn" id="bedroom-dropdown-btn" onclick="ndToggleBedroomDropdown()">
-          <span class="bedroom-chip-tag" id="bedroom-count-tag">2 Selected <span onclick="event.stopPropagation();ndClearBedrooms()">✕</span></span>
           <svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.6em;height:0.6em;flex-shrink:0" fill="currentColor"><path d="M31 127c-9.4 9.4-9.4 24.6 0 33.9L143 273c9.4 9.4 24.6 9.4 33.9 0L289 161c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L160 222 65 127c-9.4-9.4-24.6-9.4-33.9 0z"></path></svg>
+          Bedrooms
         </button>
+        <div class="bedroom-chip-tag" id="bedroom-count-tag"></div>
         <div class="bedroom-dropdown-menu" id="bedroom-dropdown-menu">
-          <div class="bedroom-option" onclick="ndToggleBedroomOption(this,true)"><div class="bedroom-check-sq"></div> Select All</div>
-          <div class="bedroom-option" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq"></div> Room (49 Listings)</div>
-          <div class="bedroom-option selected" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 1 BR (184 Listings)</div>
-          <div class="bedroom-option selected" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 2 BR (109 Listings)</div>
+          <div class="bedroom-option" data-select-all="1" onclick="ndToggleBedroomOption(this,true)"><div class="bedroom-check-sq"></div> Select All</div>
+          <div class="bedroom-option" data-label="Room" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq"></div> Room (49 Listings)</div>
+          <div class="bedroom-option selected" data-label="1 BR" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 1 BR (184 Listings)</div>
+          <div class="bedroom-option selected" data-label="2 BR" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 2 BR (109 Listings)</div>
         </div>
       </div>
       <div class="bs-markup-question">Do you add markup for this listing on your PMS? <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;vertical-align:-0.1em" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></div>
@@ -94,7 +95,7 @@
     </div>
     <div class="bs-body">
       <p>Shows your listing's price compared to the market for upcoming dates. The solid line is your current price, while the shaded bands show the percentile range of comparable listings in your comp set. Switch to Monthly for a bar-chart summary with percentile lines, matching the desktop view.</p>
-      <p style="margin-top:10px">Use the time range pills to adjust how far ahead you're looking. Tap the gear icon to overlay your own upcoming or last year's bookings on the chart.</p>
+      <p style="margin-top:10px">Use the date range dropdown to adjust how far ahead you're looking. Tap the gear icon to overlay your own upcoming or last year's bookings on the chart.</p>
     </div>
   </div>
 </div>
