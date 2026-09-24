@@ -180,18 +180,18 @@
     font-size: 15px; width: 32px !important; height: 32px !important; min-width: 32px !important;
   }
 
-  /* ── Sections / Accordion — card list, mobile-app inspired (Robinhood/Coinbase
-     grouped-card style: rounded cards floating on a soft grey backdrop rather
-     than flush hairline rows) ── */
-  .nd-sheet-body { background: var(--pl-bg); }
-  .nd-sections { padding: 12px 12px 24px; display: flex; flex-direction: column; gap: 14px; }
-  .section {
-    background: var(--pl-card); margin: 0; border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-base); overflow: hidden;
-  }
+  /* ── Sections / Accordion — flat list on a plain white background,
+     sections separated by a hairline rather than drawn as individual
+     rounded/shadowed cards. The card look was eating horizontal margin
+     (card padding + the gap between cards) that the charts inside could
+     otherwise use, so it's gone in favor of just spacing + a divider. ── */
+  .nd-sheet-body { background: var(--pl-card); }
+  .nd-sections { padding: 4px 6px 24px; display: flex; flex-direction: column; }
+  .section { background: transparent; margin: 0; }
+  .section + .section { border-top: 1px solid var(--pl-border-table); margin-top: 6px; padding-top: 6px; }
   .section-header {
-    display: flex; align-items: center; padding: 15px 10px;
-    min-height: 44px; border-bottom: 1px solid var(--pl-border-table);
+    display: flex; align-items: center; padding: 11px 4px;
+    min-height: 44px;
   }
   .section-header .header-text { flex: 1; min-width: 0; }
   .section-header .title { font-size: 16px; font-weight: 600; color: var(--pl-text); }
@@ -204,7 +204,7 @@
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
-  .section-content { padding: 6px 10px 20px; }
+  .section-content { padding: 6px 4px 20px; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */
   .chart-controls {

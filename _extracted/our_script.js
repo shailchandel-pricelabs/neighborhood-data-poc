@@ -810,10 +810,8 @@ function histUpdateInfoCard(chart, index) {
   const m = histMetricData[histCurrentKey];
   const fmt = v => (m.prefix || '') + v + (m.suffix || '');
   const dateEl = document.getElementById('hist-info-date');
-  const priceEl = document.getElementById('hist-info-price');
   const rowsEl = document.getElementById('hist-info-rows');
   if (dateEl) dateEl.textContent = histMonths[i];
-  if (priceEl) priceEl.textContent = fmt(m.y2026[i]);
   if (!rowsEl) return;
   /* Same row structure fp/occ use: every year gets its own dot (colored
      to match its bar in the chart/legend) + label + value, including the
