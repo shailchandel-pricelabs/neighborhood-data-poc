@@ -18,13 +18,7 @@
             <div class="pill active" onclick="fpSetGranularity(this,'daily')">Daily</div>
             <div class="pill" onclick="fpSetGranularity(this,'monthly')">Monthly</div>
           </div>
-          <div class="pill has-menu range-pill" id="fp-range-pill" onclick="togglePillMenu('fp-range-dropdown')">Next 30 Days
-            <div class="pill-dropdown" id="fp-range-dropdown">
-              <div class="dd-item active" onclick="event.stopPropagation();fpSetRange(this,30,'Next 30 Days')">Next 30 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();fpSetRange(this,60,'Next 60 Days')">Next 60 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();fpSetRange(this,90,'Next 90 Days')">Next 90 Days</div>
-            </div>
-          </div>
+          <div class="pill has-menu range-pill" id="fp-range-pill" onclick="ndOpenRangePicker('fp')">Next 30 Days</div>
         </div>
         <!-- Pinned drag tooltip: always-visible info card, populated from
              the currently scrubbed point (defaults to today) instead of a
@@ -63,13 +57,7 @@
             <div class="pill active" onclick="occSetGranularity(this,'daily')">Daily</div>
             <div class="pill" onclick="occSetGranularity(this,'monthly')">Monthly</div>
           </div>
-          <div class="pill has-menu range-pill" id="occ-range-pill" onclick="togglePillMenu('occ-range-dropdown')">Next 30 Days
-            <div class="pill-dropdown" id="occ-range-dropdown">
-              <div class="dd-item active" onclick="event.stopPropagation();occSetRange(this,30,'Next 30 Days')">Next 30 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();occSetRange(this,60,'Next 60 Days')">Next 60 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();occSetRange(this,90,'Next 90 Days')">Next 90 Days</div>
-            </div>
-          </div>
+          <div class="pill has-menu range-pill" id="occ-range-pill" onclick="ndOpenRangePicker('occ')">Next 30 Days</div>
         </div>
         <div class="chart-info-card" id="occ-info-card">
           <div class="info-card-top">

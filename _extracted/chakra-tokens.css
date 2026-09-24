@@ -228,10 +228,16 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
 .device-frame .btn-vol-down { left: -3px; top: 214px; width: 3px; height: 48px; border-radius: 3px; }
 .device-frame .btn-power { right: -3px; top: 170px; width: 3px; height: 76px; border-radius: 3px; }
 @media (max-width: 470px) {
+  /* On an actual phone browser there's no bezel to draw and the real OS
+     already shows its own status bar and (on notched phones) its own
+     Dynamic Island — the fake ones below are only useful inside the
+     desktop mockup, so they're hidden here rather than doubling up. */
   .device-frame { width: 100vw; height: 100vh; margin: 0; border-radius: 0; padding: 0; box-shadow: none; }
   .device-frame .screen { width: 100%; height: 100%; border-radius: 0; }
-  .device-frame .screen .phone-frame { height: 100%; max-width: 100%; }
-  .device-frame .side-btn { display: none; }
+  .device-frame .screen .phone-frame { height: 100%; max-width: 100%; margin-top: 0; }
+  .device-frame .side-btn, .device-frame .status-bar, .device-frame .dynamic-island, .device-frame .home-indicator {
+    display: none;
+  }
 }
 /* Real header wrapper is position:fixed against the full browser viewport in the
    live app (which IS full-viewport-width there). Pin it to the top of our scroll

@@ -263,19 +263,6 @@
     border-left: 4px solid transparent; border-right: 4px solid transparent;
     border-top: 4px solid currentColor; margin-left: 5px; vertical-align: middle;
   }
-  .pill-dropdown {
-    display: none; position: absolute; top: 100%; right: 0; margin-top: 4px;
-    background: var(--pl-card); border: 1px solid var(--pl-border);
-    border-radius: var(--radius-card); box-shadow: var(--shadow-md);
-    min-width: 120px; z-index: 50; overflow: hidden;
-  }
-  .pill-dropdown.open { display: block; }
-  .pill-dropdown .dd-item {
-    padding: 10px 14px; font-size: 14px; font-weight: 600;
-    color: var(--pl-text-secondary); cursor: pointer; transition: background 0.1s;
-  }
-  .pill-dropdown .dd-item:hover { background: var(--pl-bg); }
-  .pill-dropdown .dd-item.active { color: var(--pl-primary); background: var(--pl-primary-light); }
 
   /* ── Legend ── */
   .legend {
@@ -335,11 +322,10 @@
   }
   .chart-toggle-row .granularity-toggle { margin-bottom: 0; }
   .range-pill {
-    position: relative; padding: 5px 12px 5px 14px; min-height: 26px; font-size: 12px;
+    padding: 5px 12px 5px 14px; min-height: 26px; font-size: 12px;
     border: 1px solid var(--pl-border); border-radius: var(--radius-full);
     background: var(--pl-card); color: var(--pl-text-secondary); font-weight: 600;
   }
-  .range-pill .pill-dropdown { min-width: 150px; }
 
   /* ── Floating market-range tooltip card (shown while scrubbing) ── */
   .hc-chart-wrap { position: relative; }
@@ -793,43 +779,23 @@
   /* ── Comp Set sheet header subtitle ── */
   .bs-title-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); }
 
-  /* ── Bedrooms multi-select dropdown (Comp Set edit sheet). Each selected
-     bedroom type gets its own removable chip (below the trigger) instead
-     of one aggregate "N Selected" tag, so it's clear at a glance which
-     types are in the comp set. ── */
-  .bedroom-dropdown-wrap { position: relative; margin-bottom: 4px; }
-  .bedroom-dropdown-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 8px 14px; border: 1px solid var(--pl-primary); border-radius: var(--radius-full);
-    background: var(--pl-card); color: var(--pl-primary); font-size: 13px; font-weight: 600; cursor: pointer;
+  /* ── Bedrooms multi-select (Comp Set edit sheet): a wrapping row of
+     directly-tappable tabs, each toggled in place — a dropdown trigger
+     plus a checkbox list buried inside it took two taps per change and
+     was fiddly to hit accurately on a real phone; a tab is one tap and
+     its own selected state is visible without opening anything. ── */
+  .bedroom-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .bedroom-tab {
+    display: flex; align-items: center; gap: 5px; padding: 9px 14px; min-height: 38px;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    background: var(--pl-card); color: var(--pl-text); font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .bedroom-chip-tag {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+  .bedroom-tab.selected {
+    background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary);
   }
-  .bedroom-chip-tag:empty { margin-top: 0; }
-  .bedroom-mini-chip {
-    display: inline-flex; align-items: center; gap: 6px; background: var(--pl-bg);
-    border-radius: var(--radius-full); padding: 5px 8px 5px 10px; font-size: 12px; font-weight: 600; color: var(--pl-text);
-  }
-  .bedroom-mini-chip span { color: var(--pl-text-disabled); font-size: 11px; cursor: pointer; }
-  .bedroom-dropdown-menu {
-    display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
-    background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md); z-index: 20; overflow: hidden;
-  }
-  .bedroom-dropdown-menu.open { display: block; }
-  .bedroom-option {
-    display: flex; align-items: center; gap: 10px; padding: 11px 14px;
-    font-size: 13px; font-weight: 600; color: var(--pl-text); cursor: pointer;
-    border-bottom: 1px solid var(--pl-border-table);
-  }
-  .bedroom-option:last-child { border-bottom: none; }
-  .bedroom-check-sq {
-    width: 16px; height: 16px; border: 2px solid var(--pl-border); border-radius: 3px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px;
-  }
-  .bedroom-check-sq svg { width: 0.85em; height: 0.85em; }
-  .bedroom-check-sq.checked { background: var(--pl-primary); border-color: var(--pl-primary); }
+  .bedroom-tab-count { font-weight: 400; color: var(--pl-text-disabled); }
+  .bedroom-tab.selected .bedroom-tab-count { color: var(--pl-primary); opacity: 0.75; }
 
   /* ── Markup question + fields (Comp Set edit sheet) ── */
   .bs-markup-question {

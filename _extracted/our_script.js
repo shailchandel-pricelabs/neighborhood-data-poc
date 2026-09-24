@@ -158,37 +158,6 @@ function filterCompSuggestions(query) {
   });
 }
 
-/* ── Pill dropdown menu ── */
-function togglePillMenu(id) {
-  const dd = document.getElementById(id);
-  dd.classList.toggle('open');
-  // close on outside click
-  if (dd.classList.contains('open')) {
-    setTimeout(() => {
-      document.addEventListener('click', function closer() {
-        dd.classList.remove('open');
-        document.removeEventListener('click', closer);
-      }, { once: true });
-    }, 0);
-  }
-}
-function selectPillOption(item, pillId, label) {
-  const pill = document.getElementById(pillId);
-  // Update dropdown active state, then close the menu
-  const dd = item.closest('.pill-dropdown');
-  dd.querySelectorAll('.dd-item').forEach(d => d.classList.remove('active'));
-  item.classList.add('active');
-  dd.classList.remove('open');
-  // Update pill text (keep the ▾ via CSS ::after)
-  pill.childNodes[0].textContent = label;
-  // Activate this pill in the toggle row (works for both .pill-toggles and .chart-controls)
-  const container = pill.closest('.pill-toggles') || pill.closest('.chart-controls');
-  if (container) {
-    container.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
-    pill.classList.add('active');
-  }
-}
-
 /* ═══════════════════════════════════════════════════════════════
    Highcharts setup — trading-app style (Robinhood/Coinbase/Upstox-
    inspired): big price header, persistent date + price axes, tap-
@@ -597,10 +566,6 @@ function fpToggleOverlay(el, kind) {
   }, true);
 }
 
-function fpSetRange(el, days, label) {
-  selectPillOption(el, 'fp-range-pill', label);
-  fpInitChart(days);
-}
 function fpSetGranularity(el, mode) {
   el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
@@ -762,10 +727,6 @@ function occRenderLegend() {
   el.innerHTML = html;
 }
 
-function occSetRange(el, days, label) {
-  selectPillOption(el, 'occ-range-pill', label);
-  occInitChart(days);
-}
 function occSetGranularity(el, mode) {
   el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
@@ -852,13 +813,17 @@ function histUpdateInfoCard(chart, index) {
   const priceEl = document.getElementById('hist-info-price');
   const rowsEl = document.getElementById('hist-info-rows');
   if (dateEl) dateEl.textContent = histMonths[i];
-  /* Prefix the year explicitly — a bare "$234" here didn't say whether
-     it was this year's value or last year's. */
-  if (priceEl) priceEl.textContent = '2026: ' + fmt(m.y2026[i]);
+  if (priceEl) priceEl.textContent = fmt(m.y2026[i]);
   if (!rowsEl) return;
-  rowsEl.innerHTML = histYears === 2
-    ? '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_PREV) + '2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
-    : '';
+  /* Same row structure fp/occ use: every year gets its own dot (colored
+     to match its bar in the chart/legend) + label + value, including the
+     current year — previously 2026 was folded into the headline number
+     as plain "2026: $234" text with no swatch, while 2025 got the normal
+     dotted row, so the two years read inconsistently. */
+  rowsEl.innerHTML = '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_CURRENT) + '2026: <b>' + fmt(m.y2026[i]) + '</b></div>' +
+    (histYears === 2
+      ? '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_PREV) + '2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
+      : '');
 }
 
 function renderHistLegend() {
@@ -924,7 +889,6 @@ function ndInitCharts() {
   if (document.getElementById('occ-hc-chart') && !occChart) occInitChart();
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
   ccInitEmptyState();
-  if (document.getElementById('bedroom-count-tag')) ndRenderBedroomTag();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);
@@ -985,6 +949,27 @@ function ndCloseSheet(id) {
 function selectRadio(el) {
   el.closest('.bs-radio-group').querySelectorAll('.bs-radio').forEach(r => r.classList.remove('selected'));
   el.classList.add('selected');
+}
+
+/* ── Date range picker (Future Prices / Occupancy): a bottom sheet with
+   full-width tappable rows, replacing an earlier small dropdown menu
+   that was fiddly to tap accurately on a real phone. Shared between
+   both charts — ndRangePickerTarget records which one opened it. ── */
+let ndRangePickerTarget = 'fp';
+function ndOpenRangePicker(which) {
+  ndRangePickerTarget = which;
+  const currentDays = which === 'fp' ? fpDays : occDays;
+  document.querySelectorAll('#range-picker-options .bs-radio').forEach(r => {
+    r.classList.toggle('selected', parseInt(r.dataset.days, 10) === currentDays);
+  });
+  ndOpenSheet('bs-range-picker');
+}
+function ndSelectRangeOption(el, days) {
+  selectRadio(el);
+  const pill = document.getElementById(ndRangePickerTarget + '-range-pill');
+  if (pill) pill.firstChild.textContent = 'Next ' + days + ' Days';
+  if (ndRangePickerTarget === 'fp') fpInitChart(days); else occInitChart(days);
+  ndCloseSheet('bs-range-picker');
 }
 
 /* ── Fullscreen chart detail view (item 8): a mobile-first push screen,
@@ -1064,43 +1049,16 @@ function ndCloseChartFullscreen() {
   if (fsChart) { fsChart.destroy(); fsChart = null; }
 }
 
-/* ── Bedroom multi-select chips (Comp Set edit sheet) ── */
-/* ── Comp Set edit sheet: Bedrooms multi-select dropdown (desktop shows
-   this as a "N Selected" tag that opens a checklist with per-option
-   listing counts, not a row of always-visible chips). ── */
-function ndToggleBedroomDropdown() {
-  document.getElementById('bedroom-dropdown-menu').classList.toggle('open');
-}
-function ndRenderBedroomTag() {
-  const selected = Array.from(document.querySelectorAll('#bedroom-dropdown-menu .bedroom-option.selected:not([data-select-all])'));
-  const tag = document.getElementById('bedroom-count-tag');
-  if (!tag) return;
-  tag.innerHTML = selected.map(o => {
-    const label = o.dataset.label || o.textContent.trim();
-    return '<span class="bedroom-mini-chip">' + label + '<span onclick="event.stopPropagation();ndRemoveBedroomChip(\'' + label + '\')">✕</span></span>';
-  }).join('');
-}
-function ndRemoveBedroomChip(label) {
-  const menu = document.getElementById('bedroom-dropdown-menu');
-  const opt = Array.from(menu.querySelectorAll('.bedroom-option')).find(o => (o.dataset.label || '') === label);
-  if (!opt) return;
-  opt.classList.remove('selected');
-  opt.querySelector('.bedroom-check-sq').classList.remove('checked');
-  ndRenderBedroomTag();
-}
-function ndToggleBedroomOption(el, isSelectAll) {
-  const menu = document.getElementById('bedroom-dropdown-menu');
-  const options = Array.from(menu.querySelectorAll('.bedroom-option')).filter(o => o !== el || !isSelectAll);
+/* ── Comp Set edit sheet: Bedrooms multi-select — each bedroom type is
+   its own tappable tab (toggled directly, no dropdown to open first). ── */
+function ndToggleBedroomTab(el, isSelectAll) {
+  const tabs = Array.from(document.querySelectorAll('#bedroom-tabs .bedroom-tab:not([data-select-all])'));
   if (isSelectAll) {
-    const allSelected = options.every(o => o.classList.contains('selected'));
-    options.forEach(o => o.classList.toggle('selected', !allSelected));
+    const allSelected = tabs.every(t => t.classList.contains('selected'));
+    tabs.forEach(t => t.classList.toggle('selected', !allSelected));
   } else {
     el.classList.toggle('selected');
   }
-  menu.querySelectorAll('.bedroom-option').forEach(o => {
-    o.querySelector('.bedroom-check-sq').classList.toggle('checked', o.classList.contains('selected'));
-  });
-  ndRenderBedroomTag();
 }
 /* ── Comp Set edit sheet: "Do you add markup for this listing on your
    PMS?" radio choice, matching desktop's own copy and flow — a plain

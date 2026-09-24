@@ -239,10 +239,16 @@ body { font-family: var(--chakra-fonts-body); color: var(--chakra-colors-primary
 .device-frame .btn-vol-down { left: -3px; top: 214px; width: 3px; height: 48px; border-radius: 3px; }
 .device-frame .btn-power { right: -3px; top: 170px; width: 3px; height: 76px; border-radius: 3px; }
 @media (max-width: 470px) {
+  /* On an actual phone browser there's no bezel to draw and the real OS
+     already shows its own status bar and (on notched phones) its own
+     Dynamic Island — the fake ones below are only useful inside the
+     desktop mockup, so they're hidden here rather than doubling up. */
   .device-frame { width: 100vw; height: 100vh; margin: 0; border-radius: 0; padding: 0; box-shadow: none; }
   .device-frame .screen { width: 100%; height: 100%; border-radius: 0; }
-  .device-frame .screen .phone-frame { height: 100%; max-width: 100%; }
-  .device-frame .side-btn { display: none; }
+  .device-frame .screen .phone-frame { height: 100%; max-width: 100%; margin-top: 0; }
+  .device-frame .side-btn, .device-frame .status-bar, .device-frame .dynamic-island, .device-frame .home-indicator {
+    display: none;
+  }
 }
 /* Real header wrapper is position:fixed against the full browser viewport in the
    live app (which IS full-viewport-width there). Pin it to the top of our scroll
@@ -1484,19 +1490,6 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     border-left: 4px solid transparent; border-right: 4px solid transparent;
     border-top: 4px solid currentColor; margin-left: 5px; vertical-align: middle;
   }
-  .pill-dropdown {
-    display: none; position: absolute; top: 100%; right: 0; margin-top: 4px;
-    background: var(--pl-card); border: 1px solid var(--pl-border);
-    border-radius: var(--radius-card); box-shadow: var(--shadow-md);
-    min-width: 120px; z-index: 50; overflow: hidden;
-  }
-  .pill-dropdown.open { display: block; }
-  .pill-dropdown .dd-item {
-    padding: 10px 14px; font-size: 14px; font-weight: 600;
-    color: var(--pl-text-secondary); cursor: pointer; transition: background 0.1s;
-  }
-  .pill-dropdown .dd-item:hover { background: var(--pl-bg); }
-  .pill-dropdown .dd-item.active { color: var(--pl-primary); background: var(--pl-primary-light); }
 
   /* ── Legend ── */
   .legend {
@@ -1556,11 +1549,10 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   }
   .chart-toggle-row .granularity-toggle { margin-bottom: 0; }
   .range-pill {
-    position: relative; padding: 5px 12px 5px 14px; min-height: 26px; font-size: 12px;
+    padding: 5px 12px 5px 14px; min-height: 26px; font-size: 12px;
     border: 1px solid var(--pl-border); border-radius: var(--radius-full);
     background: var(--pl-card); color: var(--pl-text-secondary); font-weight: 600;
   }
-  .range-pill .pill-dropdown { min-width: 150px; }
 
   /* ── Floating market-range tooltip card (shown while scrubbing) ── */
   .hc-chart-wrap { position: relative; }
@@ -2014,43 +2006,23 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   /* ── Comp Set sheet header subtitle ── */
   .bs-title-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); }
 
-  /* ── Bedrooms multi-select dropdown (Comp Set edit sheet). Each selected
-     bedroom type gets its own removable chip (below the trigger) instead
-     of one aggregate "N Selected" tag, so it's clear at a glance which
-     types are in the comp set. ── */
-  .bedroom-dropdown-wrap { position: relative; margin-bottom: 4px; }
-  .bedroom-dropdown-btn {
-    display: inline-flex; align-items: center; gap: 8px;
-    padding: 8px 14px; border: 1px solid var(--pl-primary); border-radius: var(--radius-full);
-    background: var(--pl-card); color: var(--pl-primary); font-size: 13px; font-weight: 600; cursor: pointer;
+  /* ── Bedrooms multi-select (Comp Set edit sheet): a wrapping row of
+     directly-tappable tabs, each toggled in place — a dropdown trigger
+     plus a checkbox list buried inside it took two taps per change and
+     was fiddly to hit accurately on a real phone; a tab is one tap and
+     its own selected state is visible without opening anything. ── */
+  .bedroom-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
+  .bedroom-tab {
+    display: flex; align-items: center; gap: 5px; padding: 9px 14px; min-height: 38px;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    background: var(--pl-card); color: var(--pl-text); font-size: 13px; font-weight: 600; cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
-  .bedroom-chip-tag {
-    display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px;
+  .bedroom-tab.selected {
+    background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary);
   }
-  .bedroom-chip-tag:empty { margin-top: 0; }
-  .bedroom-mini-chip {
-    display: inline-flex; align-items: center; gap: 6px; background: var(--pl-bg);
-    border-radius: var(--radius-full); padding: 5px 8px 5px 10px; font-size: 12px; font-weight: 600; color: var(--pl-text);
-  }
-  .bedroom-mini-chip span { color: var(--pl-text-disabled); font-size: 11px; cursor: pointer; }
-  .bedroom-dropdown-menu {
-    display: none; position: absolute; top: 100%; left: 0; right: 0; margin-top: 4px;
-    background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-md);
-    box-shadow: var(--shadow-md); z-index: 20; overflow: hidden;
-  }
-  .bedroom-dropdown-menu.open { display: block; }
-  .bedroom-option {
-    display: flex; align-items: center; gap: 10px; padding: 11px 14px;
-    font-size: 13px; font-weight: 600; color: var(--pl-text); cursor: pointer;
-    border-bottom: 1px solid var(--pl-border-table);
-  }
-  .bedroom-option:last-child { border-bottom: none; }
-  .bedroom-check-sq {
-    width: 16px; height: 16px; border: 2px solid var(--pl-border); border-radius: 3px; flex-shrink: 0;
-    display: flex; align-items: center; justify-content: center; color: #fff; font-size: 9px;
-  }
-  .bedroom-check-sq svg { width: 0.85em; height: 0.85em; }
-  .bedroom-check-sq.checked { background: var(--pl-primary); border-color: var(--pl-primary); }
+  .bedroom-tab-count { font-weight: 400; color: var(--pl-text-disabled); }
+  .bedroom-tab.selected .bedroom-tab-count { color: var(--pl-primary); opacity: 0.75; }
 
   /* ── Markup question + fields (Comp Set edit sheet) ── */
   .bs-markup-question {
@@ -2355,13 +2327,7 @@ body { background: #d9dbe0; }
             <div class="pill active" onclick="fpSetGranularity(this,'daily')">Daily</div>
             <div class="pill" onclick="fpSetGranularity(this,'monthly')">Monthly</div>
           </div>
-          <div class="pill has-menu range-pill" id="fp-range-pill" onclick="togglePillMenu('fp-range-dropdown')">Next 30 Days
-            <div class="pill-dropdown" id="fp-range-dropdown">
-              <div class="dd-item active" onclick="event.stopPropagation();fpSetRange(this,30,'Next 30 Days')">Next 30 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();fpSetRange(this,60,'Next 60 Days')">Next 60 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();fpSetRange(this,90,'Next 90 Days')">Next 90 Days</div>
-            </div>
-          </div>
+          <div class="pill has-menu range-pill" id="fp-range-pill" onclick="ndOpenRangePicker('fp')">Next 30 Days</div>
         </div>
         <!-- Pinned drag tooltip: always-visible info card, populated from
              the currently scrubbed point (defaults to today) instead of a
@@ -2400,13 +2366,7 @@ body { background: #d9dbe0; }
             <div class="pill active" onclick="occSetGranularity(this,'daily')">Daily</div>
             <div class="pill" onclick="occSetGranularity(this,'monthly')">Monthly</div>
           </div>
-          <div class="pill has-menu range-pill" id="occ-range-pill" onclick="togglePillMenu('occ-range-dropdown')">Next 30 Days
-            <div class="pill-dropdown" id="occ-range-dropdown">
-              <div class="dd-item active" onclick="event.stopPropagation();occSetRange(this,30,'Next 30 Days')">Next 30 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();occSetRange(this,60,'Next 60 Days')">Next 60 Days</div>
-              <div class="dd-item" onclick="event.stopPropagation();occSetRange(this,90,'Next 90 Days')">Next 90 Days</div>
-            </div>
-          </div>
+          <div class="pill has-menu range-pill" id="occ-range-pill" onclick="ndOpenRangePicker('occ')">Next 30 Days</div>
         </div>
         <div class="chart-info-card" id="occ-info-card">
           <div class="info-card-top">
@@ -2641,6 +2601,29 @@ body { background: #d9dbe0; }
   </div>
 </div>
 
+<!-- ═══ Bottom Sheet: Date Range picker (Future Prices / Occupancy) — a
+     bottom sheet with large tappable rows reads as more "mobile" than a
+     small absolute dropdown menu anchored to a pill button, and matches
+     every other choice in this app (Compset Type, Host/Guest Prices,
+     etc). Shared between both charts; ndOpenRangePicker(which) records
+     which one it's for. ═══ -->
+<div class="bs-overlay" id="bs-range-picker" onclick="ndCloseSheet('bs-range-picker')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Date Range</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-range-picker')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body">
+      <div class="bs-radio-group" id="range-picker-options">
+        <div class="bs-radio" data-days="30" onclick="ndSelectRangeOption(this,30)"><div class="bs-dot"></div><span class="bs-opt-label">Next 30 Days</span></div>
+        <div class="bs-radio" data-days="60" onclick="ndSelectRangeOption(this,60)"><div class="bs-dot"></div><span class="bs-opt-label">Next 60 Days</span></div>
+        <div class="bs-radio" data-days="90" onclick="ndSelectRangeOption(this,90)"><div class="bs-dot"></div><span class="bs-opt-label">Next 90 Days</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 <!-- ═══ Bottom Sheet: Future Prices Chart Options ═══ -->
 <div class="bs-overlay" id="bs-future-options" onclick="ndCloseSheet('bs-future-options')">
   <div class="bottom-sheet" onclick="event.stopPropagation()">
@@ -2693,18 +2676,14 @@ body { background: #d9dbe0; }
         <div class="bs-radio" onclick="selectRadio(this)"><div class="bs-dot"></div><span class="bs-opt-label">Market Dashboards</span></div>
       </div>
       <div class="bs-section-label">Bedrooms</div>
-      <div class="bedroom-dropdown-wrap">
-        <button class="bedroom-dropdown-btn" id="bedroom-dropdown-btn" onclick="ndToggleBedroomDropdown()">
-          <svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.6em;height:0.6em;flex-shrink:0" fill="currentColor"><path d="M31 127c-9.4 9.4-9.4 24.6 0 33.9L143 273c9.4 9.4 24.6 9.4 33.9 0L289 161c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0L160 222 65 127c-9.4-9.4-24.6-9.4-33.9 0z"></path></svg>
-          Bedrooms
-        </button>
-        <div class="bedroom-chip-tag" id="bedroom-count-tag"></div>
-        <div class="bedroom-dropdown-menu" id="bedroom-dropdown-menu">
-          <div class="bedroom-option" data-select-all="1" onclick="ndToggleBedroomOption(this,true)"><div class="bedroom-check-sq"></div> Select All</div>
-          <div class="bedroom-option" data-label="Room" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq"></div> Room (49 Listings)</div>
-          <div class="bedroom-option selected" data-label="1 BR" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 1 BR (184 Listings)</div>
-          <div class="bedroom-option selected" data-label="2 BR" onclick="ndToggleBedroomOption(this)"><div class="bedroom-check-sq checked"><svg viewBox="0 0 448 512" xmlns="http://www.w3.org/2000/svg" fill="currentColor"><path d="M441 103c9.4 9.4 9.4 24.6 0 33.9L177 401c-9.4 9.4-24.6 9.4-33.9 0L7 265c-9.4-9.4-9.4-24.6 0-33.9s24.6-9.4 33.9 0l119 119L407 103c9.4-9.4 24.6-9.4 33.9 0z"></path></svg></div> 2 BR (109 Listings)</div>
-        </div>
+      <!-- A tappable tab per bedroom type (multi-select, toggled directly
+           in place) reads far better on a touch phone than a dropdown
+           trigger + small checkbox list buried inside it. -->
+      <div class="bedroom-tabs" id="bedroom-tabs">
+        <div class="bedroom-tab" data-select-all="1" onclick="ndToggleBedroomTab(this,true)">Select All</div>
+        <div class="bedroom-tab" data-label="Room" onclick="ndToggleBedroomTab(this)">Room <span class="bedroom-tab-count">49</span></div>
+        <div class="bedroom-tab selected" data-label="1 BR" onclick="ndToggleBedroomTab(this)">1 BR <span class="bedroom-tab-count">184</span></div>
+        <div class="bedroom-tab selected" data-label="2 BR" onclick="ndToggleBedroomTab(this)">2 BR <span class="bedroom-tab-count">109</span></div>
       </div>
       <div class="bs-markup-question">Do you add markup for this listing on your PMS? <svg viewBox="0 0 512 512" xmlns="http://www.w3.org/2000/svg" style="width:0.85em;height:0.85em;vertical-align:-0.1em" fill="currentColor"><path d="M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512zM169.8 165.3c7.9-22.3 29.1-37.3 52.8-37.3l58.3 0c34.9 0 63.1 28.3 63.1 63.1c0 22.6-12.1 43.5-31.7 54.8L280 264.4c-.2 13-10.9 23.6-24 23.6c-13.3 0-24-10.7-24-24l0-13.5c0-8.6 4.6-16.5 12.1-20.8l44.3-25.4c4.7-2.7 7.6-7.7 7.6-13.1c0-8.4-6.8-15.1-15.1-15.1l-58.3 0c-3.4 0-6.4 2.1-7.5 5.3l-.4 1.2c-4.4 12.5-18.2 19-30.6 14.6s-19-18.2-14.6-30.6l.4-1.2zM224 352a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z"></path></svg></div>
       <p class="bs-markup-explain">Enter your markup to simulate how your own listing's nightly rates appear with markup. This also helps us refine your base price recommendations. Note: this is for simulation purposes only and won't be pushed to your PMS</p>
@@ -3182,37 +3161,6 @@ function filterCompSuggestions(query) {
   });
 }
 
-/* ── Pill dropdown menu ── */
-function togglePillMenu(id) {
-  const dd = document.getElementById(id);
-  dd.classList.toggle('open');
-  // close on outside click
-  if (dd.classList.contains('open')) {
-    setTimeout(() => {
-      document.addEventListener('click', function closer() {
-        dd.classList.remove('open');
-        document.removeEventListener('click', closer);
-      }, { once: true });
-    }, 0);
-  }
-}
-function selectPillOption(item, pillId, label) {
-  const pill = document.getElementById(pillId);
-  // Update dropdown active state, then close the menu
-  const dd = item.closest('.pill-dropdown');
-  dd.querySelectorAll('.dd-item').forEach(d => d.classList.remove('active'));
-  item.classList.add('active');
-  dd.classList.remove('open');
-  // Update pill text (keep the ▾ via CSS ::after)
-  pill.childNodes[0].textContent = label;
-  // Activate this pill in the toggle row (works for both .pill-toggles and .chart-controls)
-  const container = pill.closest('.pill-toggles') || pill.closest('.chart-controls');
-  if (container) {
-    container.querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
-    pill.classList.add('active');
-  }
-}
-
 /* ═══════════════════════════════════════════════════════════════
    Highcharts setup — trading-app style (Robinhood/Coinbase/Upstox-
    inspired): big price header, persistent date + price axes, tap-
@@ -3621,10 +3569,6 @@ function fpToggleOverlay(el, kind) {
   }, true);
 }
 
-function fpSetRange(el, days, label) {
-  selectPillOption(el, 'fp-range-pill', label);
-  fpInitChart(days);
-}
 function fpSetGranularity(el, mode) {
   el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
@@ -3786,10 +3730,6 @@ function occRenderLegend() {
   el.innerHTML = html;
 }
 
-function occSetRange(el, days, label) {
-  selectPillOption(el, 'occ-range-pill', label);
-  occInitChart(days);
-}
 function occSetGranularity(el, mode) {
   el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
@@ -3876,13 +3816,17 @@ function histUpdateInfoCard(chart, index) {
   const priceEl = document.getElementById('hist-info-price');
   const rowsEl = document.getElementById('hist-info-rows');
   if (dateEl) dateEl.textContent = histMonths[i];
-  /* Prefix the year explicitly — a bare "$234" here didn't say whether
-     it was this year's value or last year's. */
-  if (priceEl) priceEl.textContent = '2026: ' + fmt(m.y2026[i]);
+  if (priceEl) priceEl.textContent = fmt(m.y2026[i]);
   if (!rowsEl) return;
-  rowsEl.innerHTML = histYears === 2
-    ? '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_PREV) + '2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
-    : '';
+  /* Same row structure fp/occ use: every year gets its own dot (colored
+     to match its bar in the chart/legend) + label + value, including the
+     current year — previously 2026 was folded into the headline number
+     as plain "2026: $234" text with no swatch, while 2025 got the normal
+     dotted row, so the two years read inconsistently. */
+  rowsEl.innerHTML = '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_CURRENT) + '2026: <b>' + fmt(m.y2026[i]) + '</b></div>' +
+    (histYears === 2
+      ? '<div class="hc-tt-row">' + ndDotHTML(HIST_COLOR_PREV) + '2025: <b>' + fmt(m.y2025[i]) + '</b></div>'
+      : '');
 }
 
 function renderHistLegend() {
@@ -3948,7 +3892,6 @@ function ndInitCharts() {
   if (document.getElementById('occ-hc-chart') && !occChart) occInitChart();
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
   ccInitEmptyState();
-  if (document.getElementById('bedroom-count-tag')) ndRenderBedroomTag();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);
@@ -4009,6 +3952,27 @@ function ndCloseSheet(id) {
 function selectRadio(el) {
   el.closest('.bs-radio-group').querySelectorAll('.bs-radio').forEach(r => r.classList.remove('selected'));
   el.classList.add('selected');
+}
+
+/* ── Date range picker (Future Prices / Occupancy): a bottom sheet with
+   full-width tappable rows, replacing an earlier small dropdown menu
+   that was fiddly to tap accurately on a real phone. Shared between
+   both charts — ndRangePickerTarget records which one opened it. ── */
+let ndRangePickerTarget = 'fp';
+function ndOpenRangePicker(which) {
+  ndRangePickerTarget = which;
+  const currentDays = which === 'fp' ? fpDays : occDays;
+  document.querySelectorAll('#range-picker-options .bs-radio').forEach(r => {
+    r.classList.toggle('selected', parseInt(r.dataset.days, 10) === currentDays);
+  });
+  ndOpenSheet('bs-range-picker');
+}
+function ndSelectRangeOption(el, days) {
+  selectRadio(el);
+  const pill = document.getElementById(ndRangePickerTarget + '-range-pill');
+  if (pill) pill.firstChild.textContent = 'Next ' + days + ' Days';
+  if (ndRangePickerTarget === 'fp') fpInitChart(days); else occInitChart(days);
+  ndCloseSheet('bs-range-picker');
 }
 
 /* ── Fullscreen chart detail view (item 8): a mobile-first push screen,
@@ -4088,43 +4052,16 @@ function ndCloseChartFullscreen() {
   if (fsChart) { fsChart.destroy(); fsChart = null; }
 }
 
-/* ── Bedroom multi-select chips (Comp Set edit sheet) ── */
-/* ── Comp Set edit sheet: Bedrooms multi-select dropdown (desktop shows
-   this as a "N Selected" tag that opens a checklist with per-option
-   listing counts, not a row of always-visible chips). ── */
-function ndToggleBedroomDropdown() {
-  document.getElementById('bedroom-dropdown-menu').classList.toggle('open');
-}
-function ndRenderBedroomTag() {
-  const selected = Array.from(document.querySelectorAll('#bedroom-dropdown-menu .bedroom-option.selected:not([data-select-all])'));
-  const tag = document.getElementById('bedroom-count-tag');
-  if (!tag) return;
-  tag.innerHTML = selected.map(o => {
-    const label = o.dataset.label || o.textContent.trim();
-    return '<span class="bedroom-mini-chip">' + label + '<span onclick="event.stopPropagation();ndRemoveBedroomChip(\'' + label + '\')">✕</span></span>';
-  }).join('');
-}
-function ndRemoveBedroomChip(label) {
-  const menu = document.getElementById('bedroom-dropdown-menu');
-  const opt = Array.from(menu.querySelectorAll('.bedroom-option')).find(o => (o.dataset.label || '') === label);
-  if (!opt) return;
-  opt.classList.remove('selected');
-  opt.querySelector('.bedroom-check-sq').classList.remove('checked');
-  ndRenderBedroomTag();
-}
-function ndToggleBedroomOption(el, isSelectAll) {
-  const menu = document.getElementById('bedroom-dropdown-menu');
-  const options = Array.from(menu.querySelectorAll('.bedroom-option')).filter(o => o !== el || !isSelectAll);
+/* ── Comp Set edit sheet: Bedrooms multi-select — each bedroom type is
+   its own tappable tab (toggled directly, no dropdown to open first). ── */
+function ndToggleBedroomTab(el, isSelectAll) {
+  const tabs = Array.from(document.querySelectorAll('#bedroom-tabs .bedroom-tab:not([data-select-all])'));
   if (isSelectAll) {
-    const allSelected = options.every(o => o.classList.contains('selected'));
-    options.forEach(o => o.classList.toggle('selected', !allSelected));
+    const allSelected = tabs.every(t => t.classList.contains('selected'));
+    tabs.forEach(t => t.classList.toggle('selected', !allSelected));
   } else {
     el.classList.toggle('selected');
   }
-  menu.querySelectorAll('.bedroom-option').forEach(o => {
-    o.querySelector('.bedroom-check-sq').classList.toggle('checked', o.classList.contains('selected'));
-  });
-  ndRenderBedroomTag();
 }
 /* ── Comp Set edit sheet: "Do you add markup for this listing on your
    PMS?" radio choice, matching desktop's own copy and flow — a plain
