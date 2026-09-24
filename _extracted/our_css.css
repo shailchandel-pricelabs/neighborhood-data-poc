@@ -374,6 +374,19 @@
   .hc-tt-row b { color: var(--pl-text); font-weight: 600; margin-left: auto; padding-left: 10px; }
   .hc-tt-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
 
+  /* ── Scrub hint: shown briefly over a chart when a single-finger swipe
+     passes through it without long-pressing first (the swipe itself is
+     left alone — it still scrolls the page — this just explains how to
+     get at the chart's own interactivity). ── */
+  .hc-scrub-hint {
+    position: absolute; left: 50%; top: 40%; transform: translate(-50%, -50%) scale(0.96);
+    z-index: 55; max-width: 76%; text-align: center;
+    background: rgba(20,20,22,0.88); color: #fff; font-size: 12px; font-weight: 600; line-height: 1.4;
+    padding: 10px 16px; border-radius: var(--radius-md); pointer-events: none;
+    opacity: 0; visibility: hidden; transition: opacity 0.15s, transform 0.15s;
+  }
+  .hc-scrub-hint.visible { opacity: 1; visibility: visible; transform: translate(-50%, -50%) scale(1); }
+
   /* ── Links ── */
   .show-more-link {
     font-size: 14px; color: var(--pl-primary); font-weight: 600;

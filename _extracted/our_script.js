@@ -1278,10 +1278,48 @@ function histSetYears(el, years) {
 
 /* ── Trading-app crosshair scrub: tap-and-drag updates the hero header live
    and shows a floating tooltip card with the market range at that point ── */
+/* ── Scrub hint: a brief dark pill over the chart, shown when a single
+   touch just swipes through it without long-pressing first — tells the
+   user how to actually get at chart scrubbing instead of leaving them
+   guessing why the chart "ate" their scroll (it no longer does, see
+   attachScrub below, but a single accidental fast swipe can still land
+   as a scroll past the long-press window). Google Maps' "use two
+   fingers" toast and Robinhood/Coinbase's press-and-hold-to-scrub charts
+   are the reference points here. */
+function ndShowScrubHint(wrapEl) {
+  if (!wrapEl) return;
+  let hint = wrapEl.querySelector('.hc-scrub-hint');
+  if (!hint) {
+    hint = document.createElement('div');
+    hint.className = 'hc-scrub-hint';
+    hint.textContent = 'Long-press or use two fingers to explore the chart';
+    wrapEl.appendChild(hint);
+  }
+  clearTimeout(hint._hideTimer);
+  hint.classList.add('visible');
+  hint._hideTimer = setTimeout(() => hint.classList.remove('visible'), 1600);
+}
+
+/* ── Chart scrubbing: a single-finger touch used to start dragging (and
+   preventDefault) the instant it landed on the chart, which silently
+   swallowed the page's own vertical scroll any time a swipe happened to
+   start over a chart — a real usability bug on a page that's mostly
+   scrolled with one finger. Scrubbing now needs a deliberate gesture
+   instead: a short long-press (matching the press-and-hold-to-scrub
+   pattern common to trading-app charts) or a two-finger touch (which
+   can't be a scroll gesture in the first place, so it's safe to claim
+   immediately, mirroring how map apps reserve pinch/two-finger for the
+   map and leave one finger for the page). A plain single-finger swipe
+   is left completely alone — it's never intercepted — and a swipe that
+   moves before the long-press fires shows a brief hint instead. ── */
 function attachScrub(chart, wrapEl, updateFn, tooltipFn) {
   if (!chart || !chart.container) return;
   const container = chart.container;
   let dragging = false;
+  let longPressTimer = null;
+  let startX = 0, startY = 0;
+  const MOVE_TOLERANCE = 10;
+  const LONG_PRESS_MS = 350;
 
   function pointFromEvent(e) {
     const evt = chart.pointer.normalize(e);
@@ -1300,8 +1338,12 @@ function attachScrub(chart, wrapEl, updateFn, tooltipFn) {
     updateFn(chart, idx);
     if (wrapEl && tooltipFn) ndShowTooltip(wrapEl, chart, idx, tooltipFn(chart, idx));
   }
+  function clearLongPress() {
+    if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+  }
   function release() {
     dragging = false;
+    clearLongPress();
     if (wrapEl) ndHideTooltip(wrapEl);
   }
 
@@ -1309,9 +1351,44 @@ function attachScrub(chart, wrapEl, updateFn, tooltipFn) {
   container.addEventListener('mousemove', e => { if (dragging) moveTo(e); });
   window.addEventListener('mouseup', release);
 
-  container.addEventListener('touchstart', e => { dragging = true; moveTo(e.touches[0]); }, { passive: true });
-  container.addEventListener('touchmove', e => { if (dragging) { moveTo(e.touches[0]); e.preventDefault(); } }, { passive: false });
+  container.addEventListener('touchstart', e => {
+    if (e.touches.length >= 2) {
+      // Two fingers can't be a scroll gesture — safe to claim right away.
+      clearLongPress();
+      dragging = true;
+      moveTo(e.touches[0]);
+      e.preventDefault();
+      return;
+    }
+    const t = e.touches[0];
+    startX = t.clientX; startY = t.clientY;
+    clearLongPress();
+    longPressTimer = setTimeout(() => {
+      dragging = true;
+      moveTo(t);
+    }, LONG_PRESS_MS);
+  }, { passive: true });
+
+  container.addEventListener('touchmove', e => {
+    if (dragging) {
+      moveTo(e.touches[0]);
+      e.preventDefault();
+      return;
+    }
+    if (longPressTimer && e.touches.length === 1) {
+      const t = e.touches[0];
+      if (Math.abs(t.clientX - startX) > MOVE_TOLERANCE || Math.abs(t.clientY - startY) > MOVE_TOLERANCE) {
+        // Moved before the long-press fired — this is a scroll, not a
+        // scrub attempt. Let it through untouched and just flag how to
+        // actually reach the chart's interactive mode.
+        clearLongPress();
+        ndShowScrubHint(wrapEl);
+      }
+    }
+  }, { passive: false });
+
   container.addEventListener('touchend', release);
+  container.addEventListener('touchcancel', release);
 }
 
 /* ── Init all three charts once their containers exist in the DOM ── */
