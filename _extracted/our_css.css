@@ -133,7 +133,18 @@
      the same size and let it spill horizontally into the surrounding
      tab gaps from its own centered column — the "extra space between
      tabs" the single-line text actually needs. */
-  .nd-nav-label-long { white-space: nowrap !important; position: relative; z-index: 5; }
+  /* Two lines at a smaller size instead of one nowrap line spilling into
+     neighboring tabs — the overflow approach read as broken/misaligned
+     next to the other tabs' plain single-line labels. Shrinking the font
+     enough that two lines fit within the same row height every other
+     tab already uses keeps every tab's icon+label block the same height,
+     so justify-content:center on .css-m1xwns (below) centers all of them
+     identically regardless of a one-line or two-line label. */
+  .nd-nav-label-long {
+    white-space: normal !important; position: relative; z-index: 5;
+    font-size: 9px !important; line-height: 1.15 !important; text-align: center; max-width: 58px;
+  }
+  .css-m1xwns { justify-content: center; }
 
   /* ── Comp Set Banner (desktop-style "Current Compset" strip): plain
      white background, a light neutral (not blue) tag for the compset
@@ -263,7 +274,6 @@
   /* "Summary" sits as a plain label above the duration toggle, which is
      now just short "1 year"/"2 year" pills rather than repeating the
      word "Summary" inside each button. */
-  .hist-summary-label { font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); margin-bottom: 6px; }
   .pill-toggles-hist .pill { padding: 5px 14px; min-height: 26px; font-size: 12px; }
 
   /* Pill with dropdown caret */
@@ -278,6 +288,10 @@
     display: flex; align-items: center; row-gap: 10px; column-gap: 14px; font-size: 12px; font-weight: 400;
     color: var(--pl-text-secondary); margin-top: 12px; margin-bottom: 4px; flex-wrap: wrap;
   }
+  /* Market History's legend only ever has 1-2 items (the year swatches),
+     so left-aligned under a full-width chart reads as stranded in the
+     corner rather than anchored to what it's labeling. */
+  #hist-legend { justify-content: center; }
   .legend-item { display: flex; align-items: center; gap: 6px; white-space: nowrap; cursor: default; }
   .legend-swatch { width: 12px; height: 3px; border-radius: 1px; flex-shrink: 0; }
   .legend-band { width: 14px; height: 10px; border-radius: var(--radius-sm); flex-shrink: 0; }
