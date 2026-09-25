@@ -675,7 +675,12 @@ function ndShowInfoCardEmptyState(idPrefix) {
   const rowsEl = document.getElementById(idPrefix + '-info-rows');
   if (dateEl) dateEl.textContent = '';
   if (priceEl) priceEl.textContent = '';
-  if (rowsEl) rowsEl.innerHTML = '<div class="nd-info-empty-msg">Long-press or use two fingers to drag on the chart to see details for a date</div>';
+  /* The fullscreen chart ('fs') drags immediately on a single touch (see
+     attachScrub's immediate mode) since there's no page scroll to
+     protect there — so it gets its own, simpler instruction instead of
+     mentioning a gesture this view doesn't actually require. */
+  const msg = idPrefix === 'fs' ? 'Drag on the chart to see details for a date' : 'Long-press or use two fingers to drag on the chart to see details for a date';
+  if (rowsEl) rowsEl.innerHTML = '<div class="nd-info-empty-msg">' + msg + '</div>';
 }
 function ndYAxisConfig(opts) {
   opts = opts || {};
@@ -952,7 +957,7 @@ function fpRenderChart(containerId, height, idPrefix) {
   });
   chart.ndEventLabels = eventLabels;
   const wrap = el.closest('.hc-chart-wrap');
-  attachScrub(chart, wrap, function (c, idx) { fpUpdateInfoCard(c, idx, idPrefix); });
+  attachScrub(chart, wrap, function (c, idx) { fpUpdateInfoCard(c, idx, idPrefix); }, null, idPrefix === 'fs');
   return chart;
 }
 
@@ -1072,13 +1077,13 @@ function fpRenderLegend() {
       li('fp-s-p50', '<div class="legend-swatch" style="background:#F6B4B6;height:3px"></div>', 'Market 50th Percentile Price') +
       li('fp-s-p75', '<div class="legend-swatch" style="background:#F37579;height:3px"></div>', 'Market 75th Percentile Price') +
       li('fp-s-p90', '<div class="legend-swatch" style="background:#A15457;height:3px"></div>', 'Market 90th Percentile Price') +
-      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>'
+      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-fp-legend\')">+ More</div>'
     : li('fp-s-listing', '<div class="legend-swatch" style="background:#333333;height:3px"></div>', 'Listing Price') +
       li('fp-s-2550', '<div class="legend-band" style="background:#FCDCDD"></div>', 'Market 25th–50th Percentile Price') +
       li('fp-s-5075', '<div class="legend-band" style="background:#F69396"></div>', 'Market 50th–75th Percentile Price') +
       li('fp-s-7590', '<div class="legend-band" style="background:#A15457;opacity:0.4"></div>', 'Market 75th–90th Percentile Price') +
       (fpEventsEnabled ? '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' : '') +
-      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>';
+      '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-fp-legend\')">+ More</div>';
   ndCapLegendRows(el, 'fp-full-legend', 2);
 }
 
@@ -1302,7 +1307,7 @@ function occRenderChart(containerId, height, idPrefix) {
   });
   chart.ndEventLabels = eventLabels;
   const wrap = el.closest('.hc-chart-wrap');
-  attachScrub(chart, wrap, function (c, idx) { occUpdateInfoCard(c, idx, idPrefix); });
+  attachScrub(chart, wrap, function (c, idx) { occUpdateInfoCard(c, idx, idPrefix); }, null, idPrefix === 'fs');
   return chart;
 }
 
@@ -1370,7 +1375,7 @@ function occRenderLegend() {
     html += li('occ-s-pickup', ndSwatchHTML('#31C48D', null, false), '7-day Pickup');
     html += li('occ-s-pickupLY', ndSwatchHTML('#31C48D', 'Dot', false), 'Pickup (LY)');
   }
-  html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ More</div>';
+  html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-legend\')">+ More</div>';
   el.innerHTML = html;
   ndCapLegendRows(el, 'occ-full-legend', 2);
 }
@@ -1556,7 +1561,7 @@ function ndShowScrubHint(wrapEl) {
    map and leave one finger for the page). A plain single-finger swipe
    is left completely alone — it's never intercepted — and a swipe that
    moves before the long-press fires shows a brief hint instead. ── */
-function attachScrub(chart, wrapEl, updateFn, tooltipFn) {
+function attachScrub(chart, wrapEl, updateFn, tooltipFn, immediate) {
   if (!chart || !chart.container) return;
   const container = chart.container;
   let dragging = false;
@@ -1596,6 +1601,18 @@ function attachScrub(chart, wrapEl, updateFn, tooltipFn) {
   window.addEventListener('mouseup', release);
 
   container.addEventListener('touchstart', e => {
+    /* The long-press/two-finger gesture exists purely to keep a swipe
+       that starts over a chart from hijacking the page's own scroll.
+       The fullscreen chart view has nothing to scroll around it — it's
+       the entire screen — so there's no competing gesture to protect
+       against, and a single-finger touch can just drag immediately,
+       the way you'd expect any full-screen chart to work. */
+    if (immediate) {
+      dragging = true;
+      moveTo(e.touches[0]);
+      e.preventDefault();
+      return;
+    }
     if (e.touches.length >= 2) {
       // Two fingers can't be a scroll gesture — safe to claim right away.
       clearLongPress();
@@ -1611,7 +1628,7 @@ function attachScrub(chart, wrapEl, updateFn, tooltipFn) {
       dragging = true;
       moveTo(t);
     }, LONG_PRESS_MS);
-  }, { passive: true });
+  }, { passive: !immediate });
 
   container.addEventListener('touchmove', e => {
     if (dragging) {

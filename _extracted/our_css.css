@@ -142,9 +142,22 @@
      every tab because .css-m1xwns's own align-items:center only affects
      the horizontal axis (flex-direction:column) — the icon is always
      the first child, so it never moves regardless of label height. */
+  /* Every footer tab shares flex:1 1 0% (from the real app's own CSS),
+     so with a zero flex-basis every tab gets an EQUAL share of the row
+     regardless of its content — about 54px each at a 375px viewport.
+     "Neighbourhood" alone needs ~84px at the shared 12px label size, so
+     an equal share was never going to be enough; this tab now claims a
+     bigger slice of the row (the other four give up a little each) so
+     the word fits on its own line instead of needing to break. */
+  .nd-nav-tab-wide { flex: 1.7 1 0%; }
   .nd-nav-label-long {
     white-space: normal !important; position: relative; z-index: 5;
-    text-align: center; max-width: 62px;
+    text-align: center; max-width: 100%;
+    /* Safety net, not the primary fix — if a narrower viewport still
+       can't fit "Neighbourhood" even with the extra flex share above,
+       this lets the word itself break rather than overflow into the
+       neighboring tab the way a plain max-width without it did. */
+    overflow-wrap: break-word; word-break: break-word;
   }
 
   /* ── Comp Set Banner (desktop-style "Current Compset" strip): plain
