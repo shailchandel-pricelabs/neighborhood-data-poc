@@ -1871,3 +1871,20 @@ function ndSelectMarkupChoice(el, showFields) {
   }
   if (fields) fields.classList.toggle('open', showFields);
 }
+
+/* ── Short-label option: ?label=short swaps "Neighbourhood Data" for
+   "Market" in the bottom nav and the sheet title — same meaning (the
+   app already calls this data "Market ..." throughout: Market
+   Occupancy, Market Dashboards), but short enough to sit on one line
+   like the other tab labels. Off by default so both can be compared. ── */
+(function ndApplyShortLabel() {
+  if (new URLSearchParams(location.search).get('label') !== 'short') return;
+  document.querySelectorAll('.nd-nav-label-long').forEach(p => {
+    p.textContent = 'Market';
+    p.classList.remove('nd-nav-label-long');
+    const tab = p.parentElement;
+    if (tab) tab.classList.remove('nd-nav-tab-wide');
+  });
+  const title = document.querySelector('#sheet-neighbourhood .css-1u6fvt8');
+  if (title) title.textContent = 'Market';
+})();
