@@ -153,7 +153,12 @@
   /* Tighter gaps/side padding across the whole bottom nav (the real app's
      12px gap + 16px padding) frees just enough row width for
      "Neighbourhood" to fit on one line, with "Data" on the second. */
-  .phone-frame .css-18y2um2 { gap: 2px; padding-left: 6px; padding-right: 6px; }
+  /* align-items:flex-start: the two-line Neighbourhood Data tab is taller
+     than the rest, and the row's default centering pushed its icon and
+     first line higher than every other tab's. Top-aligning keeps all
+     icons and first-line labels on the same line, with "Data" hanging
+     below. */
+  .phone-frame .css-18y2um2 { gap: 2px; padding-left: 6px; padding-right: 6px; align-items: flex-start; }
   .nd-nav-label-long {
     white-space: normal !important; position: relative; z-index: 5;
     text-align: center; max-width: 100%;
