@@ -961,11 +961,22 @@ function fpRenderChart(containerId, height, idPrefix) {
   return chart;
 }
 
+/* Size the chart so one whole widget (header, toggles, info card, chart,
+   legend) fits in the visible screen above the bottom nav, instead of a
+   fixed 230px chart that left most of the viewport to the next widget.
+   RESERVED is the measured height of everything in a widget except the
+   chart itself (info card counted at its tallest, filled state) plus the
+   ND header and bottom nav; clamped so small phones still get a usable
+   chart and tall ones don't get an absurdly stretched one. */
+function ndWidgetChartHeight() {
+  const RESERVED = 84 + 97 + 54 + 42 + 126 + 56 + 24;
+  return Math.max(220, Math.min(380, window.innerHeight - RESERVED));
+}
 function fpInitChart(days) {
   if (!document.getElementById('fp-hc-chart')) return;
   if (days) fpDays = Math.min(days, 90);
   if (fpChart) { fpChart.destroy(); fpChart = null; }
-  fpChart = fpRenderChart('fp-hc-chart', 230, 'fp');
+  fpChart = fpRenderChart('fp-hc-chart', ndWidgetChartHeight(), 'fp');
   fpRenderLegend();
 }
 
@@ -1315,7 +1326,7 @@ function occInitChart(days) {
   if (!document.getElementById('occ-hc-chart')) return;
   if (days) occDays = Math.min(days, 90);
   if (occChart) { occChart.destroy(); occChart = null; }
-  occChart = occRenderChart('occ-hc-chart', 250, 'occ');
+  occChart = occRenderChart('occ-hc-chart', ndWidgetChartHeight(), 'occ');
   occRenderLegend();
 }
 

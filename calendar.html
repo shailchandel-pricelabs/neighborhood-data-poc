@@ -1387,7 +1387,11 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      an equal share was never going to be enough; this tab now claims a
      bigger slice of the row (the other four give up a little each) so
      the word fits on its own line instead of needing to break. */
-  .nd-nav-tab-wide { flex: 1.7 1 0%; }
+  .nd-nav-tab-wide { flex: 2 1 0%; }
+  /* Tighter gaps/side padding across the whole bottom nav (the real app's
+     12px gap + 16px padding) frees just enough row width for
+     "Neighbourhood" to fit on one line, with "Data" on the second. */
+  .phone-frame .css-18y2um2 { gap: 2px; padding-left: 6px; padding-right: 6px; }
   .nd-nav-label-long {
     white-space: normal !important; position: relative; z-index: 5;
     text-align: center; max-width: 100%;
@@ -1490,7 +1494,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
     transition: background 0.15s, color 0.15s, border-color 0.15s;
   }
   .section-header .icon-btn:hover { background: var(--pl-primary-light); color: var(--pl-primary); border-color: var(--pl-primary); }
-  .section-content { padding: 6px 4px 20px; }
+  .section-content { padding: 4px 4px 14px; }
 
   /* ── Chart Controls Row (aggregate + dropdown + pills) ── */
   .chart-controls {
@@ -1552,7 +1556,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   /* ── Legend ── */
   .legend {
     display: flex; align-items: center; row-gap: 10px; column-gap: 14px; font-size: 12px; font-weight: 400;
-    color: var(--pl-text-secondary); margin-top: 12px; margin-bottom: 4px; flex-wrap: wrap;
+    color: var(--pl-text-secondary); margin-top: 6px; margin-bottom: 0; flex-wrap: wrap;
   }
   /* Market History's legend only ever has 1-2 items (the year swatches),
      so left-aligned under a full-width chart reads as stranded in the
@@ -1591,7 +1595,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      a floating tooltip a touch drag would otherwise cover. ── */
   .chart-info-card {
     background: #F8F9FB; border: 1px solid #EEF0F3; border-radius: var(--radius-md);
-    padding: 8px 10px; margin-bottom: 6px;
+    padding: 8px 10px; margin-bottom: 4px;
   }
   .info-card-top { display: flex; align-items: baseline; justify-content: space-between; gap: 8px; }
   .info-card-date { font-size: 12px; font-weight: 600; color: var(--pl-text-secondary); }
@@ -1620,7 +1624,7 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
      segmented row that used to sit below the chart. */
   .chart-toggle-row {
     display: flex; align-items: center; justify-content: space-between; gap: 8px;
-    margin-top: 2px; margin-bottom: 10px;
+    margin-top: 0; margin-bottom: 8px;
   }
   .chart-toggle-row .granularity-toggle { margin-bottom: 0; }
   .range-pill {
@@ -4133,11 +4137,22 @@ function fpRenderChart(containerId, height, idPrefix) {
   return chart;
 }
 
+/* Size the chart so one whole widget (header, toggles, info card, chart,
+   legend) fits in the visible screen above the bottom nav, instead of a
+   fixed 230px chart that left most of the viewport to the next widget.
+   RESERVED is the measured height of everything in a widget except the
+   chart itself (info card counted at its tallest, filled state) plus the
+   ND header and bottom nav; clamped so small phones still get a usable
+   chart and tall ones don't get an absurdly stretched one. */
+function ndWidgetChartHeight() {
+  const RESERVED = 84 + 97 + 54 + 42 + 126 + 56 + 24;
+  return Math.max(220, Math.min(380, window.innerHeight - RESERVED));
+}
 function fpInitChart(days) {
   if (!document.getElementById('fp-hc-chart')) return;
   if (days) fpDays = Math.min(days, 90);
   if (fpChart) { fpChart.destroy(); fpChart = null; }
-  fpChart = fpRenderChart('fp-hc-chart', 230, 'fp');
+  fpChart = fpRenderChart('fp-hc-chart', ndWidgetChartHeight(), 'fp');
   fpRenderLegend();
 }
 
@@ -4487,7 +4502,7 @@ function occInitChart(days) {
   if (!document.getElementById('occ-hc-chart')) return;
   if (days) occDays = Math.min(days, 90);
   if (occChart) { occChart.destroy(); occChart = null; }
-  occChart = occRenderChart('occ-hc-chart', 250, 'occ');
+  occChart = occRenderChart('occ-hc-chart', ndWidgetChartHeight(), 'occ');
   occRenderLegend();
 }
 
