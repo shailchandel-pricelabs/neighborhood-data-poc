@@ -133,18 +133,19 @@
      the same size and let it spill horizontally into the surrounding
      tab gaps from its own centered column — the "extra space between
      tabs" the single-line text actually needs. */
-  /* Two lines at a smaller size instead of one nowrap line spilling into
-     neighboring tabs — the overflow approach read as broken/misaligned
-     next to the other tabs' plain single-line labels. Shrinking the font
-     enough that two lines fit within the same row height every other
-     tab already uses keeps every tab's icon+label block the same height,
-     so justify-content:center on .css-m1xwns (below) centers all of them
-     identically regardless of a one-line or two-line label. */
+  /* Two lines at the SAME size every other tab's single-line label uses
+     (0.75rem/12px, from .css-13g890n) — an earlier pass shrank this to
+     9px so it would fit the row's existing height without growing it,
+     but that left this one tab's label visibly smaller than its
+     neighbors'. The footer row uses min-height (not a fixed height), so
+     it can grow to fit two full-size lines; icons stay aligned across
+     every tab because .css-m1xwns's own align-items:center only affects
+     the horizontal axis (flex-direction:column) — the icon is always
+     the first child, so it never moves regardless of label height. */
   .nd-nav-label-long {
     white-space: normal !important; position: relative; z-index: 5;
-    font-size: 9px !important; line-height: 1.15 !important; text-align: center; max-width: 58px;
+    text-align: center; max-width: 62px;
   }
-  .css-m1xwns { justify-content: center; }
 
   /* ── Comp Set Banner (desktop-style "Current Compset" strip): plain
      white background, a light neutral (not blue) tag for the compset
@@ -280,7 +281,7 @@
      price, independent per chart (Future Prices and Occupancy each have
      their own, unlike desktop's single global setting). */
   .granularity-toggle { margin-bottom: 4px; }
-  .granularity-toggle .pill { padding: 5px 14px; min-height: 26px; font-size: 12px; }
+  .granularity-toggle .pill { padding: 5px 14px; min-height: 32px; font-size: 12px; }
   /* Moved to the top of the section (above the pinned info card/chart)
      rather than sitting between the old hero number and the chart. */
   .chart-top-toggle { margin-top: 2px; margin-bottom: 10px; }
@@ -288,7 +289,7 @@
   /* "Summary" sits as a plain label above the duration toggle, which is
      now just short "1 year"/"2 year" pills rather than repeating the
      word "Summary" inside each button. */
-  .pill-toggles-hist .pill { padding: 5px 14px; min-height: 26px; font-size: 12px; }
+  .pill-toggles-hist .pill { padding: 5px 14px; min-height: 32px; font-size: 12px; }
 
   /* Pill with dropdown caret */
   .pill.has-menu::after {
@@ -351,12 +352,16 @@
   .info-card-rows .hc-tt-row { font-size: 11px; }
   /* Empty state: shown until the user actually scrubs the chart, so the
      numbers on screen are never mistaken for "today's values" shown by
-     default — .nd-info-empty just dims the date placeholder, the message
-     itself replaces the rows entirely. */
-  .nd-info-empty .info-card-date { color: var(--pl-text-disabled); }
+     default. The date/price row is hidden entirely (rather than left
+     empty above the message) so the card becomes one single centered
+     block with even padding on every side, instead of an empty header
+     row plus an off-center message below it. */
+  .nd-info-empty .info-card-top { display: none; }
+  .nd-info-empty .info-card-rows { margin-top: 0; }
   .nd-info-empty-msg {
     font-size: 11px; color: var(--pl-text-disabled); line-height: 1.5;
-    text-align: center; padding: 10px 4px;
+    text-align: center; padding: 14px; display: flex; align-items: center; justify-content: center;
+    min-height: 40px;
   }
   .info-card-rows .hc-tt-row b { color: var(--pl-text-secondary); font-weight: 600; }
   /* Row pairing the Daily/Monthly granularity toggle (left) with the
@@ -368,26 +373,13 @@
   }
   .chart-toggle-row .granularity-toggle { margin-bottom: 0; }
   .range-pill {
-    padding: 5px 12px 5px 14px; min-height: 26px; font-size: 12px;
+    padding: 5px 12px 5px 14px; min-height: 32px; font-size: 12px;
     border: 1px solid var(--pl-border); border-radius: var(--radius-full);
     background: var(--pl-card); color: var(--pl-text-secondary); font-weight: 600;
   }
 
   /* ── Floating market-range tooltip card (shown while scrubbing) ── */
   .hc-chart-wrap { position: relative; }
-
-  /* ── Expand-to-fullscreen affordance: a small floating button in the
-     chart's own top-right corner (mobile-app pattern, e.g. maps/photos)
-     rather than a header icon, so it reads as "this chart" not "this
-     section". ── */
-  .hc-expand-btn {
-    position: absolute; top: 0; right: 0; z-index: 55;
-    width: 26px; height: 26px; border-radius: var(--radius-base);
-    background: rgba(255,255,255,0.85); border: 1px solid var(--pl-border);
-    color: var(--pl-text-secondary); display: flex; align-items: center; justify-content: center;
-    font-size: 11px; cursor: pointer;
-  }
-  .hc-expand-btn:active { background: var(--pl-bg); }
 
   /* ── Fullscreen chart sheet: mobile-first detail view for scrubbing a
      single chart without the rest of the section around it. Forced into
@@ -630,7 +622,7 @@
      segmented toggle. */
   .cc-price-dropdown-wrap { position: relative; margin: 10px 0 12px; }
   .cc-price-dropdown-btn {
-    display: flex; align-items: center; gap: 8px; padding: 9px 14px;
+    display: flex; align-items: center; gap: 8px; padding: 0 14px; min-height: 32px;
     border: 1px solid var(--pl-border); border-radius: var(--radius-md);
     background: var(--pl-card); color: var(--pl-text); font-family: 'IBM Plex Sans', sans-serif;
     font-size: 13px; font-weight: 600; cursor: pointer;
@@ -886,7 +878,7 @@
      its own selected state is visible without opening anything. ── */
   .bedroom-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 4px; }
   .bedroom-tab {
-    display: flex; align-items: center; gap: 5px; padding: 9px 14px; min-height: 38px;
+    display: flex; align-items: center; gap: 5px; padding: 9px 14px; min-height: 32px;
     border: 1px solid var(--pl-border); border-radius: var(--radius-full);
     background: var(--pl-card); color: var(--pl-text); font-size: 13px; font-weight: 600; cursor: pointer;
     transition: background 0.15s, color 0.15s, border-color 0.15s;

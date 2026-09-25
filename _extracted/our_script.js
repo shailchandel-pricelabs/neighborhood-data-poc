@@ -673,7 +673,7 @@ function ndShowInfoCardEmptyState(idPrefix) {
   const dateEl = document.getElementById(idPrefix + '-info-date');
   const priceEl = document.getElementById(idPrefix + '-info-price');
   const rowsEl = document.getElementById(idPrefix + '-info-rows');
-  if (dateEl) dateEl.textContent = 'No date selected';
+  if (dateEl) dateEl.textContent = '';
   if (priceEl) priceEl.textContent = '';
   if (rowsEl) rowsEl.innerHTML = '<div class="nd-info-empty-msg">Long-press or use two fingers to drag on the chart to see details for a date</div>';
 }
@@ -1033,6 +1033,34 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
 
 /* ── Legend rebuilt per-granularity since monthly (columns + percentile
    lines) and daily (line + arearange bands) show different series. ── */
+/* ── Caps a legend row at maxRows lines, hiding overflow items and
+   folding them into the "+N More" chip instead of letting the legend
+   wrap to a third/fourth line under the chart. The full, uncapped list
+   (every item, in its normal interactive form) is mirrored into
+   fullLegendId — the chart's own Chart Options sheet, opened by tapping
+   that same "+N More" chip — so nothing hidden here is actually lost,
+   just moved somewhere with more room. ── */
+function ndCapLegendRows(el, fullLegendId, maxRows) {
+  const items = Array.from(el.querySelectorAll('.legend-item'));
+  const moreItem = el.querySelector('.legend-more');
+  const regularItems = items.filter(i => i !== moreItem);
+  const fullEl = document.getElementById(fullLegendId);
+  if (fullEl) fullEl.innerHTML = regularItems.map(i => i.outerHTML).join('');
+  regularItems.forEach(i => { i.style.display = ''; });
+  if (moreItem) moreItem.textContent = '+ More';
+  if (!moreItem || !regularItems.length) return;
+  requestAnimationFrame(() => {
+    const tops = regularItems.map(i => i.offsetTop);
+    const rowTops = Array.from(new Set(tops)).sort((a, b) => a - b);
+    if (rowTops.length <= maxRows) return;
+    const cutoff = rowTops[maxRows - 1];
+    let hidden = 0;
+    regularItems.forEach((item, idx) => {
+      if (tops[idx] > cutoff) { item.style.display = 'none'; hidden++; }
+    });
+    if (hidden > 0) moreItem.textContent = '+' + hidden + ' More';
+  });
+}
 function fpRenderLegend() {
   const el = document.getElementById('fp-legend');
   if (!el) return;
@@ -1051,6 +1079,7 @@ function fpRenderLegend() {
       li('fp-s-7590', '<div class="legend-band" style="background:#A15457;opacity:0.4"></div>', 'Market 75th–90th Percentile Price') +
       (fpEventsEnabled ? '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' : '') +
       '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>';
+  ndCapLegendRows(el, 'fp-full-legend', 2);
 }
 
 /* ── "+ More" overlays: Upcoming Bookings / Last Year Bookings / Last
@@ -1219,7 +1248,12 @@ function occRenderChart(containerId, height, idPrefix) {
      figure) — drawn as a plain grey bar behind everything else, matching
      the reference desktop view where it anchors the other lines against
      what actually happened on your own calendar. */
-  const bookedSeries = { type: 'column', id: 'occ-s-bookedocc', name: 'Booked Nights', data: bookedOcc, color: '#D8DCE2', zIndex: 0, pointPadding: 0.02, groupPadding: 0 };
+  /* No per-series pointPadding/groupPadding override here — this used to
+     have its own tighter values, which made its bars a different width
+     than the other grouped columns next to it (they all share the same
+     plotOptions.column padding now, so every bar in the group is the
+     same width). */
+  const bookedSeries = { type: 'column', id: 'occ-s-bookedocc', name: 'Booked Nights', data: bookedOcc, color: '#D8DCE2', zIndex: 0 };
   const series = isMonthly ? [
     bookedSeries,
     { type: 'column', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', zIndex: 3 },
@@ -1338,6 +1372,7 @@ function occRenderLegend() {
   }
   html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-options\')">+ More</div>';
   el.innerHTML = html;
+  ndCapLegendRows(el, 'occ-full-legend', 2);
 }
 
 function occSetGranularity(el, mode) {
