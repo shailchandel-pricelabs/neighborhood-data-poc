@@ -114,7 +114,7 @@
     border-top-right-radius: var(--radius-md); background: var(--pl-card);
   }
 
-  /* ── Neighbourhood Data tab description, matching desktop's own
+  /* ── Neighborhood Data tab description, matching desktop's own
      explanatory copy above the Current Compset strip. ── */
   .nd-tab-description {
     margin: 10px 12px 0; font-size: 13px; font-weight: 400; line-height: 1.5;
@@ -123,7 +123,7 @@
   .nd-tab-description strong { color: var(--pl-text); font-weight: 600; }
   .nd-tab-description a { color: var(--pl-blue); font-weight: 600; text-decoration: none; }
 
-  /* "Neighbourhood Data" is a much longer footer-nav label than its
+  /* "Neighborhood Data" is a much longer footer-nav label than its
      neighbors ("Calendar", "More") — let it wrap onto two lines and
      shrink slightly instead of overflowing into the adjacent tabs. */
   /* Rather than shrinking this label's font below its neighbors' or
@@ -145,15 +145,15 @@
   /* Every footer tab shares flex:1 1 0% (from the real app's own CSS),
      so with a zero flex-basis every tab gets an EQUAL share of the row
      regardless of its content — about 54px each at a 375px viewport.
-     "Neighbourhood" alone needs ~84px at the shared 12px label size, so
+     "Neighborhood" alone needs ~84px at the shared 12px label size, so
      an equal share was never going to be enough; this tab now claims a
      bigger slice of the row (the other four give up a little each) so
      the word fits on its own line instead of needing to break. */
   .nd-nav-tab-wide { flex: 2 1 0%; }
   /* Tighter gaps/side padding across the whole bottom nav (the real app's
      12px gap + 16px padding) frees just enough row width for
-     "Neighbourhood" to fit on one line, with "Data" on the second. */
-  /* align-items:flex-start: the two-line Neighbourhood Data tab is taller
+     "Neighborhood" to fit on one line, with "Data" on the second. */
+  /* align-items:flex-start: the two-line Neighborhood Data tab is taller
      than the rest, and the row's default centering pushed its icon and
      first line higher than every other tab's. Top-aligning keeps all
      icons and first-line labels on the same line, with "Data" hanging
@@ -163,7 +163,7 @@
     white-space: normal !important; position: relative; z-index: 5;
     text-align: center; max-width: 100%;
     /* Safety net, not the primary fix — if a narrower viewport still
-       can't fit "Neighbourhood" even with the extra flex share above,
+       can't fit "Neighborhood" even with the extra flex share above,
        this lets the word itself break rather than overflow into the
        neighboring tab the way a plain max-width without it did. */
     overflow-wrap: break-word; word-break: break-word;
@@ -195,7 +195,7 @@
   }
   .comp-banner .banner-edit-btn:active { background: var(--pl-bg); }
 
-  /* ── Full-screen destination (Neighbourhood Data): a real push screen,
+  /* ── Full-screen destination (Neighborhood Data): a real push screen,
      not a bottom sheet — no rounded top corners, no drag handle, slides
      in from the right like Calendar's own navigation rather than up from
      the bottom like an options/help sheet. ── */
@@ -1014,7 +1014,7 @@
     margin-top: 8px; margin-bottom: 4px;
   }
 
-  /* ── Real app bottom nav, reused inside the Neighbourhood Data
+  /* ── Real app bottom nav, reused inside the Neighborhood Data
      full-screen sheet in place of the old placeholder "Ready to
      sync?" CTA — the nav markup itself (.css-18y2um2 etc.) is the
      genuine app footer, already positioned by chakra-tokens.css; we

@@ -1720,7 +1720,7 @@ function openCompCalendar(name, rating, type, price, min, max) {
 
 
 /* ── Bottom Sheet ── */
-/* ── V1/V2 prototype switcher: V1 is the same Neighbourhood Data
+/* ── V1/V2 prototype switcher: V1 is the same Neighborhood Data
    experience minus Competitor Calendar, V2 has it — a single build with
    a toggle instead of two separate deployments to keep in sync. ── */
 function ndSetVersion(version, el) {
