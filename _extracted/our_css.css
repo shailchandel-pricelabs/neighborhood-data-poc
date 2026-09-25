@@ -165,9 +165,9 @@
   }
   .comp-banner .banner-meta-inline { color: var(--pl-text-secondary); font-weight: 400; white-space: nowrap; }
   .comp-banner .banner-edit-btn {
-    flex-shrink: 0; display: flex; align-items: center; gap: 6px;
+    flex-shrink: 0; display: flex; align-items: center; gap: 6px; min-height: 32px;
     background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-full);
-    padding: 7px 14px; font-size: 12px; font-weight: 700; color: var(--pl-text);
+    padding: 0 14px; font-size: 12px; font-weight: 700; color: var(--pl-text);
     box-shadow: var(--shadow-sm); cursor: pointer; font-family: 'IBM Plex Sans', sans-serif;
   }
   .comp-banner .banner-edit-btn:active { background: var(--pl-bg); }
@@ -190,6 +190,20 @@
   .nd-fullscreen .css-1vakbk4 .chakra-button {
     font-size: 15px; width: 32px !important; height: 32px !important; min-width: 32px !important;
   }
+  /* ── V1/V2 prototype switcher: V1 is the version without Competitor
+     Calendar, V2 has it — lets stakeholders flip between the two scopes
+     without needing two separate deployed builds. ── */
+  .nd-version-toggle {
+    display: inline-flex; margin-left: auto; flex-shrink: 0;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-full); overflow: hidden;
+  }
+  .nd-version-btn {
+    padding: 0 12px; min-height: 32px; display: flex; align-items: center; justify-content: center;
+    font-size: 12px; font-weight: 700; color: var(--pl-text-secondary); background: var(--pl-card);
+    border-right: 1px solid var(--pl-border); cursor: pointer; transition: background 0.15s, color 0.15s;
+  }
+  .nd-version-btn:last-child { border-right: none; }
+  .nd-version-btn.active { background: var(--pl-primary-light); color: var(--pl-primary); }
 
   /* ── Sections / Accordion — flat list on a plain white background,
      sections separated by a hairline rather than drawn as individual
@@ -335,6 +349,15 @@
      this card sits permanently on screen rather than appearing briefly
      during a scrub, so a lighter, less shouty value color reads better. */
   .info-card-rows .hc-tt-row { font-size: 11px; }
+  /* Empty state: shown until the user actually scrubs the chart, so the
+     numbers on screen are never mistaken for "today's values" shown by
+     default — .nd-info-empty just dims the date placeholder, the message
+     itself replaces the rows entirely. */
+  .nd-info-empty .info-card-date { color: var(--pl-text-disabled); }
+  .nd-info-empty-msg {
+    font-size: 11px; color: var(--pl-text-disabled); line-height: 1.5;
+    text-align: center; padding: 10px 4px;
+  }
   .info-card-rows .hc-tt-row b { color: var(--pl-text-secondary); font-weight: 600; }
   /* Row pairing the Daily/Monthly granularity toggle (left) with the
      date-range dropdown (right) — replaces the old full-width 30D/60D/90D
@@ -430,6 +453,11 @@
   .hc-tt-label { display: flex; align-items: center; gap: 5px; }
   .hc-tt-row b { color: var(--pl-text); font-weight: 600; margin-left: auto; padding-left: 10px; }
   .hc-tt-dot { width: 7px; height: 7px; border-radius: 2px; flex-shrink: 0; }
+  /* The Events row's "no event today" placeholder — same slot, same
+     layout, just visually backed off so it doesn't compete with rows
+     that actually have something to say. */
+  .hc-tt-row-disabled { color: var(--pl-text-disabled); }
+  .hc-tt-row-disabled b { color: var(--pl-text-disabled); font-weight: 400; }
 
   /* ── Scrub hint: shown briefly over a chart when a single-finger swipe
      passes through it without long-pressing first (the swipe itself is
@@ -591,8 +619,9 @@
   .comp-manage-count strong { color: var(--pl-text); font-weight: 700; }
   .comp-add-btn {
     background: var(--pl-primary); color: #fff; border: none; border-radius: var(--radius-full);
-    padding: 9px 18px; font-size: 13px; font-weight: 700; cursor: pointer;
+    padding: 0 18px; min-height: 48px; font-size: 13px; font-weight: 700; cursor: pointer;
     font-family: 'IBM Plex Sans', sans-serif; flex-shrink: 0; transition: background 0.15s;
+    display: inline-flex; align-items: center; justify-content: center;
   }
   .comp-add-btn:active { background: var(--pl-primary-hover); }
 
@@ -892,7 +921,7 @@
     display: flex; gap: 10px; padding: 12px 16px 16px; border-top: 1px solid var(--pl-border-table);
   }
   .bs-footer-actions .bs-btn {
-    flex: 1; padding: 0; height: 44px; border-radius: var(--radius-full);
+    flex: 1; padding: 0; height: 48px; border-radius: var(--radius-full);
     font-family: 'IBM Plex Sans', sans-serif; font-size: 14px; font-weight: 700; cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
@@ -1046,7 +1075,7 @@
   .sync-row .sync-label { font-size: 14px; font-weight: 600; color: var(--pl-text); }
   .sync-row .sync-sub { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); margin-top: 1px; }
   .sync-row .spacer { flex: 1; }
-  .sync-row .icon-btn { width: 36px; height: 36px; border-radius: var(--radius-full); border: 1px solid var(--pl-border); background: var(--pl-card); display: flex; align-items: center; justify-content: center; color: var(--pl-text-secondary); font-size: 15px; cursor: pointer; }
+  .sync-row .icon-btn { width: 32px; height: 32px; border-radius: var(--radius-full); border: 1px solid var(--pl-border); background: var(--pl-card); display: flex; align-items: center; justify-content: center; color: var(--pl-text-secondary); font-size: 15px; cursor: pointer; }
   .sync-row .sync-now-btn {
     padding: 0 16px; height: 36px; border-radius: var(--radius-full); border: none;
     background: var(--pl-card); box-shadow: var(--shadow-md); color: var(--pl-text);

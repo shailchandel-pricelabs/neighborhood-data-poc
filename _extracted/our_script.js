@@ -658,6 +658,25 @@ function ndResyncChartHeight(chart) {
     chart.setSize(undefined, realHeight, false);
   }
 }
+
+/* ── Pinned info card: empty state until the user actually scrubs. It
+   used to default to showing today's point the instant a chart loaded,
+   which meant every chart displayed numbers before anyone had touched
+   it — indistinguishable from "this is what today looks like" when it
+   was really just an arbitrary default. Leaving it blank with a short
+   instruction makes clear the numbers only appear once you long-press
+   or two-finger drag (see attachScrub's gesture model). */
+function ndShowInfoCardEmptyState(idPrefix) {
+  const card = document.getElementById(idPrefix + '-info-card');
+  if (!card) return;
+  card.classList.add('nd-info-empty');
+  const dateEl = document.getElementById(idPrefix + '-info-date');
+  const priceEl = document.getElementById(idPrefix + '-info-price');
+  const rowsEl = document.getElementById(idPrefix + '-info-rows');
+  if (dateEl) dateEl.textContent = 'No date selected';
+  if (priceEl) priceEl.textContent = '';
+  if (rowsEl) rowsEl.innerHTML = '<div class="nd-info-empty-msg">Long-press or use two fingers to drag on the chart to see details for a date</div>';
+}
 function ndYAxisConfig(opts) {
   opts = opts || {};
   const cfg = {
@@ -737,6 +756,19 @@ function ndDotHTML(color, dashStyle) {
    alone, breaking the visual link between a swatch and what it labels. */
 function ndTTRowHTML(color, label, value, dashStyle) {
   return '<div class="hc-tt-row"><span class="hc-tt-label">' + ndDotHTML(color, dashStyle) + label + ':</span><b>' + value + '</b></div>';
+}
+
+/* ── Events & Holidays row: always rendered (not just on dates that
+   actually have one) whenever the "Show Events & Holidays" option is
+   on, greyed out with a placeholder on dates without one. Making the
+   row appear/disappear per-date was changing the info card's own height
+   while a user was mid-drag, since a chart with a lot of muted purple
+   bands could suddenly grow or shrink the card underneath their thumb;
+   keeping the row's slot constant (just changing its content) removes
+   that "moves under you while dragging" jank entirely. ── */
+function ndEventsRowHTML(eventLabel) {
+  if (eventLabel) return ndTTRowHTML('rgba(213,104,251,0.6)', 'Events & Holidays', eventLabel);
+  return '<div class="hc-tt-row hc-tt-row-disabled"><span class="hc-tt-label"><span class="hc-tt-dot" style="background:#D8DCE2"></span>Events &amp; Holidays:</span><b>No events</b></div>';
 }
 
 /* ── Lookup a series by its explicit `id` rather than by position, so
@@ -840,6 +872,8 @@ function bucketByMonth(rows) {
 let fpChart = null;
 let fpDays = 30;
 let fpGranularity = 'daily';
+let fpEventsEnabled = true;
+let fpLastScrubIndex = null;
 
 /* Pure chart builder — renders into any container at any height, so the
    same code drives both the in-card chart and the fullscreen detail view
@@ -889,10 +923,10 @@ function fpRenderChart(containerId, height, idPrefix) {
            reflow() re-measures the now-settled container and resizes the
            SVG to match, instead of leaving it clipped (hiding the x-axis
            labels along the bottom edge). */
-        load: function () { fpUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); ndResyncChartHeight(this); }
+        load: function () { ndShowInfoCardEmptyState(idPrefix); ndResyncChartHeight(this); }
       }
     },
-    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
+    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: fpEventsEnabled ? ndEventPlotBands(events) : [] }),
     yAxis: ndYAxisConfig({
       yFormatter: function () { return '$' + this.value; }
     }),
@@ -941,6 +975,8 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
   const points = listingS && listingS.points;
   if (!points || !points.length) return;
   const i = Math.max(0, Math.min(index, points.length - 1));
+  const card = document.getElementById(idPrefix + '-info-card');
+  if (card) card.classList.remove('nd-info-empty');
   const dateEl = document.getElementById(idPrefix + '-info-date');
   const priceEl = document.getElementById(idPrefix + '-info-price');
   const rowsEl = document.getElementById(idPrefix + '-info-rows');
@@ -961,14 +997,14 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
     rows += ndTTRowHTML('#F69396', 'Market 50th–75th Percentile Price', '$' + b5075.low + '–$' + b5075.high);
     rows += ndTTRowHTML('#A15457', 'Market 75th–90th Percentile Price', '$' + b7590.low + '–$' + b7590.high);
   }
-  /* Matches desktop's own tooltip, which calls out an "Events & Holidays"
-     row on any date that has one (e.g. "Thanksgiving") rather than
-     leaving the purple event band on the chart as the only clue — this
-     row only appears on the dates that actually have one. */
-  const eventLabel = chart.ndEventLabels && chart.ndEventLabels[i];
-  if (eventLabel) {
-    rows += ndTTRowHTML('rgba(213,104,251,0.6)', 'Events & Holidays', eventLabel);
+  /* Events are daily-only (see fpBuildData) and only shown at all when
+     the "Show Events & Holidays" chart option is on — but whenever they
+     are, the row's slot is always there (see ndEventsRowHTML) so this
+     card's height doesn't shift while dragging. */
+  if (fpEventsEnabled && fpGranularity !== 'monthly') {
+    rows += ndEventsRowHTML(chart.ndEventLabels && chart.ndEventLabels[i]);
   }
+  fpLastScrubIndex = i;
   /* The Upcoming/Last Year Bookings overlays (toggled on from Chart
      Options) draw as short segments near the baseline — real, but with
      no value actually readable off the line itself. When one is turned
@@ -1013,7 +1049,7 @@ function fpRenderLegend() {
       li('fp-s-2550', '<div class="legend-band" style="background:#FCDCDD"></div>', 'Market 25th–50th Percentile Price') +
       li('fp-s-5075', '<div class="legend-band" style="background:#F69396"></div>', 'Market 50th–75th Percentile Price') +
       li('fp-s-7590', '<div class="legend-band" style="background:#A15457;opacity:0.4"></div>', 'Market 75th–90th Percentile Price') +
-      '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' +
+      (fpEventsEnabled ? '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' : '') +
       '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-future-options\')">+ More</div>';
 }
 
@@ -1094,6 +1130,15 @@ function fpToggleOverlay(el, kind) {
    Daily range happened to be. Switching back to Daily is left alone
    (doesn't force it back to 30) since the user may have picked that
    range deliberately before switching. */
+function fpToggleEventsOption(el) {
+  el.classList.toggle('checked');
+  fpEventsEnabled = el.classList.contains('checked');
+  fpInitChart();
+  /* Re-render whatever the card was already showing (a live scrub, or
+     the empty state) rather than resetting it back to empty just
+     because a chart option changed underneath it. */
+  if (fpLastScrubIndex !== null && fpChart) fpUpdateInfoCard(fpChart, fpLastScrubIndex, 'fp');
+}
 function fpSetGranularity(el, mode) {
   el.closest('.pill-toggles').querySelectorAll('.pill').forEach(p => p.classList.remove('active'));
   el.classList.add('active');
@@ -1160,6 +1205,8 @@ let occChart = null;
 let occDays = 30;
 let occGranularity = 'daily';
 let occPacingEnabled = false;
+let occEventsEnabled = true;
+let occLastScrubIndex = null;
 
 function occRenderChart(containerId, height, idPrefix) {
   idPrefix = idPrefix || 'occ';
@@ -1198,9 +1245,9 @@ function occRenderChart(containerId, height, idPrefix) {
       backgroundColor: 'transparent',
       zooming: { type: undefined },
       panning: { enabled: false },
-      events: { load: function () { occUpdateInfoCard(this, this.series[0].points.length - 1, idPrefix); ndResyncChartHeight(this); } }
+      events: { load: function () { ndShowInfoCardEmptyState(idPrefix); ndResyncChartHeight(this); } }
     },
-    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: ndEventPlotBands(events) }),
+    xAxis: Object.assign(ndXAxisConfig(cats, Math.max(1, Math.round(cats.length / 5))), { plotBands: occEventsEnabled ? ndEventPlotBands(events) : [] }),
     yAxis: ndYAxisConfig({
       max: 110,
       yFormatter: function () { return this.value + '%'; }
@@ -1240,6 +1287,8 @@ function occUpdateInfoCard(chart, index, idPrefix) {
   const marketS = ndSeriesById(chart, 'occ-s-market');
   if (!marketS || !marketS.points.length) return;
   const i = Math.max(0, Math.min(index, marketS.points.length - 1));
+  const card = document.getElementById(idPrefix + '-info-card');
+  if (card) card.classList.remove('nd-info-empty');
   const dateEl = document.getElementById(idPrefix + '-info-date');
   const priceEl = document.getElementById(idPrefix + '-info-price');
   const rowsEl = document.getElementById(idPrefix + '-info-rows');
@@ -1264,10 +1313,10 @@ function occUpdateInfoCard(chart, index, idPrefix) {
     if (!s || !s.points[i]) return;
     rows += ndTTRowHTML(d[1], d[2], s.points[i].y + '%', d[3]);
   });
-  const eventLabel = chart.ndEventLabels && chart.ndEventLabels[i];
-  if (eventLabel) {
-    rows += ndTTRowHTML('rgba(213,104,251,0.6)', 'Events & Holidays', eventLabel);
+  if (occEventsEnabled && !isMonthly) {
+    rows += ndEventsRowHTML(chart.ndEventLabels && chart.ndEventLabels[i]);
   }
+  occLastScrubIndex = i;
   rowsEl.innerHTML = rows;
 }
 
@@ -1303,6 +1352,12 @@ function occTogglePacing(el) {
   occPacingEnabled = el.classList.contains('checked');
   occInitChart();
 }
+function occToggleEventsOption(el) {
+  el.classList.toggle('checked');
+  occEventsEnabled = el.classList.contains('checked');
+  occInitChart();
+  if (occLastScrubIndex !== null && occChart) occUpdateInfoCard(occChart, occLastScrubIndex, 'occ');
+}
 
 /* ── Market History: column chart, swaps metric via metric-card tap.
    Shows year-over-year comparison bars (like desktop's own Market
@@ -1334,7 +1389,7 @@ function histInitChart(key) {
   histChart = Highcharts.chart('hist-hc-chart', {
     chart: {
       height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent',
-      events: { load: function () { histUpdateInfoCard(this, this.series[0].points.length - 1); } }
+      events: { load: function () { ndShowInfoCardEmptyState('hist'); } }
     },
     xAxis: {
       categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
@@ -1369,6 +1424,8 @@ function histUpdateInfoCard(chart, index) {
   const i = Math.max(0, Math.min(index, points.length - 1));
   const m = histMetricData[histCurrentKey];
   const fmt = v => (m.prefix || '') + v + (m.suffix || '');
+  const card = document.getElementById('hist-info-card');
+  if (card) card.classList.remove('nd-info-empty');
   const dateEl = document.getElementById('hist-info-date');
   const rowsEl = document.getElementById('hist-info-rows');
   if (dateEl) dateEl.textContent = histMonths[i];
@@ -1600,6 +1657,15 @@ function openCompCalendar(name, rating, type, price, min, max) {
 
 
 /* ── Bottom Sheet ── */
+/* ── V1/V2 prototype switcher: V1 is the same Neighbourhood Data
+   experience minus Competitor Calendar, V2 has it — a single build with
+   a toggle instead of two separate deployments to keep in sync. ── */
+function ndSetVersion(version, el) {
+  el.closest('.nd-version-toggle').querySelectorAll('.nd-version-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  const cc = document.getElementById('sec-competitor-calendar');
+  if (cc) cc.style.display = version === 'v1' ? 'none' : '';
+}
 function ndOpenSheet(id) {
   document.getElementById(id).classList.add('open');
 }
