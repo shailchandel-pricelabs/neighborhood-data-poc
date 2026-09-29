@@ -1139,3 +1139,117 @@
   }
   .coming-soon .cs-title { font-size: 19px; font-weight: 700; color: var(--pl-text); margin-bottom: 8px; }
   .coming-soon .cs-sub { font-size: 14px; font-weight: 400; color: var(--pl-text-secondary); line-height: 1.5; }
+
+  /* ═══ Round: compset card, #333 controls, 50/90 sheets, competitor table ═══ */
+
+  /* Description + Current Compset combined into one grey-filled card, so
+     the white Edit button is the thing that stands out. */
+  .nd-compset-card {
+    margin: 10px 12px 0; padding: 12px;
+    background: var(--pl-bg); border: 1px solid var(--pl-border); border-radius: var(--radius-lg);
+  }
+  .nd-compset-card .nd-tab-description { margin: 0 0 10px; color: var(--pl-text); }
+  .nd-compset-card .comp-banner {
+    margin: 0; padding: 0; background: transparent; border: none; border-radius: 0;
+  }
+  .nd-compset-card .comp-banner .banner-edit-btn { background: var(--pl-card); }
+
+  /* Icon buttons, dropdown pills and other control text/icons: #333. */
+  .section-header .icon-btn,
+  .icon-btn, .bs-close, .range-pill, .pill, .chart-controls .mini-dropdown,
+  .cc-btn-secondary, .comp-auto-select-btn, .banner-edit-btn { color: var(--pl-text); }
+  .section-header .icon-btn svg, .bs-close svg { color: var(--pl-text); fill: currentColor; }
+  .range-pill { min-height: 32px; height: 32px; padding-top: 0; padding-bottom: 0; }
+
+  /* Bottom sheets: full width, and exactly 50% or 90% of the screen
+     (ndOpenSheet picks based on content height). The handle + header
+     stay pinned at the top and only the body scrolls, so the title and
+     close button are always visible. */
+  .bottom-sheet {
+    width: 100% !important; max-width: 100% !important; max-height: none !important;
+    display: flex !important; flex-direction: column; overflow: hidden !important;
+  }
+  .bottom-sheet.bs-half { height: 50%; }
+  .bottom-sheet.bs-full { height: 90%; }
+  .bottom-sheet > .bs-handle, .bottom-sheet > .bs-header, .bottom-sheet > .bs-footer-actions { flex-shrink: 0; }
+  .bottom-sheet > .bs-body { flex: 1 1 auto; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch; }
+
+  /* ── Competitor Calendar (desktop "How do my rates compare…" parity) ── */
+  .cc-desc { font-size: 12px; line-height: 1.5; color: var(--pl-text-secondary); margin: 0 0 10px; }
+  .cc-btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 6px;
+    height: 32px; padding: 0 12px; border-radius: var(--radius-base);
+    font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 600; cursor: pointer; white-space: nowrap;
+  }
+  .cc-btn svg { flex-shrink: 0; }
+  .cc-btn-primary { background: var(--pl-primary); color: #fff; border: 1px solid var(--pl-primary); }
+  .cc-btn-primary:active { background: var(--pl-primary-hover); }
+  .cc-btn-secondary { background: var(--pl-card); border: 1px solid var(--pl-border); box-shadow: var(--shadow-sm); }
+  .cc-btn-secondary:active { background: var(--pl-bg); }
+  .cc-btn-link { background: none; border: none; color: var(--pl-blue); }
+
+  .cc-empty-state { box-shadow: none; border: 1px solid var(--pl-border); padding: 28px 18px; }
+  .cc-empty-sub { line-height: 1.5; margin-bottom: 14px; }
+  .cc-empty-sub strong { color: var(--pl-text); }
+  .cc-empty-actions { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+  .cc-empty-hint { margin-top: 8px; font-size: 11px; color: var(--pl-text-disabled); line-height: 1.4; }
+
+  .cc-toolbar { display: flex; align-items: center; gap: 6px; margin-bottom: 10px; }
+  .cc-toolbar .cc-price-dropdown-wrap { margin: 0; }
+  .cc-toolbar .cc-view-toggle { margin: 0; border-radius: var(--radius-base); }
+  .cc-toolbar .cc-view-toggle .pill { min-height: 30px; height: 30px; padding: 0 10px; font-size: 12px; gap: 4px; }
+  .cc-toolbar .cc-btn-primary { margin-left: auto; }
+  .cc-price-dropdown-item.active { color: var(--pl-primary); }
+
+  #cc-table { border: 1px solid var(--pl-border); border-radius: var(--radius-md); overflow-x: auto; overscroll-behavior-x: contain; }
+  .cc-row { display: flex; width: max-content; min-width: 100%; }
+  .cc-row + .cc-row { border-top: 1px solid var(--pl-border); }
+  .cc-c {
+    flex: 0 0 48px; width: 48px; min-height: 50px; padding: 6px 2px;
+    display: flex; flex-direction: column; align-items: center; justify-content: center;
+    border-right: 1px solid var(--pl-border-table); font-size: 12px; color: var(--pl-text); background: var(--pl-card);
+  }
+  .cc-head .cc-c { min-height: 40px; background: var(--pl-bg); font-size: 10px; font-weight: 600; line-height: 1.25; color: var(--pl-text); text-align: center; }
+  .cc-c.wknd { background: #F0F1F3; }
+  .cc-head .cc-c.wknd { background: #E6E8EB; }
+  .cc-name {
+    flex: 0 0 150px; width: 150px; position: sticky; left: 0; z-index: 2;
+    flex-direction: row; justify-content: flex-start; gap: 6px; padding: 6px 8px; text-align: left;
+    box-shadow: 2px 0 4px rgba(0,0,0,0.06); border-right: 1px solid var(--pl-border);
+  }
+  .cc-head .cc-name { justify-content: flex-start; text-align: left; z-index: 3; }
+  .cc-fee { flex-basis: 44px; width: 44px; color: var(--pl-text-secondary); }
+  .cc-thumb {
+    width: 24px; height: 24px; border-radius: 4px; background: var(--pl-bg); color: var(--pl-text-secondary);
+    display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+  }
+  .cc-name-text { flex: 1; min-width: 0; }
+  .cc-title { font-size: 11px; line-height: 1.3; color: var(--pl-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cc-meta { font-size: 10px; color: var(--pl-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .cc-meta svg { color: var(--pl-text); }
+  .cc-link { display: block; font-size: 10px; font-weight: 600; color: var(--pl-blue); text-decoration: none; line-height: 1.3; }
+  .cc-ext { color: var(--pl-text); flex-shrink: 0; display: flex; }
+  .cc-yours .cc-c { background: var(--pl-card); }
+  .cc-yours .cc-c.wknd { background: #F0F1F3; }
+  .cc-yours .cc-p { font-weight: 700; }
+  .cc-row:not(.cc-head):not(.cc-yours) { cursor: pointer; }
+  .cc-row:not(.cc-head):not(.cc-yours):active .cc-c { background: var(--pl-bg); }
+  .cc-p { font-size: 12px; font-weight: 500; line-height: 1.2; }
+  .cc-ms { font-size: 10px; color: var(--pl-text-secondary); display: inline-flex; align-items: center; gap: 1px; margin-top: 2px; }
+  .cc-day.muted .cc-p { color: var(--pl-text-secondary); font-size: 11px; }
+  /* Booked / blocked: greyed value with a single diagonal slash, as on desktop. */
+  .cc-day.booked { color: var(--pl-text-disabled); }
+  .cc-day.booked .cc-ms { color: var(--pl-text-disabled); }
+  .cc-day.booked {
+    background-image: linear-gradient(to top right, transparent calc(50% - 0.6px), #D5D8DD calc(50% - 0.6px), #D5D8DD calc(50% + 0.6px), transparent calc(50% + 0.6px));
+  }
+
+  .cc-legend { display: flex; flex-wrap: wrap; gap: 6px 14px; margin-top: 10px; font-size: 11px; color: var(--pl-text-secondary); }
+  .cc-legend strong { color: var(--pl-text); }
+  .cc-legend span { display: inline-flex; align-items: center; gap: 4px; }
+  .cc-legend-booked {
+    display: inline-block; width: 12px; height: 12px; border: 1px solid var(--pl-border);
+    background: linear-gradient(to top right, transparent calc(50% - 0.6px), #AEAEAE calc(50% - 0.6px), #AEAEAE calc(50% + 0.6px), transparent calc(50% + 0.6px));
+  }
+  .cc-legend-moon { display: inline-flex; color: var(--pl-text); }
+  .cc-footnote { margin-top: 6px; font-size: 11px; color: var(--pl-text-disabled); }

@@ -46,29 +46,161 @@ document.querySelectorAll('.metric-card').forEach(c => {
    each cell's own text the first time it's needed, so no separate
    dataset has to be hand-maintained per cell. ── */
 let ccPriceMode = 'host';
+let ccView = 'table';
+let ccChart = null;
 function ccTogglePriceDropdown() {
   document.getElementById('cc-price-dropdown-menu').classList.toggle('open');
 }
 function ccSetPriceMode(mode) {
   ccPriceMode = mode;
   document.getElementById('cc-price-dropdown-menu').classList.remove('open');
-  const btn = document.getElementById('cc-price-dropdown-btn');
-  if (btn) btn.firstChild.textContent = mode === 'guest' ? 'Guest Prices ' : 'Host Prices ';
-  document.querySelectorAll('#cc-populated .comp-table-cell.price').forEach(function (cell) {
-    if (cell.dataset.host === undefined) {
-      const raw = cell.textContent.replace(/[^0-9.]/g, '');
-      cell.dataset.host = raw;
-    }
-    if (!cell.dataset.host) return;
-    const hostVal = parseFloat(cell.dataset.host);
-    cell.textContent = '$' + (mode === 'guest' ? Math.round(hostVal * 1.13) : hostVal);
-  });
+  document.getElementById('cc-price-mode-label').textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
+  document.querySelectorAll('#cc-price-dropdown-menu .cc-price-dropdown-item').forEach(i => i.classList.toggle('active', i.dataset.mode === mode));
   const note = document.getElementById('cc-price-footnote');
   if (note) {
     note.textContent = mode === 'guest'
       ? 'Nightly rates including fee and PMS markups.'
       : 'Nightly rates before adding fee or taxes; base amount set by the host.';
   }
+  ccRender();
+}
+function ccSetView(view) {
+  ccView = view;
+  document.querySelectorAll('#cc-view-toggle .pill').forEach(p => p.classList.toggle('active', p.dataset.view === view));
+  document.getElementById('cc-table-view').style.display = view === 'table' ? '' : 'none';
+  document.getElementById('cc-chart-view').style.display = view === 'chart' ? '' : 'none';
+  document.getElementById('cc-table-legend').style.display = view === 'table' ? '' : 'none';
+  ccRender();
+}
+
+/* ── Competitor Calendar data. Your listing's nightly rate is the real
+   listingPrice from REAL_DAILY; competitors are priced off that same
+   day's listing price × a per-listing factor (a close-match compset), with a deterministic
+   per-cell jitter so booked dates, min-stays and N/A/N/B cells stay
+   stable across re-renders. ── */
+const CC_DAYS = 30;
+const CC_COMPS = {
+  'Luxe King Suite':       { br: '1 BR', rating: '4.98', reviews: 112, dist: '0.3 mi', factor: 1.18, minStay: 2, fee: 95 },
+  'New! 1 Bed Hideaway':   { br: '1 BR', rating: null,   reviews: 0,   dist: '0.4 mi', factor: 1.02, minStay: 1, fee: 65 },
+  'Modern Studio Apt':     { br: 'Studio', rating: '4.85', reviews: 64, dist: '0.5 mi', factor: 0.86, minStay: 3, fee: 55 },
+  'Sunny 2BR Condo':       { br: '2 BR', rating: '4.91', reviews: 38,  dist: '0.6 mi', factor: 1.40, minStay: 2, fee: 110 },
+  'Charming 1BR Loft':     { br: '1 BR', rating: '4.76', reviews: 21,  dist: '0.7 mi', factor: 1.08, minStay: 2, fee: 75 },
+  'Trendy East Austin':    { br: '1 BR', rating: '4.88', reviews: 57,  dist: '0.8 mi', factor: 1.16, minStay: 1, fee: 80 },
+  'Quiet Garden Studio':   { br: 'Studio', rating: '4.70', reviews: 12, dist: '0.9 mi', factor: 0.78, minStay: 2, fee: 50 },
+  'Central 2BR Flat':      { br: '2 BR', rating: '4.82', reviews: 45,  dist: '1.0 mi', factor: 1.31, minStay: 1, fee: 100 },
+  'Bright Corner 1BR':     { br: '1 BR', rating: '4.65', reviews: 9,   dist: '1.1 mi', factor: 0.94, minStay: 3, fee: 70 },
+  'Riverside 1BR Retreat': { br: '1 BR', rating: '4.90', reviews: 73,  dist: '1.2 mi', factor: 1.12, minStay: 2, fee: 85 },
+  'Downtown Rooftop 2BR':  { br: '2 BR', rating: '4.94', reviews: 88,  dist: '1.3 mi', factor: 1.52, minStay: 2, fee: 120 },
+  'Cozy Backyard Studio':  { br: 'Studio', rating: '4.60', reviews: 6, dist: '1.4 mi', factor: 0.74, minStay: 1, fee: 45 },
+  'Historic 3BR House':    { br: '3 BR', rating: '4.87', reviews: 31,  dist: '1.5 mi', factor: 1.85, minStay: 3, fee: 150 }
+};
+const CC_LINE_COLORS = ['#F37579', '#2CAFFE', '#31C48D', '#E29F08', '#9B6BDF', '#A15457', '#1976F3', '#39AA80', '#D66B6F', '#7A7A7A'];
+function ccHash(str) {
+  let h = 2166136261;
+  for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
+  return ((h >>> 0) % 10000) / 10000;
+}
+function ccAddedNames() {
+  return Array.from(document.querySelectorAll('#add-comp-current-list .comp-row')).map(r => r.dataset.name);
+}
+function ccCell(name, i) {
+  const { date, row } = ndRealDay(i);
+  const dow = date.getDay();
+  const weekend = dow === 5 || dow === 6;
+  if (name === '__yours__') {
+    return { price: row[4], booked: !!row[10], minStay: 1, weekend: weekend };
+  }
+  const c = CC_COMPS[name] || { factor: 1, minStay: 2 };
+  const r = ccHash(name + '|' + i);
+  const jitter = 0.94 + ccHash(name + '#' + i) * 0.12;
+  const price = Math.round(row[4] * c.factor * jitter * (weekend ? 1.08 : 1));
+  let status = 'avail';
+  if (r < 0.28) status = 'booked';
+  else if (r < 0.31) status = 'na';
+  else if (r < 0.34) status = 'nb';
+  return { price: price, booked: status === 'booked', na: status === 'na', nb: status === 'nb', minStay: c.minStay, weekend: weekend };
+}
+function ccPrice(v) { return ccPriceMode === 'guest' ? Math.round(v * 1.13) : v; }
+function ccRender() {
+  const names = ccAddedNames();
+  if (!names.length) return;
+  if (ccView === 'chart') { ccRenderChart(names); return; }
+  const moon = '<svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
+  const ext = '<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7 9M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/></svg>';
+  const thumb = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 11l3.5-3.5 3 3 2-2L14 12"/></svg>';
+  const DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  let html = '<div class="cc-row cc-head"><div class="cc-c cc-name">Competitor Room Types (' + names.length + ')</div><div class="cc-c cc-fee">Est.<br>Fee</div>';
+  for (let i = 0; i < CC_DAYS; i++) {
+    const d = ndRealDay(i).date, w = d.getDay() === 5 || d.getDay() === 6;
+    html += '<div class="cc-c cc-date' + (w ? ' wknd' : '') + '"><span>' + String(d.getDate()).padStart(2, '0') + ' ' + MON[d.getMonth()] + '</span><span>' + DAY[d.getDay()] + '</span></div>';
+  }
+  html += '</div>';
+  const rowHtml = function (name) {
+    const yours = name === '__yours__';
+    const c = CC_COMPS[name] || {};
+    let h = '<div class="cc-row' + (yours ? ' cc-yours' : '') + '"' + (yours ? '' : ' onclick="ccOpenCompetitor(\'' + name.replace(/'/g, "\\'") + '\')"') + '>';
+    if (yours) {
+      h += '<div class="cc-c cc-name"><div class="cc-name-text"><div class="cc-title"><strong>Your Room Type</strong></div><a class="cc-link" href="#" onclick="event.preventDefault();event.stopPropagation();ndOpenSheet(\'bs-comp-set-edit\')">Edit Markup, Fee Details</a></div></div>';
+      h += '<div class="cc-c cc-fee">—</div>';
+    } else {
+      const rating = c.rating ? c.rating + ' ' + ND_STAR_ICON + ' (' + c.reviews + ')' : '— ' + ND_STAR_ICON + ' (NA)';
+      h += '<div class="cc-c cc-name"><div class="cc-thumb">' + thumb + '</div><div class="cc-name-text"><div class="cc-title">' + name + '</div><div class="cc-meta">' + c.br + ' | ' + rating + '</div></div><span class="cc-ext">' + ext + '</span></div>';
+      h += '<div class="cc-c cc-fee">$' + ccPrice(c.fee) + '</div>';
+    }
+    for (let i = 0; i < CC_DAYS; i++) {
+      const cell = ccCell(name, i);
+      let cls = 'cc-c cc-day' + (cell.weekend ? ' wknd' : '');
+      let inner;
+      if (cell.na) { inner = '<span class="cc-p">N/A</span>'; cls += ' muted'; }
+      else if (cell.nb) { inner = '<span class="cc-p">N/B</span>'; cls += ' muted'; }
+      else {
+        if (cell.booked) cls += ' booked';
+        inner = '<span class="cc-p">' + ccPrice(cell.price) + '</span><span class="cc-ms">' + cell.minStay + moon + '</span>';
+      }
+      h += '<div class="' + cls + '">' + inner + '</div>';
+    }
+    return h + '</div>';
+  };
+  html += rowHtml('__yours__');
+  names.forEach(n => { html += rowHtml(n); });
+  document.getElementById('cc-table').innerHTML = html;
+}
+function ccRenderChart(names) {
+  if (typeof Highcharts === 'undefined') return;
+  const cats = [], series = [];
+  for (let i = 0; i < CC_DAYS; i++) cats.push(ndRealDay(i).date);
+  const mk = function (name) {
+    return cats.map(function (_, i) {
+      const cell = ccCell(name, i);
+      return (cell.na || cell.nb) ? null : ccPrice(cell.price);
+    });
+  };
+  series.push({ name: 'Your Room Type', data: mk('__yours__'), color: '#333333', lineWidth: 2.5, zIndex: 5 });
+  names.forEach(function (n, k) { series.push({ name: n, data: mk(n), color: CC_LINE_COLORS[k % CC_LINE_COLORS.length], lineWidth: 1.5 }); });
+  if (ccChart) { ccChart.destroy(); ccChart = null; }
+  ccChart = Highcharts.chart('cc-hc-chart', {
+    chart: { type: 'line', height: ndWidgetChartHeight(), backgroundColor: '#FFFFFF', animation: false, spacing: [8, 4, 8, 0], style: { fontFamily: 'IBM Plex Sans, sans-serif' } },
+    title: { text: null }, credits: { enabled: false }, legend: { enabled: false },
+    xAxis: {
+      categories: cats.map(d => d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]),
+      labels: { style: { fontSize: '10px', color: '#7A7A7A' }, step: 7 }, tickLength: 0, lineColor: '#E0E0E0',
+      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
+    },
+    yAxis: { title: { text: null }, gridLineColor: '#EDF2F7', labels: { style: { fontSize: '10px', color: '#7A7A7A' }, format: '${value}' } },
+    tooltip: { shared: true, valuePrefix: '$', outside: false, style: { fontSize: '11px' } },
+    plotOptions: { series: { animation: false, marker: { enabled: false }, states: { inactive: { opacity: 1 } } } },
+    series: series
+  });
+  const legend = document.getElementById('cc-chart-legend');
+  legend.innerHTML = series.map(function (s) {
+    return '<div class="legend-item"><div class="legend-swatch" style="background:' + s.color + ';height:3px;width:14px;border-radius:2px"></div> ' + s.name + '</div>';
+  }).join('');
+}
+function ccOpenCompetitor(name) {
+  const c = CC_COMPS[name] || {};
+  const base = ccCell(name, 0).price;
+  openCompCalendar(name, c.rating || '—', c.br || '', '$' + base, '', '');
 }
 
 /* ── Competitor Calendar: add / remove flow (search + suggested list) ── */
@@ -84,11 +216,7 @@ function updateCompCounts() {
    previously always showed every sample competitor regardless of the
    count badge, so e.g. adding 4 still showed all 9 rows. ── */
 function ccSyncTableRows() {
-  const addedNames = new Set(Array.from(document.querySelectorAll('#add-comp-current-list .comp-row')).map(r => r.dataset.name));
-  document.querySelectorAll('#cc-populated .comp-table-row[data-name]').forEach(row => {
-    if (row.dataset.name === '__yours__') return;
-    row.style.display = addedNames.has(row.dataset.name) ? '' : 'none';
-  });
+  ccRender();
 }
 
 /* ── Competitor Calendar empty state: the section defaults to "no
@@ -101,37 +229,6 @@ function ccSyncTableRows() {
    empty rather than "booked" specifically. Filling them with a plausible
    struck-through price (averaged from that row's nearest available
    neighbors) makes the strike visually mean something. ── */
-function ndFillStrikePrices() {
-  document.querySelectorAll('#cc-populated .comp-table-row[data-name]').forEach(row => {
-    const cells = Array.from(row.querySelectorAll('.comp-table-cell.price'));
-    cells.forEach((cell, i) => {
-      const strike = cell.querySelector('.cell-strike');
-      if (!strike || strike.dataset.filled) return;
-      /* An avail cell is a "$189" text node followed by a *sibling*
-         <span class="cell-minstay"> ("1n ...") — and that min-stay text
-         itself starts with a digit, so even a regex anchored to the
-         cell's full concatenated textContent ("$1891n ...") still reads
-         straight through into it ("1891"). The price is only ever in
-         the cell's own leading text node, so read that alone. */
-      const priceOf = c => {
-        const node = c && c.firstChild;
-        const m = node && node.nodeType === 3 && node.textContent.match(/^\$(\d+(?:\.\d+)?)/);
-        return m ? parseFloat(m[1]) : NaN;
-      };
-      let ref = null;
-      for (let d = 1; d < cells.length && ref === null; d++) {
-        const left = cells[i - d], right = cells[i + d];
-        const leftVal = left && left.classList.contains('avail') ? priceOf(left) : NaN;
-        const rightVal = right && right.classList.contains('avail') ? priceOf(right) : NaN;
-        ref = !isNaN(leftVal) ? leftVal : (!isNaN(rightVal) ? rightVal : null);
-      }
-      if (ref !== null) {
-        strike.textContent = '$' + Math.round(ref);
-        strike.dataset.filled = '1';
-      }
-    });
-  });
-}
 function ccUpdateEmptyState() {
   const empty = document.getElementById('cc-empty-state');
   const populated = document.getElementById('cc-populated');
@@ -1670,7 +1767,6 @@ function ndInitCharts() {
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
   ndRenderHistSummary();
   ccInitEmptyState();
-  ndFillStrikePrices();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);
@@ -1729,8 +1825,25 @@ function ndSetVersion(version, el) {
   const cc = document.getElementById('sec-competitor-calendar');
   if (cc) cc.style.display = version === 'v1' ? 'none' : '';
 }
+/* Bottom sheets snap to one of two heights — 50% of the screen for
+   short content, 90% when it wouldn't fit in half — measured from the
+   content itself (handle + header + footer + the body's full scroll
+   height), so the header and close button are always visible. */
+function ndSizeSheet(overlay) {
+  const sheet = overlay.querySelector('.bottom-sheet');
+  if (!sheet) return;
+  let natural = 0;
+  Array.from(sheet.children).forEach(c => {
+    natural += c.classList.contains('bs-body') ? c.scrollHeight : c.offsetHeight;
+  });
+  const tall = natural > overlay.clientHeight * 0.5;
+  sheet.classList.toggle('bs-full', tall);
+  sheet.classList.toggle('bs-half', !tall);
+}
 function ndOpenSheet(id) {
-  document.getElementById(id).classList.add('open');
+  const overlay = document.getElementById(id);
+  overlay.classList.add('open');
+  ndSizeSheet(overlay);
 }
 function ndCloseSheet(id) {
   document.getElementById(id).classList.remove('open');
