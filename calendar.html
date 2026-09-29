@@ -2734,12 +2734,12 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
 
   /* Icon buttons */
   .section-header .icon-btn, .sync-row .icon-btn {
-    width: 48px; height: 48px; border-radius: 36px; border: 1px solid #E0E0E0;
+    width: 48px; height: 48px; border-radius: 36px; border: none;
     background: #FFFFFF; color: #333333; box-shadow: none; font-size: 20px;
   }
-  .section-header .icon-btn:hover { background: #FFFFFF; color: #333333; border-color: #E0E0E0; }
+  .section-header .icon-btn:hover { background: #FFFFFF; color: #333333; }
   .section-header .icon-btn svg, .sync-row .icon-btn svg { width: 20px !important; height: 20px !important; }
-  .section-header .header-actions { gap: 8px; align-items: center; }
+  .section-header .header-actions { gap: 0; align-items: center; }
   .section-header .header-text { min-width: 0; }
 
   /* Sheet header: 20px title, borderless 48px close */
@@ -2769,9 +2769,9 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   .cc-btn.cc-btn-link { height: 48px; font-size: 16px; font-weight: 600; }
   .markup-remove-btn { font-size: 14px; }
 
-  /* Dropdowns (menu buttons) */
+  /* Dropdown triggers are buttons: secondary-button style with a caret */
   .pill.range-pill {
-    height: 48px; min-height: 48px; padding: 0 16px; border-radius: 12px;
+    height: 48px; min-height: 48px; padding: 0 16px; border-radius: 25px;
     border: 1px solid #E0E0E0; background: #FFFFFF; color: #333333;
     font-size: 16px; font-weight: 600; gap: 8px;
   }
@@ -2780,52 +2780,20 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   }
   .cc-toolbar-right .pill.range-pill { padding: 0 14px; }
 
+  /* Segmented tabs keep their connected rounded style; when they sit in a
+     row with a button/dropdown they take the same 48px height and 16px
+     text so the row lines up. */
+  .chart-toggle-row .pill-toggles .pill, .cc-toolbar .cc-view-toggle .pill {
+    height: 48px; min-height: 48px; padding: 0 16px; font-size: 16px; font-weight: 600;
+  }
+  .chart-toggle-row, .cc-toolbar { align-items: center; }
+
   /* Inputs / selects */
   .comp-search-input, .markup-field-row select, .markup-field-row input {
     height: 48px; padding: 0 16px; border: 1px solid #E0E0E0; border-radius: 12px;
     background: #FFFFFF; font-size: 16px; font-weight: 400; color: #333333;
   }
   .comp-search-input:focus { background: #FFFFFF; }
-
-  /* Chips — segmented pills become separate 32px chips */
-  .pill-toggles { border: none; border-radius: 0; overflow: visible; gap: 8px; }
-  .pill-toggles .pill, .cc-toolbar .cc-view-toggle .pill,
-  .granularity-toggle .pill, .pill-toggles-hist .pill {
-    height: 32px; min-height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
-    background: #FFFFFF; color: #333333; font-size: 14px; font-weight: 600; flex: 0 0 auto;
-  }
-  .pill-toggles .pill.active, .pill-toggles .pill:last-child.active {
-    background: #FCDCDD; border-color: #F37579; color: #F37579;
-  }
-  .pill-toggles .pill:last-child { border-right: 1px solid #E0E0E0; }
-  .cc-toolbar .cc-view-toggle { border-radius: 0; }
-  .nd-version-toggle { border: none; border-radius: 0; overflow: visible; gap: 8px; }
-  .nd-version-btn {
-    height: 32px; min-height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
-    font-size: 14px; font-weight: 600; color: #333333; background: #FFFFFF;
-  }
-  .nd-version-btn:last-child { border-right: 1px solid #E0E0E0; }
-  .nd-version-btn.active { background: #FCDCDD; border-color: #F37579; color: #F37579; }
-  .bedroom-tab {
-    height: 32px; min-height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
-    font-size: 14px; font-weight: 600; color: #333333;
-  }
-  .bedroom-tab.selected { background: #FCDCDD; border-color: #F37579; color: #F37579; }
-  .legend-more {
-    display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 4px;
-    border: 1px solid #E0E0E0; background: #FFFFFF; color: #333333; font-size: 14px; font-weight: 600;
-  }
-  .comp-row-btn.add {
-    height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
-    background: #FFFFFF; color: #333333; font-size: 14px; font-weight: 600;
-  }
-  .comp-row-btn.remove {
-    width: 32px; height: 32px; padding: 0; border-radius: 36px; background: #FFFFFF;
-    border: 1px solid #E0E0E0; color: #333333; display: flex; align-items: center; justify-content: center;
-  }
-  .ccd-chip { border-radius: 4px; }
-  .ccd-chip.active { background: #FCDCDD; border-color: #F37579; color: #F37579; }
-  .ccd-chip-num { font-weight: 600; }
 
   /* Small icon buttons (month nav) */
   #cc-cal-prev, #cc-cal-next {
@@ -2838,9 +2806,6 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   .bs-body .bs-option .bs-check { width: 16px; height: 16px; border: 2px solid #7A7A7A; border-radius: 3px; }
   .bs-body .bs-option.checked .bs-check { border-color: #F37579; }
   .bs-body .bs-option .bs-opt-label, .bs-body .bs-radio .bs-opt-label { font-size: 16px; font-weight: 400; color: #333333; }
-  /* Prototype-only V1/V2 switcher: same chip style, tighter so the page title stays on one line. */
-  .nd-version-toggle { gap: 4px; }
-  .nd-version-btn { padding: 0 8px; }
 
 body { background: #d9dbe0; }
 .phone-frame { scrollbar-width: none; -ms-overflow-style: none; }
