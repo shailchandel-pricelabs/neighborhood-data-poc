@@ -1476,3 +1476,130 @@
   #bs-comp-calendar #cc-meta { font-size: 12px !important; }
   /* Full-bleed table: cancel .nd-sections (6px) + .section-content (4px) side padding. */
   #cc-table { margin: 0 -10px; border-left: none; border-right: none; }
+
+  /* ═══════════════════════════════════════════════════════════════
+     Component parity with the live mobile Multi Calendar
+     (sagar.app.pricelabs.co/mobile/multicalendar, measured at 375px):
+       Icon button ....... 48×48 circle, 1px #E0E0E0, white, #333 icon
+       Header/close icon . 48×48 circle, borderless
+       Small icon button . 32×32 circle (month nav), disabled #F4F5F7/#AEAEAE
+       Primary button .... 48px, radius 25px, #F37579, 16px/600 white
+       Secondary button .. 48px, radius 25px, white, 1px #E0E0E0, 16px/600 #333
+       Dropdown (menu) ... 48px, radius 12px, 1px #E0E0E0, 16px/600 #333, solid caret
+       Input / select .... 48px, radius 12px, 1px #E0E0E0, 16px/400
+       Chip .............. 32px, radius 4px, 1px #E0E0E0, 14px/600 #333, pad 0 12px
+       Chip selected ..... #FCDCDD fill, #F37579 border + text
+       Checkbox .......... 16px, 2px #7A7A7A, radius 3px
+       Sheet title ....... 20px/600 #333, subtitle 16px #7A7A7A
+       Menu/list option .. 16px/400 #333
+     ═══════════════════════════════════════════════════════════════ */
+
+  /* Icon buttons */
+  .section-header .icon-btn, .sync-row .icon-btn {
+    width: 48px; height: 48px; border-radius: 36px; border: 1px solid #E0E0E0;
+    background: #FFFFFF; color: #333333; box-shadow: none; font-size: 20px;
+  }
+  .section-header .icon-btn:hover { background: #FFFFFF; color: #333333; border-color: #E0E0E0; }
+  .section-header .icon-btn svg, .sync-row .icon-btn svg { width: 20px !important; height: 20px !important; }
+  .section-header .header-actions { gap: 8px; align-items: center; }
+  .section-header .header-text { min-width: 0; }
+
+  /* Sheet header: 20px title, borderless 48px close */
+  .bs-header { padding: 8px 8px 8px 16px; min-height: 64px; }
+  .bs-title, #bs-comp-calendar .bs-title { font-size: 20px; font-weight: 600; color: #333333; }
+  .bs-title-sub { font-size: 16px; font-weight: 400; color: #7A7A7A; }
+  .bs-close {
+    width: 48px; height: 48px; border-radius: 36px; border: none; background: #FFFFFF;
+    color: #333333; font-size: 24px; flex-shrink: 0;
+  }
+  .bs-close svg { width: 20px !important; height: 20px !important; }
+
+  /* Primary buttons */
+  .comp-add-btn, .bs-footer-actions .bs-btn.apply, .cc-btn.cc-btn-primary {
+    height: 48px; min-height: 48px; border-radius: 25px; padding: 0 16px;
+    background: #F37579; color: #FFFFFF; border: none; font-size: 16px; font-weight: 600;
+  }
+  /* Secondary buttons */
+  .comp-banner .banner-edit-btn, .section-header .cc-manage-btn, .cc-btn.cc-btn-secondary,
+  .comp-auto-select-btn, .bs-footer-actions .bs-btn.cancel {
+    height: 48px; min-height: 48px; border-radius: 25px; padding: 0 16px;
+    background: #FFFFFF; color: #333333; border: 1px solid #E0E0E0; box-shadow: none;
+    font-size: 16px; font-weight: 600;
+  }
+  .nd-compset-card .comp-banner .banner-edit-btn { background: #FFFFFF; }
+  .comp-auto-select-btn { width: 100%; margin: 12px 0 6px; }
+  .cc-btn.cc-btn-link { height: 48px; font-size: 16px; font-weight: 600; }
+  .markup-remove-btn { font-size: 14px; }
+
+  /* Dropdowns (menu buttons) */
+  .pill.range-pill {
+    height: 48px; min-height: 48px; padding: 0 16px; border-radius: 12px;
+    border: 1px solid #E0E0E0; background: #FFFFFF; color: #333333;
+    font-size: 16px; font-weight: 600; gap: 8px;
+  }
+  .pill.range-pill.has-menu::after {
+    border-left-width: 5px; border-right-width: 5px; border-top-width: 5px; margin-left: 8px;
+  }
+  .cc-toolbar-right .pill.range-pill { padding: 0 14px; }
+
+  /* Inputs / selects */
+  .comp-search-input, .markup-field-row select, .markup-field-row input {
+    height: 48px; padding: 0 16px; border: 1px solid #E0E0E0; border-radius: 12px;
+    background: #FFFFFF; font-size: 16px; font-weight: 400; color: #333333;
+  }
+  .comp-search-input:focus { background: #FFFFFF; }
+
+  /* Chips — segmented pills become separate 32px chips */
+  .pill-toggles { border: none; border-radius: 0; overflow: visible; gap: 8px; }
+  .pill-toggles .pill, .cc-toolbar .cc-view-toggle .pill,
+  .granularity-toggle .pill, .pill-toggles-hist .pill {
+    height: 32px; min-height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
+    background: #FFFFFF; color: #333333; font-size: 14px; font-weight: 600; flex: 0 0 auto;
+  }
+  .pill-toggles .pill.active, .pill-toggles .pill:last-child.active {
+    background: #FCDCDD; border-color: #F37579; color: #F37579;
+  }
+  .pill-toggles .pill:last-child { border-right: 1px solid #E0E0E0; }
+  .cc-toolbar .cc-view-toggle { border-radius: 0; }
+  .nd-version-toggle { border: none; border-radius: 0; overflow: visible; gap: 8px; }
+  .nd-version-btn {
+    height: 32px; min-height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
+    font-size: 14px; font-weight: 600; color: #333333; background: #FFFFFF;
+  }
+  .nd-version-btn:last-child { border-right: 1px solid #E0E0E0; }
+  .nd-version-btn.active { background: #FCDCDD; border-color: #F37579; color: #F37579; }
+  .bedroom-tab {
+    height: 32px; min-height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
+    font-size: 14px; font-weight: 600; color: #333333;
+  }
+  .bedroom-tab.selected { background: #FCDCDD; border-color: #F37579; color: #F37579; }
+  .legend-more {
+    display: inline-flex; align-items: center; height: 32px; padding: 0 12px; border-radius: 4px;
+    border: 1px solid #E0E0E0; background: #FFFFFF; color: #333333; font-size: 14px; font-weight: 600;
+  }
+  .comp-row-btn.add {
+    height: 32px; padding: 0 12px; border: 1px solid #E0E0E0; border-radius: 4px;
+    background: #FFFFFF; color: #333333; font-size: 14px; font-weight: 600;
+  }
+  .comp-row-btn.remove {
+    width: 32px; height: 32px; padding: 0; border-radius: 36px; background: #FFFFFF;
+    border: 1px solid #E0E0E0; color: #333333; display: flex; align-items: center; justify-content: center;
+  }
+  .ccd-chip { border-radius: 4px; }
+  .ccd-chip.active { background: #FCDCDD; border-color: #F37579; color: #F37579; }
+  .ccd-chip-num { font-weight: 600; }
+
+  /* Small icon buttons (month nav) */
+  #cc-cal-prev, #cc-cal-next {
+    width: 32px !important; height: 32px !important; border-radius: 36px !important; border: none !important;
+    background: #FFFFFF !important; color: #333333 !important;
+  }
+  #cc-cal-prev:disabled, #cc-cal-next:disabled { background: #F4F5F7 !important; color: #AEAEAE !important; opacity: 1; }
+
+  /* Checkbox + list options */
+  .bs-body .bs-option .bs-check { width: 16px; height: 16px; border: 2px solid #7A7A7A; border-radius: 3px; }
+  .bs-body .bs-option.checked .bs-check { border-color: #F37579; }
+  .bs-body .bs-option .bs-opt-label, .bs-body .bs-radio .bs-opt-label { font-size: 16px; font-weight: 400; color: #333333; }
+  /* Prototype-only V1/V2 switcher: same chip style, tighter so the page title stays on one line. */
+  .nd-version-toggle { gap: 4px; }
+  .nd-version-btn { padding: 0 8px; }
