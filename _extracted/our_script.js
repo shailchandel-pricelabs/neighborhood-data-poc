@@ -46,29 +46,34 @@ document.querySelectorAll('.metric-card').forEach(c => {
    each cell's own text the first time it's needed, so no separate
    dataset has to be hand-maintained per cell. ── */
 let ccPriceMode = 'host';
-let ccView = 'table';
-let ccChart = null;
-function ccTogglePriceDropdown() {
-  document.getElementById('cc-price-dropdown-menu').classList.toggle('open');
-}
+let ccView = 'date';
+let ccLos = 2;
+let ccSelDay = 0;
 function ccSetPriceMode(mode) {
   ccPriceMode = mode;
-  document.getElementById('cc-price-dropdown-menu').classList.remove('open');
-  document.getElementById('cc-price-mode-label').textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
-  document.querySelectorAll('#cc-price-dropdown-menu .cc-price-dropdown-item').forEach(i => i.classList.toggle('active', i.dataset.mode === mode));
+  ndCloseSheet('bs-cc-price-mode');
+  document.getElementById('cc-price-pill').firstChild.textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
+  document.getElementById('cc-los-pill').style.display = mode === 'guest' ? '' : 'none';
+  document.getElementById('cc-guest-info').style.display = mode === 'guest' ? '' : 'none';
   const note = document.getElementById('cc-price-footnote');
   if (note) {
     note.textContent = mode === 'guest'
-      ? 'Nightly rates including fee and PMS markups.'
+      ? 'Average nightly rates including fee and PMS markups. Multiply by the selected LOS for the total guest price.'
       : 'Nightly rates before adding fee or taxes; base amount set by the host.';
   }
+  ccRender();
+}
+function ccSetLos(n) {
+  ccLos = n;
+  ndCloseSheet('bs-cc-los');
+  document.getElementById('cc-los-pill').firstChild.textContent = 'LOS: ' + n + ' Night' + (n > 1 ? 's' : '');
   ccRender();
 }
 function ccSetView(view) {
   ccView = view;
   document.querySelectorAll('#cc-view-toggle .pill').forEach(p => p.classList.toggle('active', p.dataset.view === view));
   document.getElementById('cc-table-view').style.display = view === 'table' ? '' : 'none';
-  document.getElementById('cc-chart-view').style.display = view === 'chart' ? '' : 'none';
+  document.getElementById('cc-date-view').style.display = view === 'date' ? '' : 'none';
   document.getElementById('cc-table-legend').style.display = view === 'table' ? '' : 'none';
   ccRender();
 }
@@ -79,22 +84,22 @@ function ccSetView(view) {
    per-cell jitter so booked dates, min-stays and N/A/N/B cells stay
    stable across re-renders. ── */
 const CC_DAYS = 30;
+const CC_YOUR_FEE = 35;
 const CC_COMPS = {
-  'Luxe King Suite':       { br: '1 BR', rating: '4.98', reviews: 112, dist: '0.3 mi', factor: 1.18, minStay: 2, fee: 95 },
-  'New! 1 Bed Hideaway':   { br: '1 BR', rating: null,   reviews: 0,   dist: '0.4 mi', factor: 1.02, minStay: 1, fee: 65 },
-  'Modern Studio Apt':     { br: 'Studio', rating: '4.85', reviews: 64, dist: '0.5 mi', factor: 0.86, minStay: 3, fee: 55 },
-  'Sunny 2BR Condo':       { br: '2 BR', rating: '4.91', reviews: 38,  dist: '0.6 mi', factor: 1.40, minStay: 2, fee: 110 },
-  'Charming 1BR Loft':     { br: '1 BR', rating: '4.76', reviews: 21,  dist: '0.7 mi', factor: 1.08, minStay: 2, fee: 75 },
-  'Trendy East Austin':    { br: '1 BR', rating: '4.88', reviews: 57,  dist: '0.8 mi', factor: 1.16, minStay: 1, fee: 80 },
-  'Quiet Garden Studio':   { br: 'Studio', rating: '4.70', reviews: 12, dist: '0.9 mi', factor: 0.78, minStay: 2, fee: 50 },
-  'Central 2BR Flat':      { br: '2 BR', rating: '4.82', reviews: 45,  dist: '1.0 mi', factor: 1.31, minStay: 1, fee: 100 },
-  'Bright Corner 1BR':     { br: '1 BR', rating: '4.65', reviews: 9,   dist: '1.1 mi', factor: 0.94, minStay: 3, fee: 70 },
-  'Riverside 1BR Retreat': { br: '1 BR', rating: '4.90', reviews: 73,  dist: '1.2 mi', factor: 1.12, minStay: 2, fee: 85 },
-  'Downtown Rooftop 2BR':  { br: '2 BR', rating: '4.94', reviews: 88,  dist: '1.3 mi', factor: 1.52, minStay: 2, fee: 120 },
-  'Cozy Backyard Studio':  { br: 'Studio', rating: '4.60', reviews: 6, dist: '1.4 mi', factor: 0.74, minStay: 1, fee: 45 },
-  'Historic 3BR House':    { br: '3 BR', rating: '4.87', reviews: 31,  dist: '1.5 mi', factor: 1.85, minStay: 3, fee: 150 }
+  'Luxe King Suite':       { br: '1 BR', rating: '4.98', reviews: 112, dist: '0.3 mi', factor: 1.18, minStay: 2, fee: 45 },
+  'New! 1 Bed Hideaway':   { br: '1 BR', rating: null,   reviews: 0,   dist: '0.4 mi', factor: 1.02, minStay: 1, fee: 30 },
+  'Modern Studio Apt':     { br: 'Studio', rating: '4.85', reviews: 64, dist: '0.5 mi', factor: 0.86, minStay: 3, fee: 25 },
+  'Sunny 2BR Condo':       { br: '2 BR', rating: '4.91', reviews: 38,  dist: '0.6 mi', factor: 1.40, minStay: 2, fee: 50 },
+  'Charming 1BR Loft':     { br: '1 BR', rating: '4.76', reviews: 21,  dist: '0.7 mi', factor: 1.08, minStay: 2, fee: 35 },
+  'Trendy East Austin':    { br: '1 BR', rating: '4.88', reviews: 57,  dist: '0.8 mi', factor: 1.16, minStay: 1, fee: 35 },
+  'Quiet Garden Studio':   { br: 'Studio', rating: '4.70', reviews: 12, dist: '0.9 mi', factor: 0.78, minStay: 2, fee: 20 },
+  'Central 2BR Flat':      { br: '2 BR', rating: '4.82', reviews: 45,  dist: '1.0 mi', factor: 1.31, minStay: 1, fee: 45 },
+  'Bright Corner 1BR':     { br: '1 BR', rating: '4.65', reviews: 9,   dist: '1.1 mi', factor: 0.94, minStay: 3, fee: 30 },
+  'Riverside 1BR Retreat': { br: '1 BR', rating: '4.90', reviews: 73,  dist: '1.2 mi', factor: 1.12, minStay: 2, fee: 40 },
+  'Downtown Rooftop 2BR':  { br: '2 BR', rating: '4.94', reviews: 88,  dist: '1.3 mi', factor: 1.52, minStay: 2, fee: 55 },
+  'Cozy Backyard Studio':  { br: 'Studio', rating: '4.60', reviews: 6, dist: '1.4 mi', factor: 0.74, minStay: 1, fee: 20 },
+  'Historic 3BR House':    { br: '3 BR', rating: '4.87', reviews: 31,  dist: '1.5 mi', factor: 1.85, minStay: 3, fee: 70 }
 };
-const CC_LINE_COLORS = ['#F37579', '#2CAFFE', '#31C48D', '#E29F08', '#9B6BDF', '#A15457', '#1976F3', '#39AA80', '#D66B6F', '#7A7A7A'];
 function ccHash(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -121,10 +126,35 @@ function ccCell(name, i) {
   return { price: price, booked: status === 'booked', na: status === 'na', nb: status === 'nb', minStay: c.minStay, weekend: weekend };
 }
 function ccPrice(v) { return ccPriceMode === 'guest' ? Math.round(v * 1.13) : v; }
+/* Mode-aware cell. Host: that night's base rate. Guest: the average
+   nightly rate for a stay of ccLos nights checking in on day i,
+   including the fee (spread across the stay) and PMS markup — N/B when
+   the listing's min-stay is longer than the selected LOS, booked when
+   any night of the stay is taken. */
+function ccView_cell(name, i) {
+  const base = ccCell(name, i);
+  if (ccPriceMode !== 'guest' || base.na) return base;
+  const c = name === '__yours__' ? { fee: CC_YOUR_FEE } : (CC_COMPS[name] || { fee: 0 });
+  if (base.minStay > ccLos) return Object.assign({}, base, { nb: true });
+  let sum = 0, booked = false;
+  for (let k = 0; k < ccLos; k++) {
+    const n = ccCell(name, Math.min(i + k, CC_DAYS + 6));
+    if (n.booked || n.na) booked = true;
+    sum += n.price;
+  }
+  const avg = Math.round((sum / ccLos) * 1.13 + (c.fee || 0) / ccLos);
+  return Object.assign({}, base, { price: avg, booked: booked, nb: false, raw: true });
+}
+function ccShown(cell) { return cell.raw ? cell.price : ccPrice(cell.price); }
+function ccStayLabel(i) {
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const a = ndRealDay(i).date, b = ndRealDay(i + ccLos).date;
+  return M[a.getMonth()] + ' ' + a.getDate() + ' – ' + M[b.getMonth()] + ' ' + b.getDate();
+}
 function ccRender() {
   const names = ccAddedNames();
   if (!names.length) return;
-  if (ccView === 'chart') { ccRenderChart(names); return; }
+  if (ccView === 'date') { ccRenderDateView(names); return; }
   const moon = '<svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
   const ext = '<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7 9M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/></svg>';
   const thumb = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 11l3.5-3.5 3 3 2-2L14 12"/></svg>';
@@ -142,60 +172,141 @@ function ccRender() {
     let h = '<div class="cc-row' + (yours ? ' cc-yours' : '') + '"' + (yours ? '' : ' onclick="ccOpenCompetitor(\'' + name.replace(/'/g, "\\'") + '\')"') + '>';
     if (yours) {
       h += '<div class="cc-c cc-name"><div class="cc-name-text"><div class="cc-title"><strong>Your Room Type</strong></div><a class="cc-link" href="#" onclick="event.preventDefault();event.stopPropagation();ndOpenSheet(\'bs-comp-set-edit\')">Edit Markup, Fee Details</a></div></div>';
-      h += '<div class="cc-c cc-fee">—</div>';
+      h += '<div class="cc-c cc-fee">$' + ccPrice(CC_YOUR_FEE) + '</div>';
     } else {
       const rating = c.rating ? c.rating + ' ' + ND_STAR_ICON + ' (' + c.reviews + ')' : '— ' + ND_STAR_ICON + ' (NA)';
       h += '<div class="cc-c cc-name"><div class="cc-thumb">' + thumb + '</div><div class="cc-name-text"><div class="cc-title">' + name + '</div><div class="cc-meta">' + c.br + ' | ' + rating + '</div></div><span class="cc-ext">' + ext + '</span></div>';
       h += '<div class="cc-c cc-fee">$' + ccPrice(c.fee) + '</div>';
     }
     for (let i = 0; i < CC_DAYS; i++) {
-      const cell = ccCell(name, i);
+      const cell = ccView_cell(name, i);
       let cls = 'cc-c cc-day' + (cell.weekend ? ' wknd' : '');
       let inner;
       if (cell.na) { inner = '<span class="cc-p">N/A</span>'; cls += ' muted'; }
       else if (cell.nb) { inner = '<span class="cc-p">N/B</span>'; cls += ' muted'; }
       else {
         if (cell.booked) cls += ' booked';
-        inner = '<span class="cc-p">' + ccPrice(cell.price) + '</span><span class="cc-ms">' + cell.minStay + moon + '</span>';
+        inner = '<span class="cc-p">' + ccShown(cell) + '</span><span class="cc-ms">' + cell.minStay + moon + '</span>';
       }
       h += '<div class="' + cls + '">' + inner + '</div>';
     }
     return h + '</div>';
   };
+  if (ccPriceMode === 'guest') {
+    html += '<div class="cc-row cc-stay"><div class="cc-c cc-name">Stay Dates <span>(based on selected LOS)</span></div><div class="cc-c cc-fee">—</div>';
+    for (let i = 0; i < CC_DAYS; i++) {
+      const w = [5, 6].indexOf(ndRealDay(i).date.getDay()) >= 0;
+      html += '<div class="cc-c' + (w ? ' wknd' : '') + '">' + ccStayLabel(i).replace(' – ', ' –<br>') + '</div>';
+    }
+    html += '</div>';
+  }
   html += rowHtml('__yours__');
   names.forEach(n => { html += rowHtml(n); });
   document.getElementById('cc-table').innerHTML = html;
 }
-function ccRenderChart(names) {
-  if (typeof Highcharts === 'undefined') return;
-  const cats = [], series = [];
-  for (let i = 0; i < CC_DAYS; i++) cats.push(ndRealDay(i).date);
-  const mk = function (name) {
-    return cats.map(function (_, i) {
-      const cell = ccCell(name, i);
-      return (cell.na || cell.nb) ? null : ccPrice(cell.price);
-    });
-  };
-  series.push({ name: 'Your Room Type', data: mk('__yours__'), color: '#333333', lineWidth: 2.5, zIndex: 5 });
-  names.forEach(function (n, k) { series.push({ name: n, data: mk(n), color: CC_LINE_COLORS[k % CC_LINE_COLORS.length], lineWidth: 1.5 }); });
-  if (ccChart) { ccChart.destroy(); ccChart = null; }
-  ccChart = Highcharts.chart('cc-hc-chart', {
-    chart: { type: 'line', height: ndWidgetChartHeight(), backgroundColor: '#FFFFFF', animation: false, spacing: [8, 4, 8, 0], style: { fontFamily: 'IBM Plex Sans, sans-serif' } },
-    title: { text: null }, credits: { enabled: false }, legend: { enabled: false },
-    xAxis: {
-      categories: cats.map(d => d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]),
-      labels: { style: { fontSize: '10px', color: '#7A7A7A' }, step: 7 }, tickLength: 0, lineColor: '#E0E0E0',
-      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
-    },
-    yAxis: { title: { text: null }, gridLineColor: '#EDF2F7', labels: { style: { fontSize: '10px', color: '#7A7A7A' }, format: '${value}' } },
-    tooltip: { shared: true, valuePrefix: '$', outside: false, style: { fontSize: '11px' } },
-    plotOptions: { series: { animation: false, marker: { enabled: false }, states: { inactive: { opacity: 1 } } } },
-    series: series
+/* ── "By Date" view: the app-friendly alternative to the dense grid.
+   Modeled on how Apple Weather / Google Flights handle data-heavy
+   comparisons on a phone — pick one date from a swipeable strip, get a
+   plain-language summary with a range bar showing where you sit, then a
+   ranked list with large, readable prices. Swipe the list sideways to
+   step through dates. ── */
+function ccRenderDateView(names) {
+  const DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const DAYL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const i = ccSelDay;
+  const d = ndRealDay(i).date;
+  const yours = ccView_cell('__yours__', i);
+  const rows = names.map(n => ({ name: n, c: CC_COMPS[n] || {}, cell: ccView_cell(n, i) }));
+  const avail = rows.filter(r => !r.cell.na && !r.cell.nb && !r.cell.booked);
+  const prices = avail.map(r => ccShown(r.cell)).sort((a, b) => a - b);
+  const you = ccShown(yours);
+  const med = prices.length ? (prices.length % 2 ? prices[(prices.length - 1) / 2] : Math.round((prices[prices.length / 2 - 1] + prices[prices.length / 2]) / 2)) : null;
+
+  let strip = '<div class="ccd-strip" id="ccd-strip">';
+  for (let k = 0; k < CC_DAYS; k++) {
+    const dk = ndRealDay(k).date;
+    strip += '<button class="ccd-chip' + (k === i ? ' active' : '') + ([5, 6].indexOf(dk.getDay()) >= 0 ? ' wknd' : '') + '" onclick="ccSelectDay(' + k + ')"><span class="ccd-chip-dow">' + DAY[dk.getDay()] + '</span><span class="ccd-chip-num">' + dk.getDate() + '</span><span class="ccd-chip-mon">' + MON[dk.getMonth()] + '</span></button>';
+  }
+  strip += '</div>';
+
+  let summary = '<div class="ccd-summary">';
+  summary += '<div class="ccd-sum-head"><button class="ccd-nav" aria-label="Previous day" onclick="ccSelectDay(' + (i - 1) + ')"' + (i === 0 ? ' disabled' : '') + '>‹</button><div class="ccd-sum-date"><div class="ccd-sum-day">' + DAYL[d.getDay()] + ', ' + d.getDate() + ' ' + MON[d.getMonth()] + '</div>' +
+    (ccPriceMode === 'guest' ? '<div class="ccd-sum-sub">' + ccLos + '-night stay · ' + ccStayLabel(i) + '</div>' : '<div class="ccd-sum-sub">Host nightly rate</div>') +
+    '</div><button class="ccd-nav" aria-label="Next day" onclick="ccSelectDay(' + (i + 1) + ')"' + (i === CC_DAYS - 1 ? ' disabled' : '') + '>›</button></div>';
+  if (yours.booked) {
+    summary += '<div class="ccd-verdict"><span class="ccd-big">Booked</span><span class="ccd-verdict-sub">Your listing is booked for this date</span></div>';
+  } else if (med === null) {
+    summary += '<div class="ccd-verdict"><span class="ccd-big">$' + you + '</span><span class="ccd-verdict-sub">No competitors available to compare</span></div>';
+  } else {
+    const diff = you - med;
+    const tone = Math.abs(diff) <= Math.max(3, med * 0.03) ? 'even' : (diff < 0 ? 'below' : 'above');
+    const txt = tone === 'even' ? 'In line with the competitor median' : '$' + Math.abs(diff) + (diff < 0 ? ' below' : ' above') + ' the competitor median';
+    summary += '<div class="ccd-verdict"><span class="ccd-big">$' + you + '</span><span class="ccd-label">Your price</span></div><div class="ccd-delta ' + tone + '">' + txt + '</div>';
+    const lo = Math.min(prices[0], you), hi = Math.max(prices[prices.length - 1], you);
+    const pos = v => hi === lo ? 50 : ((v - lo) / (hi - lo)) * 100;
+    summary += '<div class="ccd-range"><div class="ccd-track"><div class="ccd-band" style="left:' + pos(prices[0]) + '%;right:' + (100 - pos(prices[prices.length - 1])) + '%"></div>' +
+      prices.map(v => '<i class="ccd-dot" style="left:' + pos(v) + '%"></i>').join('') +
+      '<i class="ccd-med" style="left:' + pos(med) + '%"></i><i class="ccd-you" style="left:' + pos(you) + '%"></i></div>' +
+      '<div class="ccd-range-labels"><span>Low <strong>$' + prices[0] + '</strong></span><span>Median <strong>$' + med + '</strong></span><span>High <strong>$' + prices[prices.length - 1] + '</strong></span></div></div>';
+  }
+  summary += '<div class="ccd-stats"><span><strong>' + avail.length + '</strong> of ' + rows.length + ' available</span><span><strong>' + rows.filter(r => r.cell.booked).length + '</strong> booked</span>' + (ccPriceMode === 'guest' ? '<span><strong>' + rows.filter(r => r.cell.nb).length + '</strong> not bookable</span>' : '') + '</div>';
+  summary += '</div>';
+
+  const all = rows.concat([{ name: '__yours__', you: true, cell: yours }]);
+  const rank = r => (r.cell.na ? 3 : r.cell.nb ? 2 : r.cell.booked ? 1 : 0);
+  all.sort((a, b) => rank(a) - rank(b) || ccShown(a.cell) - ccShown(b.cell));
+  const thumb = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 11l3.5-3.5 3 3 2-2L14 12"/></svg>';
+  let list = '<div class="ccd-list-head"><span>Sorted by price</span><span>' + (ccPriceMode === 'guest' ? 'Avg / night' : 'Per night') + '</span></div><div class="ccd-list" id="ccd-list">';
+  all.forEach(r => {
+    const cell = r.cell;
+    let right;
+    if (cell.na) right = '<span class="ccd-chip-status">N/A</span>';
+    else if (cell.nb) right = '<span class="ccd-chip-status">N/B</span>';
+    else if (cell.booked) right = '<span class="ccd-price booked">$' + ccShown(cell) + '</span><span class="ccd-chip-status">Booked</span>';
+    else {
+      const v = ccShown(cell);
+      right = '<span class="ccd-price">$' + v + '</span>';
+      if (!r.you && !yours.booked) {
+        const dv = v - you;
+        right += '<span class="ccd-vs ' + (dv > 0 ? 'up' : dv < 0 ? 'down' : '') + '">' + (dv === 0 ? 'Same as you' : (dv > 0 ? '+$' : '−$') + Math.abs(dv) + ' vs you') + '</span>';
+      }
+    }
+    if (r.you) {
+      list += '<div class="ccd-row you"><div class="ccd-thumb you">You</div><div class="ccd-body"><div class="ccd-name">Your Room Type</div><div class="ccd-meta">' + cell.minStay + '-night min · Fee $' + ccPrice(CC_YOUR_FEE) + ' · <a href="#" onclick="event.preventDefault();ndOpenSheet(\'bs-comp-set-edit\')">Edit markup &amp; fees</a></div></div><div class="ccd-right">' + right + '</div></div>';
+    } else {
+      const c = r.c;
+      const rating = c.rating ? ND_STAR_ICON + ' ' + c.rating + ' (' + c.reviews + ')' : ND_STAR_ICON + ' New';
+      list += '<div class="ccd-row" onclick="ccOpenCompetitor(\'' + r.name.replace(/'/g, "\\'") + '\')"><div class="ccd-thumb">' + thumb + '</div><div class="ccd-body"><div class="ccd-name">' + r.name + '</div><div class="ccd-meta">' + c.br + ' · ' + rating + ' · ' + c.dist + '</div><div class="ccd-meta">' + c.minStay + '-night min · Fee $' + ccPrice(c.fee) + '</div></div><div class="ccd-right">' + right + '</div><span class="ccd-chev">›</span></div>';
+    }
   });
-  const legend = document.getElementById('cc-chart-legend');
-  legend.innerHTML = series.map(function (s) {
-    return '<div class="legend-item"><div class="legend-swatch" style="background:' + s.color + ';height:3px;width:14px;border-radius:2px"></div> ' + s.name + '</div>';
-  }).join('');
+  list += '</div>';
+
+  const root = document.getElementById('cc-date-view');
+  const prevScroll = document.getElementById('ccd-strip') ? document.getElementById('ccd-strip').scrollLeft : null;
+  root.innerHTML = strip + summary + list;
+  const st = document.getElementById('ccd-strip');
+  const chip = st.children[i];
+  if (prevScroll !== null) st.scrollLeft = prevScroll;
+  const cl = chip.offsetLeft, cr = cl + chip.offsetWidth;
+  if (cl < st.scrollLeft + 8 || cr > st.scrollLeft + st.clientWidth - 8) st.scrollLeft = cl - (st.clientWidth - chip.offsetWidth) / 2;
+  ccAttachDaySwipe(document.getElementById('ccd-list'));
+}
+function ccSelectDay(k) {
+  ccSelDay = Math.max(0, Math.min(CC_DAYS - 1, k));
+  ccRender();
+}
+/* Horizontal swipe on the list steps a day; vertical movement is left
+   to page scroll. */
+function ccAttachDaySwipe(el) {
+  let x0 = null, y0 = null;
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) ccSelectDay(ccSelDay + (dx < 0 ? 1 : -1));
+  }, { passive: true });
 }
 function ccOpenCompetitor(name) {
   const c = CC_COMPS[name] || {};

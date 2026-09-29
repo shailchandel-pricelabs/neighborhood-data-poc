@@ -374,3 +374,40 @@
 <!-- ═══ Override FAB (Calendar view) ═══ -->
 
 
+
+<!-- ═══ Competitor Calendar pickers (Host/Guest prices, Length of Stay) ═══ -->
+<div class="bs-overlay" id="bs-cc-price-mode" onclick="ndCloseSheet('bs-cc-price-mode')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Price Display</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-cc-price-mode')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body">
+      <div class="bs-radio-group" id="cc-price-mode-options">
+        <div class="bs-radio selected" data-mode="host" onclick="selectRadio(this);ccSetPriceMode('host')"><div class="bs-dot"></div><div><div class="bs-opt-label">Host Prices</div><div class="bs-opt-sub">Base nightly rate set by the host, before fees or taxes</div></div></div>
+        <div class="bs-radio" data-mode="guest" onclick="selectRadio(this);ccSetPriceMode('guest')"><div class="bs-dot"></div><div><div class="bs-opt-label">Guest Prices</div><div class="bs-opt-sub">Average nightly rate for a length of stay, including fees and PMS markups</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="bs-overlay" id="bs-cc-los" onclick="ndCloseSheet('bs-cc-los')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Length of Stay</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-cc-los')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body">
+      <div class="bs-radio-group" id="cc-los-options">
+        <div class="bs-radio" data-los="1" onclick="selectRadio(this);ccSetLos(1)"><div class="bs-dot"></div><span class="bs-opt-label">1 Night</span></div>
+        <div class="bs-radio selected" data-los="2" onclick="selectRadio(this);ccSetLos(2)"><div class="bs-dot"></div><span class="bs-opt-label">2 Nights</span></div>
+        <div class="bs-radio" data-los="3" onclick="selectRadio(this);ccSetLos(3)"><div class="bs-dot"></div><span class="bs-opt-label">3 Nights</span></div>
+        <div class="bs-radio" data-los="4" onclick="selectRadio(this);ccSetLos(4)"><div class="bs-dot"></div><span class="bs-opt-label">4 Nights</span></div>
+        <div class="bs-radio" data-los="5" onclick="selectRadio(this);ccSetLos(5)"><div class="bs-dot"></div><span class="bs-opt-label">5 Nights</span></div>
+        <div class="bs-radio" data-los="6" onclick="selectRadio(this);ccSetLos(6)"><div class="bs-dot"></div><span class="bs-opt-label">6 Nights</span></div>
+        <div class="bs-radio" data-los="7" onclick="selectRadio(this);ccSetLos(7)"><div class="bs-dot"></div><span class="bs-opt-label">7 Nights</span></div>
+      </div>
+    </div>
+  </div>
+</div>

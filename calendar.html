@@ -2492,6 +2492,104 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   .cc-legend-moon { display: inline-flex; color: var(--pl-text); }
   .cc-footnote { margin-top: 6px; font-size: 11px; color: var(--pl-text-disabled); }
 
+  /* ═══ Competitor Calendar v2: app components, guest-price note, By Date view ═══ */
+  .cc-toolbar { flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+  .cc-toolbar .range-pill { margin: 0; }
+  .cc-manage-btn {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 6px; height: 32px; padding: 0 14px;
+    background: var(--pl-card); border: 1px solid var(--pl-border); border-radius: var(--radius-full);
+    box-shadow: var(--shadow-sm); font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 700;
+    color: var(--pl-text); cursor: pointer;
+  }
+  .cc-manage-btn:active { background: var(--pl-bg); }
+  .cc-view-toggle { display: flex; width: 100%; margin-bottom: 12px; }
+  .cc-view-toggle .pill { flex: 1; min-height: 32px; height: 32px; padding: 0 12px; font-size: 12px; }
+  .bs-body .bs-radio { align-items: flex-start; }
+  .bs-opt-sub { font-size: 12px; color: var(--pl-text-secondary); line-height: 1.4; margin-top: 2px; }
+
+  .cc-info { background: var(--pl-bg); border-radius: var(--radius-md); margin-bottom: 12px; }
+  .cc-info-head {
+    width: 100%; display: flex; align-items: center; gap: 8px; padding: 10px 12px; min-height: 40px;
+    background: none; border: none; font-family: 'IBM Plex Sans', sans-serif; font-size: 12px; font-weight: 700;
+    color: var(--pl-text); text-align: left; cursor: pointer;
+  }
+  .cc-info-head span { flex: 1; }
+  .cc-info-chev { transition: transform 0.15s; }
+  .cc-info.open .cc-info-chev { transform: rotate(180deg); }
+  .cc-info-body { display: none; margin: 0; padding: 0 12px 12px 32px; font-size: 12px; line-height: 1.5; color: var(--pl-text); }
+  .cc-info-body li + li { margin-top: 4px; }
+  .cc-info.open .cc-info-body { display: block; }
+
+  .cc-stay .cc-c { background: var(--pl-highlight-blue); font-size: 9.5px; line-height: 1.25; color: var(--pl-text-secondary); text-align: center; }
+  .cc-stay .cc-name { font-size: 11px; color: var(--pl-text-secondary); flex-direction: column; align-items: flex-start; justify-content: center; gap: 0; }
+  .cc-stay .cc-name span { font-size: 9.5px; }
+
+  /* By Date: date strip */
+  .ccd-strip {
+    display: flex; gap: 6px; overflow-x: auto; scrollbar-width: none; margin: 0 -4px 12px; padding: 2px 4px;
+    scroll-behavior: smooth; overscroll-behavior-x: contain;
+  }
+  .ccd-strip::-webkit-scrollbar { display: none; }
+  .ccd-chip {
+    flex: 0 0 48px; height: 64px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+    border: 1px solid var(--pl-border); border-radius: var(--radius-lg); background: var(--pl-card);
+    font-family: 'IBM Plex Sans', sans-serif; color: var(--pl-text); cursor: pointer;
+  }
+  .ccd-chip.wknd { background: var(--pl-bg); }
+  .ccd-chip-dow, .ccd-chip-mon { font-size: 10px; color: var(--pl-text-secondary); }
+  .ccd-chip-num { font-size: 17px; font-weight: 700; line-height: 1.1; }
+  .ccd-chip.active { background: var(--pl-primary-light); border-color: var(--pl-primary); color: var(--pl-primary); }
+  .ccd-chip.active .ccd-chip-dow, .ccd-chip.active .ccd-chip-mon { color: var(--pl-primary); }
+
+  /* Summary card */
+  .ccd-summary { border: 1px solid var(--pl-border); border-radius: var(--radius-lg); padding: 12px 14px 14px; margin-bottom: 14px; }
+  .ccd-sum-head { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
+  .ccd-sum-date { flex: 1; text-align: center; }
+  .ccd-sum-day { font-size: 14px; font-weight: 700; color: var(--pl-text); }
+  .ccd-sum-sub { font-size: 12px; color: var(--pl-text-secondary); }
+  .ccd-nav {
+    width: 32px; height: 32px; border-radius: var(--radius-full); border: 1px solid var(--pl-border); background: var(--pl-card);
+    font-size: 20px; line-height: 1; color: var(--pl-text); cursor: pointer; display: flex; align-items: center; justify-content: center; padding-bottom: 2px;
+  }
+  .ccd-nav:disabled { opacity: 0.35; cursor: default; }
+  .ccd-verdict { display: flex; align-items: baseline; gap: 8px; }
+  .ccd-big { font-size: 28px; font-weight: 700; color: var(--pl-text); letter-spacing: -0.01em; }
+  .ccd-label, .ccd-verdict-sub { font-size: 13px; color: var(--pl-text-secondary); }
+  .ccd-delta { font-size: 14px; font-weight: 600; margin-top: 2px; }
+  .ccd-delta.below, .ccd-delta.above { color: var(--pl-text); }
+  .ccd-delta.even { color: var(--pl-text); }
+  .ccd-range { margin-top: 16px; }
+  .ccd-track { position: relative; height: 8px; border-radius: 4px; background: var(--pl-surface-neutral); margin: 0 6px; }
+  .ccd-band { position: absolute; top: 0; bottom: 0; border-radius: 4px; background: #D9DDE3; }
+  .ccd-dot { position: absolute; top: 50%; width: 8px; height: 8px; margin: -4px 0 0 -4px; border-radius: 50%; background: #9AA1AB; border: 1.5px solid #fff; }
+  .ccd-med { position: absolute; top: -4px; bottom: -4px; width: 2px; margin-left: -1px; background: #7A7A7A; border-radius: 1px; }
+  .ccd-you { position: absolute; top: 50%; width: 16px; height: 16px; margin: -8px 0 0 -8px; border-radius: 50%; background: var(--pl-primary); border: 3px solid #fff; box-shadow: 0 1px 3px rgba(0,0,0,0.25); z-index: 2; }
+  .ccd-range-labels { display: flex; justify-content: space-between; margin-top: 10px; font-size: 12px; color: var(--pl-text-secondary); }
+  .ccd-range-labels strong { color: var(--pl-text); }
+  .ccd-stats { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 12px; padding-top: 10px; border-top: 1px solid var(--pl-border-table); font-size: 12px; color: var(--pl-text-secondary); }
+  .ccd-stats strong { color: var(--pl-text); }
+
+  /* Ranked list */
+  .ccd-list-head { display: flex; justify-content: space-between; font-size: 11px; font-weight: 600; letter-spacing: 0.02em; text-transform: uppercase; color: var(--pl-text-secondary); margin: 0 2px 6px; }
+  .ccd-list { border: 1px solid var(--pl-border); border-radius: var(--radius-lg); overflow: hidden; }
+  .ccd-row { display: flex; align-items: center; gap: 10px; padding: 12px; min-height: 64px; background: var(--pl-card); cursor: pointer; }
+  .ccd-row + .ccd-row { border-top: 1px solid var(--pl-border-table); }
+  .ccd-row:active { background: var(--pl-bg); }
+  .ccd-row.you { background: var(--pl-primary-light); cursor: default; }
+  .ccd-thumb { width: 40px; height: 40px; border-radius: var(--radius-md); background: var(--pl-bg); color: var(--pl-text-secondary); display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+  .ccd-thumb.you { background: var(--pl-primary); color: #fff; font-size: 12px; font-weight: 700; }
+  .ccd-body { flex: 1; min-width: 0; }
+  .ccd-name { font-size: 14px; font-weight: 600; color: var(--pl-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .ccd-meta { font-size: 12px; color: var(--pl-text-secondary); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-top: 1px; }
+  .ccd-meta svg { color: var(--pl-text); }
+  .ccd-meta a { color: var(--pl-blue); font-weight: 600; text-decoration: none; }
+  .ccd-right { display: flex; flex-direction: column; align-items: flex-end; gap: 2px; flex-shrink: 0; }
+  .ccd-price { font-size: 17px; font-weight: 700; color: var(--pl-text); }
+  .ccd-price.booked { color: var(--pl-text-disabled); text-decoration: line-through; font-size: 15px; }
+  .ccd-vs { font-size: 11px; color: var(--pl-text-secondary); }
+  .ccd-chip-status { font-size: 11px; font-weight: 600; color: var(--pl-text); background: var(--pl-surface-neutral); border-radius: var(--radius-full); padding: 2px 8px; }
+  .ccd-chev { color: var(--pl-text-disabled); font-size: 20px; margin-left: -2px; }
+
 body { background: #d9dbe0; }
 .phone-frame { scrollbar-width: none; -ms-overflow-style: none; }
 .phone-frame::-webkit-scrollbar { display: none; width: 0; height: 0; }
@@ -2782,30 +2880,37 @@ body { background: #d9dbe0; }
       </div>
 
       <div id="cc-populated" style="display:none">
+        <!-- Controls use the app's own components: rounded pill dropdowns
+             that open bottom-sheet pickers (same as "Next 30 Days"), a
+             connected segmented control, and a rounded bordered action. -->
         <div class="cc-toolbar">
-          <div class="cc-price-dropdown-wrap">
-            <button class="cc-btn cc-btn-secondary" id="cc-price-dropdown-btn" onclick="ccTogglePriceDropdown()"><span id="cc-price-mode-label">Host Prices</span> <svg viewBox="0 0 10 6" width="10" height="6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-            <div class="cc-price-dropdown-menu" id="cc-price-dropdown-menu">
-              <div class="cc-price-dropdown-item" data-mode="host" onclick="ccSetPriceMode('host')">Host Prices</div>
-              <div class="cc-price-dropdown-item" data-mode="guest" onclick="ccSetPriceMode('guest')">Guest Prices</div>
-            </div>
-          </div>
-          <div class="pill-toggles cc-view-toggle" id="cc-view-toggle">
-            <div class="pill active" data-view="table" onclick="ccSetView('table')"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><rect x="1.5" y="2.5" width="13" height="11" rx="1.5"/><path d="M1.5 6.5h13M6 6.5v7"/></svg> Table</div>
-            <div class="pill" data-view="chart" onclick="ccSetView('chart')"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 13.5h13"/><path d="M2.5 10.5l3.5-4 3 2.5 4.5-5.5"/></svg> Chart</div>
-          </div>
-          <button class="cc-btn cc-btn-primary" onclick="ndOpenSheet('bs-add-competitors')">Manage</button>
+          <div class="pill has-menu range-pill" id="cc-price-pill" onclick="ndOpenSheet('bs-cc-price-mode')">Host Prices</div>
+          <div class="pill has-menu range-pill" id="cc-los-pill" style="display:none" onclick="ndOpenSheet('bs-cc-los')">LOS: 2 Nights</div>
+          <button class="cc-manage-btn" onclick="ndOpenSheet('bs-add-competitors')"><svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" aria-hidden="true"><circle cx="6" cy="5.5" r="2.5"/><path d="M1.5 13.5c.5-2.5 2.3-3.8 4.5-3.8s4 1.3 4.5 3.8"/><path d="M11 3.2a2.4 2.4 0 0 1 0 4.6M12.4 9.9c1.2.5 1.9 1.7 2.1 3.6"/></svg> Manage</button>
+        </div>
+        <div class="pill-toggles cc-view-toggle" id="cc-view-toggle">
+          <div class="pill active" data-view="date" onclick="ccSetView('date')">By Date</div>
+          <div class="pill" data-view="table" onclick="ccSetView('table')">Table</div>
         </div>
 
-        <div id="cc-table-view">
+        <!-- Guest Prices explainer, matching desktop's "Understanding the
+             New Guest Prices" note — collapsible so it doesn't push the
+             data below the fold on a phone. -->
+        <div class="cc-info" id="cc-guest-info" style="display:none">
+          <button class="cc-info-head" onclick="this.parentElement.classList.toggle('open')"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.1" stroke-linecap="round"/></svg><span>Understanding the New Guest Prices</span><svg class="cc-info-chev" viewBox="0 0 10 6" width="10" height="6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <ul class="cc-info-body">
+            <li>Prices shown are the average nightly rate for the selected Length of Stay (LOS), including all applicable fees.</li>
+            <li>For the total price, multiply the average nightly rate by the LOS. E.g. $120 average for a 3-night stay = $120 × 3 = $360.</li>
+            <li><strong>N/B</strong> (not bookable) means the listing can't be booked for the selected LOS. E.g. a 3-night minimum shows N/B when 2 nights is selected.</li>
+          </ul>
+        </div>
+
+        <div id="cc-date-view"></div>
+        <div id="cc-table-view" style="display:none">
           <div class="comp-table-wrap" id="cc-table"></div>
         </div>
-        <div id="cc-chart-view" style="display:none">
-          <div class="hc-chart-wrap"><div id="cc-hc-chart"></div></div>
-          <div class="legend" id="cc-chart-legend"></div>
-        </div>
 
-        <div class="cc-legend" id="cc-table-legend">
+        <div class="cc-legend" id="cc-table-legend" style="display:none">
           <span><strong>N/A:</strong> Price not available</span>
           <span><strong>N/B:</strong> Not bookable for selected Min-LOS</span>
           <span><i class="cc-legend-booked"></i> Booked or blocked</span>
@@ -3229,6 +3334,43 @@ body { background: #d9dbe0; }
 
 
 
+<!-- ═══ Competitor Calendar pickers (Host/Guest prices, Length of Stay) ═══ -->
+<div class="bs-overlay" id="bs-cc-price-mode" onclick="ndCloseSheet('bs-cc-price-mode')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Price Display</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-cc-price-mode')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body">
+      <div class="bs-radio-group" id="cc-price-mode-options">
+        <div class="bs-radio selected" data-mode="host" onclick="selectRadio(this);ccSetPriceMode('host')"><div class="bs-dot"></div><div><div class="bs-opt-label">Host Prices</div><div class="bs-opt-sub">Base nightly rate set by the host, before fees or taxes</div></div></div>
+        <div class="bs-radio" data-mode="guest" onclick="selectRadio(this);ccSetPriceMode('guest')"><div class="bs-dot"></div><div><div class="bs-opt-label">Guest Prices</div><div class="bs-opt-sub">Average nightly rate for a length of stay, including fees and PMS markups</div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div class="bs-overlay" id="bs-cc-los" onclick="ndCloseSheet('bs-cc-los')">
+  <div class="bottom-sheet" onclick="event.stopPropagation()">
+    <div class="bs-handle"></div>
+    <div class="bs-header">
+      <div class="bs-title">Length of Stay</div>
+      <button class="bs-close" onclick="ndCloseSheet('bs-cc-los')"><svg viewBox="0 0 384 512" xmlns="http://www.w3.org/2000/svg" style="width:0.95em;height:0.95em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M345 137c9.4-9.4 9.4-24.6 0-33.9s-24.6-9.4-33.9 0l-119 119L73 103c-9.4-9.4-24.6-9.4-33.9 0s-9.4 24.6 0 33.9l119 119L39 375c-9.4 9.4-9.4 24.6 0 33.9s24.6 9.4 33.9 0l119-119L311 409c9.4 9.4 24.6 9.4 33.9 0s9.4-24.6 0-33.9l-119-119L345 137z"></path></svg></button>
+    </div>
+    <div class="bs-body">
+      <div class="bs-radio-group" id="cc-los-options">
+        <div class="bs-radio" data-los="1" onclick="selectRadio(this);ccSetLos(1)"><div class="bs-dot"></div><span class="bs-opt-label">1 Night</span></div>
+        <div class="bs-radio selected" data-los="2" onclick="selectRadio(this);ccSetLos(2)"><div class="bs-dot"></div><span class="bs-opt-label">2 Nights</span></div>
+        <div class="bs-radio" data-los="3" onclick="selectRadio(this);ccSetLos(3)"><div class="bs-dot"></div><span class="bs-opt-label">3 Nights</span></div>
+        <div class="bs-radio" data-los="4" onclick="selectRadio(this);ccSetLos(4)"><div class="bs-dot"></div><span class="bs-opt-label">4 Nights</span></div>
+        <div class="bs-radio" data-los="5" onclick="selectRadio(this);ccSetLos(5)"><div class="bs-dot"></div><span class="bs-opt-label">5 Nights</span></div>
+        <div class="bs-radio" data-los="6" onclick="selectRadio(this);ccSetLos(6)"><div class="bs-dot"></div><span class="bs-opt-label">6 Nights</span></div>
+        <div class="bs-radio" data-los="7" onclick="selectRadio(this);ccSetLos(7)"><div class="bs-dot"></div><span class="bs-opt-label">7 Nights</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
 
 <div id="sheet-comingsoon" role="dialog" class="chakra-slide chakra-modal__content css-ej5jt3" style="position: absolute; bottom: 0px; left: 0px; right: 0px; transform: none; z-index: 2000; display: none;">
   <div class="css-pmdasi"><div class="css-1kiwa3z"></div></div>
@@ -3344,29 +3486,34 @@ document.querySelectorAll('.metric-card').forEach(c => {
    each cell's own text the first time it's needed, so no separate
    dataset has to be hand-maintained per cell. ── */
 let ccPriceMode = 'host';
-let ccView = 'table';
-let ccChart = null;
-function ccTogglePriceDropdown() {
-  document.getElementById('cc-price-dropdown-menu').classList.toggle('open');
-}
+let ccView = 'date';
+let ccLos = 2;
+let ccSelDay = 0;
 function ccSetPriceMode(mode) {
   ccPriceMode = mode;
-  document.getElementById('cc-price-dropdown-menu').classList.remove('open');
-  document.getElementById('cc-price-mode-label').textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
-  document.querySelectorAll('#cc-price-dropdown-menu .cc-price-dropdown-item').forEach(i => i.classList.toggle('active', i.dataset.mode === mode));
+  ndCloseSheet('bs-cc-price-mode');
+  document.getElementById('cc-price-pill').firstChild.textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
+  document.getElementById('cc-los-pill').style.display = mode === 'guest' ? '' : 'none';
+  document.getElementById('cc-guest-info').style.display = mode === 'guest' ? '' : 'none';
   const note = document.getElementById('cc-price-footnote');
   if (note) {
     note.textContent = mode === 'guest'
-      ? 'Nightly rates including fee and PMS markups.'
+      ? 'Average nightly rates including fee and PMS markups. Multiply by the selected LOS for the total guest price.'
       : 'Nightly rates before adding fee or taxes; base amount set by the host.';
   }
+  ccRender();
+}
+function ccSetLos(n) {
+  ccLos = n;
+  ndCloseSheet('bs-cc-los');
+  document.getElementById('cc-los-pill').firstChild.textContent = 'LOS: ' + n + ' Night' + (n > 1 ? 's' : '');
   ccRender();
 }
 function ccSetView(view) {
   ccView = view;
   document.querySelectorAll('#cc-view-toggle .pill').forEach(p => p.classList.toggle('active', p.dataset.view === view));
   document.getElementById('cc-table-view').style.display = view === 'table' ? '' : 'none';
-  document.getElementById('cc-chart-view').style.display = view === 'chart' ? '' : 'none';
+  document.getElementById('cc-date-view').style.display = view === 'date' ? '' : 'none';
   document.getElementById('cc-table-legend').style.display = view === 'table' ? '' : 'none';
   ccRender();
 }
@@ -3377,22 +3524,22 @@ function ccSetView(view) {
    per-cell jitter so booked dates, min-stays and N/A/N/B cells stay
    stable across re-renders. ── */
 const CC_DAYS = 30;
+const CC_YOUR_FEE = 35;
 const CC_COMPS = {
-  'Luxe King Suite':       { br: '1 BR', rating: '4.98', reviews: 112, dist: '0.3 mi', factor: 1.18, minStay: 2, fee: 95 },
-  'New! 1 Bed Hideaway':   { br: '1 BR', rating: null,   reviews: 0,   dist: '0.4 mi', factor: 1.02, minStay: 1, fee: 65 },
-  'Modern Studio Apt':     { br: 'Studio', rating: '4.85', reviews: 64, dist: '0.5 mi', factor: 0.86, minStay: 3, fee: 55 },
-  'Sunny 2BR Condo':       { br: '2 BR', rating: '4.91', reviews: 38,  dist: '0.6 mi', factor: 1.40, minStay: 2, fee: 110 },
-  'Charming 1BR Loft':     { br: '1 BR', rating: '4.76', reviews: 21,  dist: '0.7 mi', factor: 1.08, minStay: 2, fee: 75 },
-  'Trendy East Austin':    { br: '1 BR', rating: '4.88', reviews: 57,  dist: '0.8 mi', factor: 1.16, minStay: 1, fee: 80 },
-  'Quiet Garden Studio':   { br: 'Studio', rating: '4.70', reviews: 12, dist: '0.9 mi', factor: 0.78, minStay: 2, fee: 50 },
-  'Central 2BR Flat':      { br: '2 BR', rating: '4.82', reviews: 45,  dist: '1.0 mi', factor: 1.31, minStay: 1, fee: 100 },
-  'Bright Corner 1BR':     { br: '1 BR', rating: '4.65', reviews: 9,   dist: '1.1 mi', factor: 0.94, minStay: 3, fee: 70 },
-  'Riverside 1BR Retreat': { br: '1 BR', rating: '4.90', reviews: 73,  dist: '1.2 mi', factor: 1.12, minStay: 2, fee: 85 },
-  'Downtown Rooftop 2BR':  { br: '2 BR', rating: '4.94', reviews: 88,  dist: '1.3 mi', factor: 1.52, minStay: 2, fee: 120 },
-  'Cozy Backyard Studio':  { br: 'Studio', rating: '4.60', reviews: 6, dist: '1.4 mi', factor: 0.74, minStay: 1, fee: 45 },
-  'Historic 3BR House':    { br: '3 BR', rating: '4.87', reviews: 31,  dist: '1.5 mi', factor: 1.85, minStay: 3, fee: 150 }
+  'Luxe King Suite':       { br: '1 BR', rating: '4.98', reviews: 112, dist: '0.3 mi', factor: 1.18, minStay: 2, fee: 45 },
+  'New! 1 Bed Hideaway':   { br: '1 BR', rating: null,   reviews: 0,   dist: '0.4 mi', factor: 1.02, minStay: 1, fee: 30 },
+  'Modern Studio Apt':     { br: 'Studio', rating: '4.85', reviews: 64, dist: '0.5 mi', factor: 0.86, minStay: 3, fee: 25 },
+  'Sunny 2BR Condo':       { br: '2 BR', rating: '4.91', reviews: 38,  dist: '0.6 mi', factor: 1.40, minStay: 2, fee: 50 },
+  'Charming 1BR Loft':     { br: '1 BR', rating: '4.76', reviews: 21,  dist: '0.7 mi', factor: 1.08, minStay: 2, fee: 35 },
+  'Trendy East Austin':    { br: '1 BR', rating: '4.88', reviews: 57,  dist: '0.8 mi', factor: 1.16, minStay: 1, fee: 35 },
+  'Quiet Garden Studio':   { br: 'Studio', rating: '4.70', reviews: 12, dist: '0.9 mi', factor: 0.78, minStay: 2, fee: 20 },
+  'Central 2BR Flat':      { br: '2 BR', rating: '4.82', reviews: 45,  dist: '1.0 mi', factor: 1.31, minStay: 1, fee: 45 },
+  'Bright Corner 1BR':     { br: '1 BR', rating: '4.65', reviews: 9,   dist: '1.1 mi', factor: 0.94, minStay: 3, fee: 30 },
+  'Riverside 1BR Retreat': { br: '1 BR', rating: '4.90', reviews: 73,  dist: '1.2 mi', factor: 1.12, minStay: 2, fee: 40 },
+  'Downtown Rooftop 2BR':  { br: '2 BR', rating: '4.94', reviews: 88,  dist: '1.3 mi', factor: 1.52, minStay: 2, fee: 55 },
+  'Cozy Backyard Studio':  { br: 'Studio', rating: '4.60', reviews: 6, dist: '1.4 mi', factor: 0.74, minStay: 1, fee: 20 },
+  'Historic 3BR House':    { br: '3 BR', rating: '4.87', reviews: 31,  dist: '1.5 mi', factor: 1.85, minStay: 3, fee: 70 }
 };
-const CC_LINE_COLORS = ['#F37579', '#2CAFFE', '#31C48D', '#E29F08', '#9B6BDF', '#A15457', '#1976F3', '#39AA80', '#D66B6F', '#7A7A7A'];
 function ccHash(str) {
   let h = 2166136261;
   for (let i = 0; i < str.length; i++) { h ^= str.charCodeAt(i); h = Math.imul(h, 16777619); }
@@ -3419,10 +3566,35 @@ function ccCell(name, i) {
   return { price: price, booked: status === 'booked', na: status === 'na', nb: status === 'nb', minStay: c.minStay, weekend: weekend };
 }
 function ccPrice(v) { return ccPriceMode === 'guest' ? Math.round(v * 1.13) : v; }
+/* Mode-aware cell. Host: that night's base rate. Guest: the average
+   nightly rate for a stay of ccLos nights checking in on day i,
+   including the fee (spread across the stay) and PMS markup — N/B when
+   the listing's min-stay is longer than the selected LOS, booked when
+   any night of the stay is taken. */
+function ccView_cell(name, i) {
+  const base = ccCell(name, i);
+  if (ccPriceMode !== 'guest' || base.na) return base;
+  const c = name === '__yours__' ? { fee: CC_YOUR_FEE } : (CC_COMPS[name] || { fee: 0 });
+  if (base.minStay > ccLos) return Object.assign({}, base, { nb: true });
+  let sum = 0, booked = false;
+  for (let k = 0; k < ccLos; k++) {
+    const n = ccCell(name, Math.min(i + k, CC_DAYS + 6));
+    if (n.booked || n.na) booked = true;
+    sum += n.price;
+  }
+  const avg = Math.round((sum / ccLos) * 1.13 + (c.fee || 0) / ccLos);
+  return Object.assign({}, base, { price: avg, booked: booked, nb: false, raw: true });
+}
+function ccShown(cell) { return cell.raw ? cell.price : ccPrice(cell.price); }
+function ccStayLabel(i) {
+  const M = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const a = ndRealDay(i).date, b = ndRealDay(i + ccLos).date;
+  return M[a.getMonth()] + ' ' + a.getDate() + ' – ' + M[b.getMonth()] + ' ' + b.getDate();
+}
 function ccRender() {
   const names = ccAddedNames();
   if (!names.length) return;
-  if (ccView === 'chart') { ccRenderChart(names); return; }
+  if (ccView === 'date') { ccRenderDateView(names); return; }
   const moon = '<svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
   const ext = '<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7 9M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/></svg>';
   const thumb = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 11l3.5-3.5 3 3 2-2L14 12"/></svg>';
@@ -3440,60 +3612,141 @@ function ccRender() {
     let h = '<div class="cc-row' + (yours ? ' cc-yours' : '') + '"' + (yours ? '' : ' onclick="ccOpenCompetitor(\'' + name.replace(/'/g, "\\'") + '\')"') + '>';
     if (yours) {
       h += '<div class="cc-c cc-name"><div class="cc-name-text"><div class="cc-title"><strong>Your Room Type</strong></div><a class="cc-link" href="#" onclick="event.preventDefault();event.stopPropagation();ndOpenSheet(\'bs-comp-set-edit\')">Edit Markup, Fee Details</a></div></div>';
-      h += '<div class="cc-c cc-fee">—</div>';
+      h += '<div class="cc-c cc-fee">$' + ccPrice(CC_YOUR_FEE) + '</div>';
     } else {
       const rating = c.rating ? c.rating + ' ' + ND_STAR_ICON + ' (' + c.reviews + ')' : '— ' + ND_STAR_ICON + ' (NA)';
       h += '<div class="cc-c cc-name"><div class="cc-thumb">' + thumb + '</div><div class="cc-name-text"><div class="cc-title">' + name + '</div><div class="cc-meta">' + c.br + ' | ' + rating + '</div></div><span class="cc-ext">' + ext + '</span></div>';
       h += '<div class="cc-c cc-fee">$' + ccPrice(c.fee) + '</div>';
     }
     for (let i = 0; i < CC_DAYS; i++) {
-      const cell = ccCell(name, i);
+      const cell = ccView_cell(name, i);
       let cls = 'cc-c cc-day' + (cell.weekend ? ' wknd' : '');
       let inner;
       if (cell.na) { inner = '<span class="cc-p">N/A</span>'; cls += ' muted'; }
       else if (cell.nb) { inner = '<span class="cc-p">N/B</span>'; cls += ' muted'; }
       else {
         if (cell.booked) cls += ' booked';
-        inner = '<span class="cc-p">' + ccPrice(cell.price) + '</span><span class="cc-ms">' + cell.minStay + moon + '</span>';
+        inner = '<span class="cc-p">' + ccShown(cell) + '</span><span class="cc-ms">' + cell.minStay + moon + '</span>';
       }
       h += '<div class="' + cls + '">' + inner + '</div>';
     }
     return h + '</div>';
   };
+  if (ccPriceMode === 'guest') {
+    html += '<div class="cc-row cc-stay"><div class="cc-c cc-name">Stay Dates <span>(based on selected LOS)</span></div><div class="cc-c cc-fee">—</div>';
+    for (let i = 0; i < CC_DAYS; i++) {
+      const w = [5, 6].indexOf(ndRealDay(i).date.getDay()) >= 0;
+      html += '<div class="cc-c' + (w ? ' wknd' : '') + '">' + ccStayLabel(i).replace(' – ', ' –<br>') + '</div>';
+    }
+    html += '</div>';
+  }
   html += rowHtml('__yours__');
   names.forEach(n => { html += rowHtml(n); });
   document.getElementById('cc-table').innerHTML = html;
 }
-function ccRenderChart(names) {
-  if (typeof Highcharts === 'undefined') return;
-  const cats = [], series = [];
-  for (let i = 0; i < CC_DAYS; i++) cats.push(ndRealDay(i).date);
-  const mk = function (name) {
-    return cats.map(function (_, i) {
-      const cell = ccCell(name, i);
-      return (cell.na || cell.nb) ? null : ccPrice(cell.price);
-    });
-  };
-  series.push({ name: 'Your Room Type', data: mk('__yours__'), color: '#333333', lineWidth: 2.5, zIndex: 5 });
-  names.forEach(function (n, k) { series.push({ name: n, data: mk(n), color: CC_LINE_COLORS[k % CC_LINE_COLORS.length], lineWidth: 1.5 }); });
-  if (ccChart) { ccChart.destroy(); ccChart = null; }
-  ccChart = Highcharts.chart('cc-hc-chart', {
-    chart: { type: 'line', height: ndWidgetChartHeight(), backgroundColor: '#FFFFFF', animation: false, spacing: [8, 4, 8, 0], style: { fontFamily: 'IBM Plex Sans, sans-serif' } },
-    title: { text: null }, credits: { enabled: false }, legend: { enabled: false },
-    xAxis: {
-      categories: cats.map(d => d.getDate() + ' ' + ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'][d.getMonth()]),
-      labels: { style: { fontSize: '10px', color: '#7A7A7A' }, step: 7 }, tickLength: 0, lineColor: '#E0E0E0',
-      crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
-    },
-    yAxis: { title: { text: null }, gridLineColor: '#EDF2F7', labels: { style: { fontSize: '10px', color: '#7A7A7A' }, format: '${value}' } },
-    tooltip: { shared: true, valuePrefix: '$', outside: false, style: { fontSize: '11px' } },
-    plotOptions: { series: { animation: false, marker: { enabled: false }, states: { inactive: { opacity: 1 } } } },
-    series: series
+/* ── "By Date" view: the app-friendly alternative to the dense grid.
+   Modeled on how Apple Weather / Google Flights handle data-heavy
+   comparisons on a phone — pick one date from a swipeable strip, get a
+   plain-language summary with a range bar showing where you sit, then a
+   ranked list with large, readable prices. Swipe the list sideways to
+   step through dates. ── */
+function ccRenderDateView(names) {
+  const DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+  const DAYL = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const i = ccSelDay;
+  const d = ndRealDay(i).date;
+  const yours = ccView_cell('__yours__', i);
+  const rows = names.map(n => ({ name: n, c: CC_COMPS[n] || {}, cell: ccView_cell(n, i) }));
+  const avail = rows.filter(r => !r.cell.na && !r.cell.nb && !r.cell.booked);
+  const prices = avail.map(r => ccShown(r.cell)).sort((a, b) => a - b);
+  const you = ccShown(yours);
+  const med = prices.length ? (prices.length % 2 ? prices[(prices.length - 1) / 2] : Math.round((prices[prices.length / 2 - 1] + prices[prices.length / 2]) / 2)) : null;
+
+  let strip = '<div class="ccd-strip" id="ccd-strip">';
+  for (let k = 0; k < CC_DAYS; k++) {
+    const dk = ndRealDay(k).date;
+    strip += '<button class="ccd-chip' + (k === i ? ' active' : '') + ([5, 6].indexOf(dk.getDay()) >= 0 ? ' wknd' : '') + '" onclick="ccSelectDay(' + k + ')"><span class="ccd-chip-dow">' + DAY[dk.getDay()] + '</span><span class="ccd-chip-num">' + dk.getDate() + '</span><span class="ccd-chip-mon">' + MON[dk.getMonth()] + '</span></button>';
+  }
+  strip += '</div>';
+
+  let summary = '<div class="ccd-summary">';
+  summary += '<div class="ccd-sum-head"><button class="ccd-nav" aria-label="Previous day" onclick="ccSelectDay(' + (i - 1) + ')"' + (i === 0 ? ' disabled' : '') + '>‹</button><div class="ccd-sum-date"><div class="ccd-sum-day">' + DAYL[d.getDay()] + ', ' + d.getDate() + ' ' + MON[d.getMonth()] + '</div>' +
+    (ccPriceMode === 'guest' ? '<div class="ccd-sum-sub">' + ccLos + '-night stay · ' + ccStayLabel(i) + '</div>' : '<div class="ccd-sum-sub">Host nightly rate</div>') +
+    '</div><button class="ccd-nav" aria-label="Next day" onclick="ccSelectDay(' + (i + 1) + ')"' + (i === CC_DAYS - 1 ? ' disabled' : '') + '>›</button></div>';
+  if (yours.booked) {
+    summary += '<div class="ccd-verdict"><span class="ccd-big">Booked</span><span class="ccd-verdict-sub">Your listing is booked for this date</span></div>';
+  } else if (med === null) {
+    summary += '<div class="ccd-verdict"><span class="ccd-big">$' + you + '</span><span class="ccd-verdict-sub">No competitors available to compare</span></div>';
+  } else {
+    const diff = you - med;
+    const tone = Math.abs(diff) <= Math.max(3, med * 0.03) ? 'even' : (diff < 0 ? 'below' : 'above');
+    const txt = tone === 'even' ? 'In line with the competitor median' : '$' + Math.abs(diff) + (diff < 0 ? ' below' : ' above') + ' the competitor median';
+    summary += '<div class="ccd-verdict"><span class="ccd-big">$' + you + '</span><span class="ccd-label">Your price</span></div><div class="ccd-delta ' + tone + '">' + txt + '</div>';
+    const lo = Math.min(prices[0], you), hi = Math.max(prices[prices.length - 1], you);
+    const pos = v => hi === lo ? 50 : ((v - lo) / (hi - lo)) * 100;
+    summary += '<div class="ccd-range"><div class="ccd-track"><div class="ccd-band" style="left:' + pos(prices[0]) + '%;right:' + (100 - pos(prices[prices.length - 1])) + '%"></div>' +
+      prices.map(v => '<i class="ccd-dot" style="left:' + pos(v) + '%"></i>').join('') +
+      '<i class="ccd-med" style="left:' + pos(med) + '%"></i><i class="ccd-you" style="left:' + pos(you) + '%"></i></div>' +
+      '<div class="ccd-range-labels"><span>Low <strong>$' + prices[0] + '</strong></span><span>Median <strong>$' + med + '</strong></span><span>High <strong>$' + prices[prices.length - 1] + '</strong></span></div></div>';
+  }
+  summary += '<div class="ccd-stats"><span><strong>' + avail.length + '</strong> of ' + rows.length + ' available</span><span><strong>' + rows.filter(r => r.cell.booked).length + '</strong> booked</span>' + (ccPriceMode === 'guest' ? '<span><strong>' + rows.filter(r => r.cell.nb).length + '</strong> not bookable</span>' : '') + '</div>';
+  summary += '</div>';
+
+  const all = rows.concat([{ name: '__yours__', you: true, cell: yours }]);
+  const rank = r => (r.cell.na ? 3 : r.cell.nb ? 2 : r.cell.booked ? 1 : 0);
+  all.sort((a, b) => rank(a) - rank(b) || ccShown(a.cell) - ccShown(b.cell));
+  const thumb = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 11l3.5-3.5 3 3 2-2L14 12"/></svg>';
+  let list = '<div class="ccd-list-head"><span>Sorted by price</span><span>' + (ccPriceMode === 'guest' ? 'Avg / night' : 'Per night') + '</span></div><div class="ccd-list" id="ccd-list">';
+  all.forEach(r => {
+    const cell = r.cell;
+    let right;
+    if (cell.na) right = '<span class="ccd-chip-status">N/A</span>';
+    else if (cell.nb) right = '<span class="ccd-chip-status">N/B</span>';
+    else if (cell.booked) right = '<span class="ccd-price booked">$' + ccShown(cell) + '</span><span class="ccd-chip-status">Booked</span>';
+    else {
+      const v = ccShown(cell);
+      right = '<span class="ccd-price">$' + v + '</span>';
+      if (!r.you && !yours.booked) {
+        const dv = v - you;
+        right += '<span class="ccd-vs ' + (dv > 0 ? 'up' : dv < 0 ? 'down' : '') + '">' + (dv === 0 ? 'Same as you' : (dv > 0 ? '+$' : '−$') + Math.abs(dv) + ' vs you') + '</span>';
+      }
+    }
+    if (r.you) {
+      list += '<div class="ccd-row you"><div class="ccd-thumb you">You</div><div class="ccd-body"><div class="ccd-name">Your Room Type</div><div class="ccd-meta">' + cell.minStay + '-night min · Fee $' + ccPrice(CC_YOUR_FEE) + ' · <a href="#" onclick="event.preventDefault();ndOpenSheet(\'bs-comp-set-edit\')">Edit markup &amp; fees</a></div></div><div class="ccd-right">' + right + '</div></div>';
+    } else {
+      const c = r.c;
+      const rating = c.rating ? ND_STAR_ICON + ' ' + c.rating + ' (' + c.reviews + ')' : ND_STAR_ICON + ' New';
+      list += '<div class="ccd-row" onclick="ccOpenCompetitor(\'' + r.name.replace(/'/g, "\\'") + '\')"><div class="ccd-thumb">' + thumb + '</div><div class="ccd-body"><div class="ccd-name">' + r.name + '</div><div class="ccd-meta">' + c.br + ' · ' + rating + ' · ' + c.dist + '</div><div class="ccd-meta">' + c.minStay + '-night min · Fee $' + ccPrice(c.fee) + '</div></div><div class="ccd-right">' + right + '</div><span class="ccd-chev">›</span></div>';
+    }
   });
-  const legend = document.getElementById('cc-chart-legend');
-  legend.innerHTML = series.map(function (s) {
-    return '<div class="legend-item"><div class="legend-swatch" style="background:' + s.color + ';height:3px;width:14px;border-radius:2px"></div> ' + s.name + '</div>';
-  }).join('');
+  list += '</div>';
+
+  const root = document.getElementById('cc-date-view');
+  const prevScroll = document.getElementById('ccd-strip') ? document.getElementById('ccd-strip').scrollLeft : null;
+  root.innerHTML = strip + summary + list;
+  const st = document.getElementById('ccd-strip');
+  const chip = st.children[i];
+  if (prevScroll !== null) st.scrollLeft = prevScroll;
+  const cl = chip.offsetLeft, cr = cl + chip.offsetWidth;
+  if (cl < st.scrollLeft + 8 || cr > st.scrollLeft + st.clientWidth - 8) st.scrollLeft = cl - (st.clientWidth - chip.offsetWidth) / 2;
+  ccAttachDaySwipe(document.getElementById('ccd-list'));
+}
+function ccSelectDay(k) {
+  ccSelDay = Math.max(0, Math.min(CC_DAYS - 1, k));
+  ccRender();
+}
+/* Horizontal swipe on the list steps a day; vertical movement is left
+   to page scroll. */
+function ccAttachDaySwipe(el) {
+  let x0 = null, y0 = null;
+  el.addEventListener('touchstart', e => { x0 = e.touches[0].clientX; y0 = e.touches[0].clientY; }, { passive: true });
+  el.addEventListener('touchend', e => {
+    if (x0 === null) return;
+    const dx = e.changedTouches[0].clientX - x0, dy = e.changedTouches[0].clientY - y0;
+    x0 = null;
+    if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) ccSelectDay(ccSelDay + (dx < 0 ? 1 : -1));
+  }, { passive: true });
 }
 function ccOpenCompetitor(name) {
   const c = CC_COMPS[name] || {};
