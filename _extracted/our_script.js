@@ -1269,18 +1269,19 @@ function ndCapLegendRows(el, fullLegendId, maxRows) {
   const fullEl = document.getElementById(fullLegendId);
   if (fullEl) fullEl.innerHTML = regularItems.map(i => i.outerHTML).join('');
   regularItems.forEach(i => { i.style.display = ''; });
-  if (moreItem) moreItem.textContent = '+ More';
+  if (moreItem) { moreItem.textContent = '+ More'; moreItem.style.display = ''; }
   if (!moreItem || !regularItems.length) return;
   requestAnimationFrame(() => {
     const tops = regularItems.map(i => i.offsetTop);
     const rowTops = Array.from(new Set(tops)).sort((a, b) => a - b);
-    if (rowTops.length <= maxRows) return;
+    if (rowTops.length <= maxRows) { moreItem.style.display = 'none'; return; }
     const cutoff = rowTops[maxRows - 1];
     let hidden = 0;
     regularItems.forEach((item, idx) => {
       if (tops[idx] > cutoff) { item.style.display = 'none'; hidden++; }
     });
     if (hidden > 0) moreItem.textContent = '+' + hidden + ' More';
+    else moreItem.style.display = 'none';
   });
 }
 function fpRenderLegend() {
@@ -1654,14 +1655,14 @@ function histInitChart(key) {
       crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
     },
     yAxis: Object.assign(ndYAxisConfig({
-      yFormatter: function () { return (m.prefix || '') + this.value; }
+      yFormatter: function () { return (m.prefix || '') + this.value + (m.suffix || ''); }
     }), { maxPadding: 0.18 }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
       column: {
         borderWidth: 0, borderRadius: 3, pointPadding: 0.15, groupPadding: 0.08,
-        dataLabels: { enabled: true, formatter: function () { return fmt(this.y); }, style: { fontSize: '9px', fontWeight: '700', color: 'var(--pl-text)', textOutline: 'none' } }
+        dataLabels: { enabled: histYears !== 2, formatter: function () { return fmt(this.y); }, style: { fontSize: '10px', fontWeight: '600', color: 'var(--pl-text)', textOutline: 'none' } }
       },
       series: { marker: { enabled: false }, states: { hover: { enabled: false } }, animation: { duration: 250 } }
     },
@@ -1730,7 +1731,13 @@ function ndRenderHistSummary() {
     const diff = cur - prev;
     const up = diff >= 0;
     const diffDisplay = key === 'los' ? fmt1(Math.abs(diff)) : Math.round(Math.abs(diff));
-    trendEl.classList.remove('up', 'down');
+    trendEl.classList.remove('up', 'down', 'flat');
+    /* A change that rounds to zero reads as "no change", not a green up-arrow. */
+    if (Number(diffDisplay) === 0) {
+      trendEl.classList.add('flat');
+      trendEl.textContent = 'No change vs. last year';
+      return;
+    }
     trendEl.classList.add(up ? 'up' : 'down');
     trendEl.textContent = (up ? '↑ ' : '↓ ') + (m.prefix || '') + diffDisplay + (m.suffix || '') + ' vs. last year';
   });
