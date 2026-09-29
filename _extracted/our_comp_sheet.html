@@ -37,10 +37,6 @@
         <!-- One row: view tabs on the left, price display on the right.
              LOS only appears (on its own row) in Guest Prices mode. -->
         <div class="cc-toolbar">
-          <div class="pill-toggles cc-view-toggle" id="cc-view-toggle">
-            <div class="pill active" data-view="date" onclick="ccSetView('date')">By Date</div>
-            <div class="pill" data-view="table" onclick="ccSetView('table')">Table</div>
-          </div>
           <div class="cc-toolbar-right">
             <div class="pill has-menu range-pill" id="cc-los-pill" style="display:none" onclick="ndOpenSheet('bs-cc-los')">2 Nights</div>
             <div class="pill has-menu range-pill" id="cc-price-pill" onclick="ndOpenSheet('bs-cc-price-mode')">Host Prices</div>
@@ -51,7 +47,7 @@
              New Guest Prices" note — collapsible so it doesn't push the
              data below the fold on a phone. -->
         <div class="cc-info" id="cc-guest-info" style="display:none">
-          <button class="cc-info-head" onclick="this.parentElement.classList.toggle('open')"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.1" stroke-linecap="round"/></svg><span>Understanding the New Guest Prices</span><svg class="cc-info-chev" viewBox="0 0 10 6" width="10" height="6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
+          <button class="cc-info-head" onclick="this.parentElement.classList.toggle('open')"><svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.4" aria-hidden="true"><circle cx="8" cy="8" r="6.5"/><path d="M8 7.2v4M8 4.8v.1" stroke-linecap="round"/></svg><span>Understanding the Guest Prices</span><svg class="cc-info-chev" viewBox="0 0 10 6" width="10" height="6" aria-hidden="true"><path d="M1 1l4 4 4-4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
           <ul class="cc-info-body">
             <li>Prices shown are the average nightly rate for the selected Length of Stay (LOS), including all applicable fees.</li>
             <li>For the total price, multiply the average nightly rate by the LOS. E.g. $120 average for a 3-night stay = $120 × 3 = $360.</li>
@@ -59,8 +55,7 @@
           </ul>
         </div>
 
-        <div id="cc-date-view"></div>
-        <div id="cc-table-view" style="display:none">
+        <div id="cc-table-view">
           <div class="comp-table-wrap" id="cc-table"></div>
         </div>
 

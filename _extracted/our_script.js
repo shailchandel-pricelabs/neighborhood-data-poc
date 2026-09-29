@@ -46,7 +46,7 @@ document.querySelectorAll('.metric-card').forEach(c => {
    each cell's own text the first time it's needed, so no separate
    dataset has to be hand-maintained per cell. ── */
 let ccPriceMode = 'host';
-let ccView = 'date';
+let ccView = 'table';
 let ccLos = 2;
 let ccSelDay = 0;
 function ccSetPriceMode(mode) {
@@ -1785,12 +1785,13 @@ function ndRenderHistSummary() {
     const cur = avg(m.y2026), prev = avg(m.y2025);
     const valueEl = document.getElementById('metric-value-' + key);
     const trendEl = document.getElementById('metric-trend-' + key);
-    if (!valueEl || !trendEl) return;
+    if (!valueEl) return;
     const curDisplay = key === 'los' ? fmt1(cur) : Math.round(cur);
     valueEl.textContent = (m.prefix || '') + curDisplay + (m.suffix || '');
     const diff = cur - prev;
     const up = diff >= 0;
     const diffDisplay = key === 'los' ? fmt1(Math.abs(diff)) : Math.round(Math.abs(diff));
+    if (!trendEl) return;
     trendEl.classList.remove('up', 'down', 'flat');
     /* A change that rounds to zero reads as "no change", not a green up-arrow. */
     if (Number(diffDisplay) === 0) {
@@ -1943,6 +1944,7 @@ function ndInitCharts() {
   if (document.getElementById('hist-hc-chart') && !histChart) histInitChart();
   ndRenderHistSummary();
   ccInitEmptyState();
+  ndRenderMarketOverview();
 }
 if (document.readyState === 'loading') {
   document.addEventListener('DOMContentLoaded', ndInitCharts);
@@ -2170,4 +2172,55 @@ function ndSelectMarkupChoice(el, showFields) {
     }
   }
   if (fields) fields.classList.toggle('open', showFields);
+}
+
+
+/* ── Market Overview: one row per bedroom type on a SHARED price scale
+   (so rows are comparable at a glance), showing the typical 25th–75th
+   range, the 75th–90th higher end, the median tick, and — on your
+   bedroom type — a marker for your own average price with a one-line
+   plain-language read. Your type's percentiles and price are the real
+   next-30-day averages from REAL_DAILY; the other types are scaled from
+   it (sample data). ── */
+function ndRenderMarketOverview() {
+  const root = document.getElementById('mo-rows');
+  if (!root) return;
+  const days = 30;
+  const avgCol = c => { let t = 0; for (let i = 0; i < days; i++) t += ndRealDay(i).row[c]; return Math.round(t / days); };
+  const base = { p25: avgCol(0), p50: avgCol(1), p75: avgCol(2), p90: avgCol(3) };
+  const yourPrice = avgCol(4);
+  const types = [
+    { name: 'Studio', count: 88, f: 0.82 },
+    { name: '1 BR', count: 145, f: 1, you: true },
+    { name: '2 BR', count: 98, f: 1.25 },
+    { name: '3 BR', count: 42, f: 1.55 }
+  ].map(t => Object.assign(t, { p25: Math.round(base.p25 * t.f), p50: Math.round(base.p50 * t.f), p75: Math.round(base.p75 * t.f), p90: Math.round(base.p90 * t.f) }));
+  const lo = Math.floor(Math.min(yourPrice, ...types.map(t => t.p25)) * 0.9 / 10) * 10;
+  const hi = Math.ceil(Math.max(...types.map(t => t.p90)) * 1.05 / 10) * 10;
+  const pos = v => ((v - lo) / (hi - lo)) * 100;
+  let html = '';
+  types.forEach(t => {
+    let note = '';
+    if (t.you) {
+      const where = yourPrice < t.p25 ? 'below the typical range'
+        : yourPrice > t.p90 ? 'above the 90th percentile'
+        : yourPrice > t.p75 ? 'at the higher end'
+        : yourPrice >= t.p50 ? 'in the typical range, above the median'
+        : 'in the typical range, below the median';
+      note = '<div class="mo-note">Your average price <strong>$' + yourPrice + '</strong> is ' + where + '.</div>';
+    }
+    html += '<div class="mo-row' + (t.you ? ' you' : '') + '">' +
+      '<div class="mo-head"><span class="mo-name">' + t.name + '</span>' + (t.you ? '<span class="mo-tag">Your type</span>' : '') + '<span class="mo-count">' + t.count + ' listings</span></div>' +
+      '<div class="mo-track">' +
+        '<div class="mo-seg typ" style="left:' + pos(t.p25) + '%;width:' + (pos(t.p75) - pos(t.p25)) + '%"></div>' +
+        '<div class="mo-seg up" style="left:' + pos(t.p75) + '%;width:' + (pos(t.p90) - pos(t.p75)) + '%"></div>' +
+        '<div class="mo-med" style="left:' + pos(t.p50) + '%"></div>' +
+        (t.you ? '<div class="mo-me" style="left:' + pos(yourPrice) + '%"></div>' : '') +
+      '</div>' +
+      '<div class="mo-vals"><span>Typical <strong>$' + t.p25 + '–$' + t.p75 + '</strong></span><span>Median <strong>$' + t.p50 + '</strong></span><span>90th <strong>$' + t.p90 + '</strong></span></div>' +
+      note + '</div>';
+  });
+  const mid = Math.round((lo + hi) / 2 / 10) * 10;
+  html += '<div class="mo-axis"><span>$' + lo + '</span><span>$' + mid + '</span><span>$' + hi + '</span></div>';
+  root.innerHTML = html;
 }

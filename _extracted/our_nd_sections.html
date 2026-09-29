@@ -34,7 +34,7 @@
           <div id="fp-hc-chart" class="hc-chart"></div>
         </div>
         <div class="legend" id="fp-legend"></div>
-        <div class="nd-chart-footnote" id="fp-footnote" style="display:none">*Reflects future dates only</div>
+        <div class="nd-chart-footnote" id="fp-footnote" style="display:none">Values shown are monthly averages. *Reflects future dates only</div>
       </div>
     </div>
   </div>
@@ -70,7 +70,7 @@
           <div id="occ-hc-chart" class="hc-chart" style="height:250px"></div>
         </div>
         <div class="legend" id="occ-legend"></div>
-        <div class="nd-chart-footnote" id="occ-footnote" style="display:none">*Reflects future dates only</div>
+        <div class="nd-chart-footnote" id="occ-footnote" style="display:none">Values shown are monthly averages. *Reflects future dates only</div>
       </div>
     </div>
   </div>
@@ -94,22 +94,18 @@
           <div class="metric-card selected" onclick="switchHistoryMetric(this,'occ')">
             <div class="metric-label">Market Occupancy</div>
             <div class="metric-value" id="metric-value-occ">—</div>
-            <div class="metric-trend" id="metric-trend-occ"></div>
           </div>
           <div class="metric-card" onclick="switchHistoryMetric(this,'adr')">
             <div class="metric-label">Market ADR</div>
             <div class="metric-value" id="metric-value-adr">—</div>
-            <div class="metric-trend" id="metric-trend-adr"></div>
           </div>
           <div class="metric-card" onclick="switchHistoryMetric(this,'window')">
             <div class="metric-label">Market Booking Window</div>
             <div class="metric-value" id="metric-value-window">—</div>
-            <div class="metric-trend" id="metric-trend-window"></div>
           </div>
           <div class="metric-card" onclick="switchHistoryMetric(this,'los')">
             <div class="metric-label">Market Length of Stay</div>
             <div class="metric-value" id="metric-value-los">—</div>
-            <div class="metric-trend" id="metric-trend-los"></div>
           </div>
         </div>
         <!-- No separate headline number here (unlike fp/occ's card) — the
@@ -141,50 +137,14 @@
     </div>
     <div class="section-body">
       <div class="section-content">
-        <div class="pct-legend">
-          <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:8px;border-radius:2px;background:#C8CDD3"></span> 25th–75th</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:14px;height:8px;border-radius:2px;background:var(--pl-surface-soft)"></span> 75th–90th</span>
-          <span style="display:flex;align-items:center;gap:3px"><span style="display:inline-block;width:2px;height:12px;border-radius:1px;background:var(--pl-text)"></span> 50th (median)</span>
+        <p class="mo-desc">Nightly prices over the next 30 days for listings in your compset, by bedroom type. See where your price sits against each group.</p>
+        <div class="mo-legend">
+          <span><i class="mo-sw typ"></i>Typical range (25th–75th)</span>
+          <span><i class="mo-sw up"></i>Higher end (75th–90th)</span>
+          <span><i class="mo-sw med"></i>Median</span>
+          <span><i class="mo-sw me"></i>Your price</span>
         </div>
-        <div class="pct-colhead"><span>25th</span><span>Median</span><span>75th</span><span>90th</span></div>
-        <div class="pct-chart">
-          <div class="pct-row">
-            <div class="pct-header"><span class="pct-label">Studio</span><span class="pct-count">88 listings</span></div>
-            <div class="pct-track">
-              <div class="pct-range" style="left:22%;width:53%"></div>
-              <div class="pct-inner" style="left:22%;width:38%"></div>
-              <div class="pct-median" style="left:39%"></div>
-            </div>
-            <div class="pct-values"><span class="pct-val">$120</span><span class="pct-val median">$183</span><span class="pct-val">$210</span><span class="pct-val">$245</span></div>
-          </div>
-          <div class="pct-row highlight">
-            <div class="pct-header"><span class="pct-label">1 BR</span><span class="your-tag">YOU</span><span class="pct-count">145 listings</span></div>
-            <div class="pct-track">
-              <div class="pct-range" style="left:28%;width:57%"></div>
-              <div class="pct-inner" style="left:28%;width:43%"></div>
-              <div class="pct-median" style="left:46%"></div>
-            </div>
-            <div class="pct-values"><span class="pct-val">$145</span><span class="pct-val median">$216</span><span class="pct-val">$248</span><span class="pct-val">$280</span></div>
-          </div>
-          <div class="pct-row">
-            <div class="pct-header"><span class="pct-label">2 BR</span><span class="pct-count">98 listings</span></div>
-            <div class="pct-track">
-              <div class="pct-range" style="left:36%;width:57%"></div>
-              <div class="pct-inner" style="left:36%;width:46%"></div>
-              <div class="pct-median" style="left:55%"></div>
-            </div>
-            <div class="pct-values"><span class="pct-val">$180</span><span class="pct-val median">$256</span><span class="pct-val">$290</span><span class="pct-val">$340</span></div>
-          </div>
-          <div class="pct-row">
-            <div class="pct-header"><span class="pct-label">3 BR</span><span class="pct-count">42 listings</span></div>
-            <div class="pct-track">
-              <div class="pct-range" style="left:42%;width:52%"></div>
-              <div class="pct-inner" style="left:42%;width:38%"></div>
-              <div class="pct-median" style="left:64%"></div>
-            </div>
-            <div class="pct-values"><span class="pct-val">$220</span><span class="pct-val median">$320</span><span class="pct-val">$365</span><span class="pct-val">$420</span></div>
-          </div>
-        </div>
+        <div id="mo-rows"></div>
       </div>
     </div>
   </div>
