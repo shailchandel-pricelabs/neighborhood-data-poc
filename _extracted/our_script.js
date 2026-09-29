@@ -2185,54 +2185,55 @@ function ndSelectMarkupChoice(el, showFields) {
 }
 
 
-/* ── Market Overview: one row per bedroom type on a SHARED price scale
-   (so rows are comparable at a glance), showing the typical 25th–75th
-   range, the 75th–90th higher end, the median tick, and — on your
-   bedroom type — a marker for your own average price with a one-line
-   plain-language read. Your type's percentiles and price are the real
-   next-30-day averages from REAL_DAILY; the other types are scaled from
-   it (sample data). ── */
+/* ── Prices by Bedroom Type (desktop: "How does pricing vary by
+   bedroom type?"). One row per bedroom type plus an "All" row, each a
+   25th→90th percentile bar in the Future Prices band colors on a shared
+   scale, with the four percentile values beneath. Tapping a row updates
+   the summary sentence ("There are N listings with X and a median
+   price of $Y"). Your type's percentiles are the real next-30-day
+   averages from REAL_DAILY; the other types are scaled from it (sample). */
+let moSelected = '1 BR';
 function ndRenderMarketOverview() {
   const root = document.getElementById('mo-rows');
   if (!root) return;
   const days = 30;
   const avgCol = c => { let t = 0; for (let i = 0; i < days; i++) t += ndRealDay(i).row[c]; return Math.round(t / days); };
   const base = { p25: avgCol(0), p50: avgCol(1), p75: avgCol(2), p90: avgCol(3) };
-  const yourPrice = avgCol(4);
   const types = [
     { name: 'Studio', count: 88, f: 0.82 },
     { name: '1 BR', count: 145, f: 1, you: true },
     { name: '2 BR', count: 98, f: 1.25 },
     { name: '3 BR', count: 42, f: 1.55 }
   ].map(t => Object.assign(t, { p25: Math.round(base.p25 * t.f), p50: Math.round(base.p50 * t.f), p75: Math.round(base.p75 * t.f), p90: Math.round(base.p90 * t.f) }));
-  const lo = Math.floor(Math.min(yourPrice, ...types.map(t => t.p25)) * 0.9 / 10) * 10;
+  const total = types.reduce((n, t) => n + t.count, 0);
+  const w = k => Math.round(types.reduce((n, t) => n + t[k] * t.count, 0) / total);
+  types.push({ name: 'All', count: total, p25: w('p25'), p50: w('p50'), p75: w('p75'), p90: w('p90'), all: true });
+  const lo = Math.floor(Math.min(...types.map(t => t.p25)) * 0.9 / 10) * 10;
   const hi = Math.ceil(Math.max(...types.map(t => t.p90)) * 1.05 / 10) * 10;
   const pos = v => ((v - lo) / (hi - lo)) * 100;
   let html = '';
   types.forEach(t => {
-    let note = '';
-    if (t.you) {
-      const where = yourPrice < t.p25 ? 'below the typical range'
-        : yourPrice > t.p90 ? 'above the 90th percentile'
-        : yourPrice > t.p75 ? 'at the higher end'
-        : yourPrice >= t.p50 ? 'in the typical range, above the median'
-        : 'in the typical range, below the median';
-      note = '<div class="mo-note">Your average price <strong>$' + yourPrice + '</strong> is ' + where + '.</div>';
-    }
-    html += '<div class="mo-row' + (t.you ? ' you' : '') + '">' +
+    html += '<div class="mo-row' + (t.all ? ' all' : '') + (t.name === moSelected ? ' selected' : '') + '" onclick="moSelect(\'' + t.name + '\')">' +
       '<div class="mo-head"><span class="mo-name">' + t.name + '</span>' + (t.you ? '<span class="mo-tag">Your type</span>' : '') + '<span class="mo-count">' + t.count + ' listings</span></div>' +
       '<div class="mo-track">' +
-        '<div class="mo-seg typ" style="left:' + pos(t.p25) + '%;width:' + (pos(t.p75) - pos(t.p25)) + '%"></div>' +
-        '<div class="mo-seg up" style="left:' + pos(t.p75) + '%;width:' + (pos(t.p90) - pos(t.p75)) + '%"></div>' +
+        '<div class="mo-seg b1" style="left:' + pos(t.p25) + '%;width:' + (pos(t.p50) - pos(t.p25)) + '%"></div>' +
+        '<div class="mo-seg b2" style="left:' + pos(t.p50) + '%;width:' + (pos(t.p75) - pos(t.p50)) + '%"></div>' +
+        '<div class="mo-seg b3" style="left:' + pos(t.p75) + '%;width:' + (pos(t.p90) - pos(t.p75)) + '%"></div>' +
         '<div class="mo-med" style="left:' + pos(t.p50) + '%"></div>' +
-        (t.you ? '<div class="mo-me" style="left:' + pos(yourPrice) + '%"></div>' : '') +
       '</div>' +
-      '<div class="mo-vals"><span>Typical <strong>$' + t.p25 + '–$' + t.p75 + '</strong></span><span>Median <strong>$' + t.p50 + '</strong></span><span>90th <strong>$' + t.p90 + '</strong></span></div>' +
-      note + '</div>';
+      '<div class="mo-pcts"><span><em>25th</em>$' + t.p25 + '</span><span><em>50th</em>$' + t.p50 + '</span><span><em>75th</em>$' + t.p75 + '</span><span><em>90th</em>$' + t.p90 + '</span></div>' +
+      '</div>';
   });
-  const mid = Math.round((lo + hi) / 2 / 10) * 10;
-  html += '<div class="mo-axis"><span>$' + lo + '</span><span>$' + mid + '</span><span>$' + hi + '</span></div>';
   root.innerHTML = html;
+  const sel = types.find(t => t.name === moSelected) || types[1];
+  const sum = document.getElementById('mo-summary');
+  if (sum) sum.innerHTML = sel.all
+    ? 'There are <strong>' + sel.count + '</strong> listings across all bedroom types, with a median price of <strong>$' + sel.p50 + '</strong>.'
+    : 'There are <strong>' + sel.count + '</strong> listings with <strong>' + sel.name + '</strong> bedroom count and a median price of <strong>$' + sel.p50 + '</strong>.';
+}
+function moSelect(name) {
+  moSelected = name;
+  ndRenderMarketOverview();
 }
 
 
