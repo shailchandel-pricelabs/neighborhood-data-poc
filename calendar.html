@@ -2689,6 +2689,32 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   #bs-comp-calendar .bs-title { font-size: 16px; }
   #bs-comp-calendar #cc-meta { font-size: 12px !important; }
 
+  /* ═══ Competitor Calendar v5: regular weights, 600 = bold, grey headers ═══ */
+  #cc-table { scrollbar-width: none; -ms-overflow-style: none; }
+  #cc-table::-webkit-scrollbar { display: none; }
+  .mc-head .mc-c, .mc-head .mc-name, .mc-head .mc-fee,
+  .mc-date span, .mc-stay .mc-c {
+    font-size: 12px; font-weight: 400; color: var(--pl-text-secondary);
+  }
+  .mc-p, .mc-yours .mc-p, .mc-day.muted .mc-p { font-weight: 400; }
+  .mc-fee { font-weight: 400; }
+  .mc-ms { display: inline-flex; align-items: center; gap: 2px; }
+  .mc-title, .cc-manage-btn, .ccd-chip-num, .ccd-price, .mc-you, .ccd-thumb.you,
+  .cc-info-head, .ccd-name, .ccd-chip-status { font-weight: 600; }
+  .mc-meta svg, .ccd-meta svg, .cc-meta svg, #cc-meta svg { color: var(--pl-text-secondary); }
+  .cc-info-head { color: var(--pl-text-secondary); }
+  .cc-info-body { color: var(--pl-text-secondary); }
+  .cc-legend-moon { gap: 2px; align-items: center; color: var(--pl-text-secondary); font-style: normal; }
+  /* Month calendar sheet cells: regular weight, 12px date + min stay */
+  .ccm-num { font-size: 12px; font-weight: 400; }
+  .ccm-p { font-size: 14px; font-weight: 400; }
+  .ccm-ms { font-size: 12px; font-weight: 400; display: inline-flex; align-items: center; gap: 2px; }
+  .ccm-day.past .ccm-num { font-size: 12px; }
+  #bs-comp-calendar .bs-title { font-size: 16px; }
+  #bs-comp-calendar #cc-meta { font-size: 12px !important; }
+  /* Full-bleed table: cancel .nd-sections (6px) + .section-content (4px) side padding. */
+  #cc-table { margin: 0 -10px; border-left: none; border-right: none; }
+
 body { background: #d9dbe0; }
 .phone-frame { scrollbar-width: none; -ms-overflow-style: none; }
 .phone-frame::-webkit-scrollbar { display: none; width: 0; height: 0; }
@@ -3017,7 +3043,7 @@ body { background: #d9dbe0; }
           <span><strong>N/A:</strong> Price not available</span>
           <span><strong>N/B:</strong> Not bookable for selected Min-LOS</span>
           <span><i class="cc-legend-booked"></i> Booked or blocked</span>
-          <span><strong>2n:</strong> Minimum stay</span>
+          <span><i class="cc-legend-moon">2 <svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" aria-hidden="true" style="vertical-align:-1px"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg></i> Minimum stay</span>
         </div>
         <div class="cc-footnote" id="cc-price-footnote">Nightly rates before adding fee or taxes; base amount set by the host.</div>
       </div>
@@ -3296,33 +3322,33 @@ body { background: #d9dbe0; }
       <!-- Month navigation -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <button onclick="ccCalMonth(-1)" id="cc-cal-prev" style="border:1px solid var(--pl-border);background:var(--pl-card);border-radius:var(--radius-base);width:32px;height:32px;font-size:16px;color:var(--pl-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.7em;height:0.7em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l192-192c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3L77.3 256l169.4 169.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0l-192-192z"></path></svg></button>
-        <span style="font-size:16px;font-weight:400;color:var(--pl-text)" id="cc-cal-month">September 2026</span>
+        <span style="font-size:15px;font-weight:600;color:var(--pl-text)" id="cc-cal-month">September 2026</span>
         <button onclick="ccCalMonth(1)" id="cc-cal-next" style="border:1px solid var(--pl-border);background:var(--pl-card);border-radius:var(--radius-base);width:32px;height:32px;font-size:16px;color:var(--pl-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.7em;height:0.7em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"></path></svg></button>
       </div>
       <!-- Calendar weekday headers -->
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;font-weight:400;color:var(--pl-text-secondary);margin-bottom:4px">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;font-weight:600;color:var(--pl-text-disabled);margin-bottom:4px">
         <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
       </div>
       <!-- Calendar days grid — populated per-competitor by ndBuildCompCalendar() -->
       <div class="ccm-grid" id="cc-grid"></div>
       <!-- Legend for calendar -->
-      <div style="display:flex;gap:12px;margin-top:12px;font-size:12px;font-weight:400;color:var(--pl-text-secondary);align-items:center;flex-wrap:wrap">
+      <div style="display:flex;gap:12px;margin-top:12px;font-size:11px;font-weight:400;color:var(--pl-text-secondary);align-items:center;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);background:#2CAFFE"></span> Available</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);background:var(--pl-surface-neutral)"></span> Booked / Unavailable</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);border:1.5px solid var(--pl-primary);background:var(--pl-primary-light)"></span> Today</span>
-        <span style="font-size:12px;color:var(--pl-text-secondary)">2n = 2-night min stay</span>
+        <span style="display:flex;align-items:center;gap:3px">2 <svg viewBox="0 0 24 24" width="11" height="11" fill="currentColor" aria-hidden="true" style="vertical-align:-1px"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg> = 2-night min stay</span>
       </div>
       <!-- Estimated Fixed Fees -->
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--pl-border-table)">
-        <div style="font-size:14px;font-weight:400;color:var(--pl-text);margin-bottom:6px">Estimated Fixed Fees</div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:400;color:var(--pl-text-secondary);padding:6px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Cleaning Fee</span><strong style="color:var(--pl-text);font-weight:400" id="cc-fee-cleaning">$85</strong>
+        <div style="font-size:12px;font-weight:600;color:var(--pl-text);margin-bottom:6px">Estimated Fixed Fees</div>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
+          <span>Cleaning Fee</span><strong style="color:var(--pl-text);font-weight:600" id="cc-fee-cleaning">$85</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:400;color:var(--pl-text-secondary);padding:6px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Extra Guest Fee</span><strong style="color:var(--pl-text);font-weight:400" id="cc-fee-guest">$25</strong>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
+          <span>Extra Guest Fee</span><strong style="color:var(--pl-text);font-weight:600" id="cc-fee-guest">$25</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:400;color:var(--pl-text-secondary);padding:6px 0">
-          <span>Pet Fee</span><strong style="color:var(--pl-text);font-weight:400" id="cc-fee-pet">$50</strong>
+        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0">
+          <span>Pet Fee</span><strong style="color:var(--pl-text);font-weight:600" id="cc-fee-pet">$50</strong>
         </div>
       </div>
     </div>
@@ -3627,6 +3653,7 @@ function ccSetView(view) {
    per-cell jitter so booked dates, min-stays and N/A/N/B cells stay
    stable across re-renders. ── */
 const CC_DAYS = 30;
+const CC_MOON = '<svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
 const CC_YOUR_FEE = 35;
 const CC_COMPS = {
   'Luxe King Suite':       { br: '1 BR', rating: '4.98', reviews: 112, dist: '0.3 mi', factor: 1.18, minStay: 2, fee: 45 },
@@ -3711,7 +3738,7 @@ function ccRender() {
   html += '<div class="mc-row mc-head"><div class="mc-c mc-name">' + (collapsed ? '' : 'Listings (' + (names.length + 1) + ')') + '<button class="mc-collapse" aria-label="' + (collapsed ? 'Expand' : 'Collapse') + ' listings column" onclick="ccToggleTableCollapse()">' + chevL + '</button></div><div class="mc-c mc-fee">Est.<br>Fee</div>';
   for (let i = 0; i < CC_DAYS; i++) {
     const d = ndRealDay(i).date, w = d.getDay() === 5 || d.getDay() === 6;
-    html += '<div class="mc-c mc-date' + (w ? ' wknd' : '') + '"><strong>' + String(d.getDate()).padStart(2, '0') + ' ' + MON[d.getMonth()] + '</strong><span>' + DAY[d.getDay()] + '</span></div>';
+    html += '<div class="mc-c mc-date' + (w ? ' wknd' : '') + '"><span>' + String(d.getDate()).padStart(2, '0') + ' ' + MON[d.getMonth()] + '</span><span>' + DAY[d.getDay()] + '</span></div>';
   }
   html += '</div>';
   if (ccPriceMode === 'guest') {
@@ -3742,7 +3769,7 @@ function ccRender() {
       else if (cell.nb) { inner = '<span class="mc-p">N/B</span>'; cls += ' muted'; }
       else {
         if (cell.booked) cls += ' booked';
-        inner = '<span class="mc-p">' + ccShown(cell) + '</span><span class="mc-ms">' + cell.minStay + 'n</span>';
+        inner = '<span class="mc-p">' + ccShown(cell) + '</span><span class="mc-ms">' + cell.minStay + ' ' + CC_MOON + '</span>';
       }
       h += '<div class="' + cls + '">' + inner + '</div>';
     }
@@ -5451,8 +5478,8 @@ function ndBuildCompCalendar() {
     let body;
     if (cell.na) { cls += ' off'; body = '<span class="ccm-p">N/A</span>'; }
     else if (cell.nb) { cls += ' off'; body = '<span class="ccm-p">N/B</span>'; }
-    else if (cell.booked) { cls += ' off'; body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">Booked</span>'; }
-    else body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">' + cell.minStay + 'n</span>';
+    else if (cell.booked) { cls += ' off'; body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">–</span>'; }
+    else body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">' + cell.minStay + ' ' + CC_MOON + '</span>';
     html += '<div class="' + cls + '"><span class="ccm-num">' + d + '</span>' + body + '</div>';
   }
   document.getElementById('cc-grid').innerHTML = html;

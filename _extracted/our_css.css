@@ -1450,3 +1450,29 @@
   .ccm-day.past .ccm-num { font-size: 14px; }
   #bs-comp-calendar .bs-title { font-size: 16px; }
   #bs-comp-calendar #cc-meta { font-size: 12px !important; }
+
+  /* ═══ Competitor Calendar v5: regular weights, 600 = bold, grey headers ═══ */
+  #cc-table { scrollbar-width: none; -ms-overflow-style: none; }
+  #cc-table::-webkit-scrollbar { display: none; }
+  .mc-head .mc-c, .mc-head .mc-name, .mc-head .mc-fee,
+  .mc-date span, .mc-stay .mc-c {
+    font-size: 12px; font-weight: 400; color: var(--pl-text-secondary);
+  }
+  .mc-p, .mc-yours .mc-p, .mc-day.muted .mc-p { font-weight: 400; }
+  .mc-fee { font-weight: 400; }
+  .mc-ms { display: inline-flex; align-items: center; gap: 2px; }
+  .mc-title, .cc-manage-btn, .ccd-chip-num, .ccd-price, .mc-you, .ccd-thumb.you,
+  .cc-info-head, .ccd-name, .ccd-chip-status { font-weight: 600; }
+  .mc-meta svg, .ccd-meta svg, .cc-meta svg, #cc-meta svg { color: var(--pl-text-secondary); }
+  .cc-info-head { color: var(--pl-text-secondary); }
+  .cc-info-body { color: var(--pl-text-secondary); }
+  .cc-legend-moon { gap: 2px; align-items: center; color: var(--pl-text-secondary); font-style: normal; }
+  /* Month calendar sheet cells: regular weight, 12px date + min stay */
+  .ccm-num { font-size: 12px; font-weight: 400; }
+  .ccm-p { font-size: 14px; font-weight: 400; }
+  .ccm-ms { font-size: 12px; font-weight: 400; display: inline-flex; align-items: center; gap: 2px; }
+  .ccm-day.past .ccm-num { font-size: 12px; }
+  #bs-comp-calendar .bs-title { font-size: 16px; }
+  #bs-comp-calendar #cc-meta { font-size: 12px !important; }
+  /* Full-bleed table: cancel .nd-sections (6px) + .section-content (4px) side padding. */
+  #cc-table { margin: 0 -10px; border-left: none; border-right: none; }

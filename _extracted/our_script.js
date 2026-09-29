@@ -84,6 +84,7 @@ function ccSetView(view) {
    per-cell jitter so booked dates, min-stays and N/A/N/B cells stay
    stable across re-renders. ── */
 const CC_DAYS = 30;
+const CC_MOON = '<svg viewBox="0 0 24 24" width="10" height="10" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
 const CC_YOUR_FEE = 35;
 const CC_COMPS = {
   'Luxe King Suite':       { br: '1 BR', rating: '4.98', reviews: 112, dist: '0.3 mi', factor: 1.18, minStay: 2, fee: 45 },
@@ -168,7 +169,7 @@ function ccRender() {
   html += '<div class="mc-row mc-head"><div class="mc-c mc-name">' + (collapsed ? '' : 'Listings (' + (names.length + 1) + ')') + '<button class="mc-collapse" aria-label="' + (collapsed ? 'Expand' : 'Collapse') + ' listings column" onclick="ccToggleTableCollapse()">' + chevL + '</button></div><div class="mc-c mc-fee">Est.<br>Fee</div>';
   for (let i = 0; i < CC_DAYS; i++) {
     const d = ndRealDay(i).date, w = d.getDay() === 5 || d.getDay() === 6;
-    html += '<div class="mc-c mc-date' + (w ? ' wknd' : '') + '"><strong>' + String(d.getDate()).padStart(2, '0') + ' ' + MON[d.getMonth()] + '</strong><span>' + DAY[d.getDay()] + '</span></div>';
+    html += '<div class="mc-c mc-date' + (w ? ' wknd' : '') + '"><span>' + String(d.getDate()).padStart(2, '0') + ' ' + MON[d.getMonth()] + '</span><span>' + DAY[d.getDay()] + '</span></div>';
   }
   html += '</div>';
   if (ccPriceMode === 'guest') {
@@ -199,7 +200,7 @@ function ccRender() {
       else if (cell.nb) { inner = '<span class="mc-p">N/B</span>'; cls += ' muted'; }
       else {
         if (cell.booked) cls += ' booked';
-        inner = '<span class="mc-p">' + ccShown(cell) + '</span><span class="mc-ms">' + cell.minStay + 'n</span>';
+        inner = '<span class="mc-p">' + ccShown(cell) + '</span><span class="mc-ms">' + cell.minStay + ' ' + CC_MOON + '</span>';
       }
       h += '<div class="' + cls + '">' + inner + '</div>';
     }
@@ -1908,8 +1909,8 @@ function ndBuildCompCalendar() {
     let body;
     if (cell.na) { cls += ' off'; body = '<span class="ccm-p">N/A</span>'; }
     else if (cell.nb) { cls += ' off'; body = '<span class="ccm-p">N/B</span>'; }
-    else if (cell.booked) { cls += ' off'; body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">Booked</span>'; }
-    else body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">' + cell.minStay + 'n</span>';
+    else if (cell.booked) { cls += ' off'; body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">–</span>'; }
+    else body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">' + cell.minStay + ' ' + CC_MOON + '</span>';
     html += '<div class="' + cls + '"><span class="ccm-num">' + d + '</span>' + body + '</div>';
   }
   document.getElementById('cc-grid').innerHTML = html;
