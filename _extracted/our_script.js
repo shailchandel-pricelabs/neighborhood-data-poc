@@ -1244,7 +1244,9 @@ function fpUpdateInfoCard(chart, index, idPrefix) {
     const stlyDate = raw[14];
     const overlayRow = (id, color, label, adr) => {
       const s = ndSeriesById(chart, id);
-      if (s && s.visible && adr) rows += ndTTRowHTML(color, label, '$' + adr);
+      /* Row slot stays while the overlay is on (value or "—"), so the
+         card height doesn't change as you drag across dates without data. */
+      if (s && s.visible) rows += ndTTRowHTML(color, label, adr ? '$' + adr : '—');
     };
     overlayRow('fp-overlay-upcoming', '#31C48D', 'Upcoming Booking ADR', raw[12]);
     overlayRow('fp-overlay-lastyear', '#274690', 'Last Year ADR' + (stlyDate ? ' (on ' + stlyDate + ')' : ''), raw[13]);
@@ -1567,8 +1569,9 @@ function occUpdateInfoCard(chart, index, idPrefix) {
   let rows = '';
   defs.forEach(function (d) {
     const s = ndSeriesById(chart, d[0]);
-    if (!s || !s.points[i]) return;
-    rows += ndTTRowHTML(d[1], d[2], s.points[i].y + '%', d[3]);
+    if (!s || !s.visible) return;
+    const pt = s.points[i];
+    rows += ndTTRowHTML(d[1], d[2], pt && pt.y != null ? pt.y + '%' : '—', d[3]);
   });
   if (occEventsEnabled && !isMonthly) {
     rows += ndEventsRowHTML(chart.ndEventLabels && chart.ndEventLabels[i]);
