@@ -1663,3 +1663,21 @@
   }
   .bs-markup-question { display: block; }
   .bs-markup-question svg { display: inline-block; vertical-align: -1px; margin-left: 4px; }
+
+  /* Bottom nav labels 11px */
+  .phone-frame .css-18y2um2 > * p { font-size: 11px !important; line-height: 13px; }
+
+  /* Guest price breakdown sheet (desktop hover tooltip equivalent) */
+  .ccb-table { border: 1px solid var(--pl-border); border-radius: var(--radius-md); overflow: hidden; }
+  .ccb-row { display: flex; justify-content: space-between; gap: 12px; padding: 12px; font-size: 14px; color: var(--pl-text); }
+  .ccb-row + .ccb-row { border-top: 1px solid var(--pl-border-table); }
+  .ccb-row span:last-child { text-align: right; white-space: nowrap; }
+  .ccb-row.head, .ccb-row.total { background: var(--pl-bg); font-weight: 600; }
+  .ccb-row.head span:last-child { font-weight: 400; color: var(--pl-text-secondary); }
+  .ccb-row.sub span:first-child { padding-left: 12px; }
+  .ccb-row em { font-style: normal; color: var(--pl-green-dark); font-weight: 600; }
+  .ccb-row small { font-size: 12px; font-weight: 400; color: var(--pl-text-secondary); }
+  .ccb-row strong { font-weight: 600; }
+  .ccb-cal-btn { width: 100%; margin-top: 16px; }
+  .mc-day.tappable { cursor: pointer; }
+  .mc-day.tappable:active { background-color: var(--pl-highlight-blue); }

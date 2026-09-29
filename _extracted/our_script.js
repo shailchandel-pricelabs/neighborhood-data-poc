@@ -143,7 +143,8 @@ function ccView_cell(name, i) {
     if (n.booked || n.na) booked = true;
     sum += n.price;
   }
-  const avg = Math.round((sum / ccLos) * 1.13 + (c.fee || 0) / ccLos);
+  /* Same math as the breakdown sheet (ccOpenBreakdown) so the cell and its explanation always agree. */
+  const avg = Math.round((sum + Math.round(sum * 0.13) + (c.fee || 0)) / ccLos);
   return Object.assign({}, base, { price: avg, booked: booked, nb: false, raw: true });
 }
 function ccShown(cell) { return cell.raw ? cell.price : ccPrice(cell.price); }
@@ -202,7 +203,9 @@ function ccRender() {
         if (cell.booked) cls += ' booked';
         inner = '<span class="mc-p">' + ccShown(cell) + '</span><span class="mc-ms">' + cell.minStay + ' ' + CC_MOON + '</span>';
       }
-      h += '<div class="' + cls + '">' + inner + '</div>';
+      const tap = ccPriceMode === 'guest' && !cell.na && !cell.nb
+        ? ' onclick="event.stopPropagation();ccOpenBreakdown(\'' + name.replace(/'/g, "\\'") + '\',' + i + ')"' : '';
+      h += '<div class="' + cls + (tap ? ' tappable' : '') + '"' + tap + '>' + inner + '</div>';
     }
     return h + '</div>';
   };
@@ -270,11 +273,14 @@ function ccRenderDateView(names) {
       }
     }
     if (r.you) {
-      list += '<div class="ccd-row you"><div class="ccd-thumb you">You</div><div class="ccd-body"><div class="ccd-name">Your Room Type</div><div class="ccd-meta">' + cell.minStay + '-night min · Fee ' + ccPrice(CC_YOUR_FEE) + ' · <a href="#" onclick="event.preventDefault();ndOpenSheet(\'bs-comp-set-edit\')">Edit markup &amp; fees</a></div></div><div class="ccd-right">' + right + '</div></div>';
+      const youTap = ccPriceMode === 'guest' && !cell.na && !cell.nb ? ' onclick="ccOpenBreakdown(\'__yours__\',' + i + ')" style="cursor:pointer"' : '';
+      list += '<div class="ccd-row you"' + youTap + '><div class="ccd-thumb you">You</div><div class="ccd-body"><div class="ccd-name">Your Room Type</div><div class="ccd-meta">' + cell.minStay + '-night min · Fee ' + ccPrice(CC_YOUR_FEE) + ' · <a href="#" onclick="event.preventDefault();ndOpenSheet(\'bs-comp-set-edit\')">Edit markup &amp; fees</a></div></div><div class="ccd-right">' + right + '</div></div>';
     } else {
       const c = r.c;
       const rating = c.rating ? ND_STAR_ICON + ' ' + c.rating + ' (' + c.reviews + ')' : ND_STAR_ICON + ' New';
-      list += '<div class="ccd-row" onclick="ccOpenCompetitor(\'' + r.name.replace(/'/g, "\\'") + '\')"><div class="ccd-thumb">' + thumb + '</div><div class="ccd-body"><div class="ccd-name">' + r.name + '</div><div class="ccd-meta">' + c.br + ' · ' + rating + ' · ' + c.dist + '</div><div class="ccd-meta">' + c.minStay + '-night min · Fee ' + ccPrice(c.fee) + '</div></div><div class="ccd-right">' + right + '</div><span class="ccd-chev">›</span></div>';
+      const esc = r.name.replace(/'/g, "\\'");
+      const rowTap = ccPriceMode === 'guest' && !cell.na && !cell.nb ? 'ccOpenBreakdown(\'' + esc + '\',' + i + ')' : 'ccOpenCompetitor(\'' + esc + '\')';
+      list += '<div class="ccd-row" onclick="' + rowTap + '"><div class="ccd-thumb">' + thumb + '</div><div class="ccd-body"><div class="ccd-name">' + r.name + '</div><div class="ccd-meta">' + c.br + ' · ' + rating + ' · ' + c.dist + '</div><div class="ccd-meta">' + c.minStay + '-night min · Fee ' + ccPrice(c.fee) + '</div></div><div class="ccd-right">' + right + '</div><span class="ccd-chev">›</span></div>';
     }
   });
   list += '</div>';
@@ -304,6 +310,37 @@ function ccAttachDaySwipe(el) {
     x0 = null;
     if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy) * 1.5) ccSelectDay(ccSelDay + (dx < 0 ? 1 : -1));
   }, { passive: true });
+}
+function ccOpenBreakdown(name, i) {
+  const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  const yours = name === '__yours__';
+  const c = yours ? { fee: CC_YOUR_FEE } : (CC_COMPS[name] || { fee: 0 });
+  const d = ndRealDay(i).date;
+  let base = 0;
+  for (let k = 0; k < ccLos; k++) base += ccCell(name, Math.min(i + k, CC_DAYS + 6)).price;
+  const markup = Math.round(base * 0.13);
+  const fee = c.fee || 0;
+  const total = base + markup + fee;
+  const avg = Math.round(total / ccLos);
+  const nights = ccLos + ' Night' + (ccLos > 1 ? 's' : '');
+  const row = (label, value, cls) => '<div class="ccb-row' + (cls ? ' ' + cls : '') + '"><span>' + label + '</span><span>' + value + '</span></div>';
+  let html = row('Average Price for ' + nights + ' Stay', ccStayLabel(i).replace(' – ', ' - '), 'head');
+  if (yours) {
+    html += row('Total Guest Price for ' + nights + ' Stay', base + ' USD', 'sub');
+    html += row('PMS Markup', '<em>+' + markup + '</em> | ' + (base + markup) + ' USD', 'sub');
+    html += row('Cleaning Fee', '<em>+' + fee + '</em> | ' + total + ' USD', 'sub');
+    html += row('Guest Price after all applicable fees', total + ' USD', 'total');
+  } else {
+    html += row('Total Guest Price for ' + nights + ' Stay', total + ' USD', 'sub');
+  }
+  html += row('Average Nightly Price', '<small>' + total + '/' + ccLos + 'N</small> | <strong>' + avg + ' USD</strong>', 'total');
+  document.getElementById('ccb-date').textContent = MON[d.getMonth()] + ' ' + d.getDate() + ', ' + d.getFullYear();
+  document.getElementById('ccb-name').textContent = yours ? 'Your Listing' : name;
+  document.getElementById('ccb-table').innerHTML = html;
+  const btn = document.getElementById('ccb-cal-btn');
+  btn.style.display = yours ? 'none' : '';
+  btn.onclick = function () { ndCloseSheet('bs-cc-breakdown'); ccOpenCompetitor(name); };
+  ndOpenSheet('bs-cc-breakdown');
 }
 function ccOpenCompetitor(name) {
   const c = CC_COMPS[name] || {};
