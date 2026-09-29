@@ -894,8 +894,8 @@ const ND_CHART_MARGIN_RIGHT = 6;
 function ndXAxisConfig(cats, step) {
   return {
     categories: cats, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
-    labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, step: step },
-    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '10px' } } }
+    labels: { enabled: true, style: { fontSize: '12px', color: '#7A7A7A' }, step: step },
+    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', style: { color: '#fff', fontSize: '12px' } } }
   };
 }
 /* The pinned info card above each chart is empty ("—") when the chart is
@@ -954,8 +954,8 @@ function ndYAxisConfig(opts) {
        it regardless of endOnTick. So tickAmount is only applied when
        there's no hard max to respect (charts that just auto-range). */
     endOnTick: false, startOnTick: false,
-    labels: { enabled: true, style: { fontSize: '10px', color: '#7A7A7A' }, formatter: opts.yFormatter },
-    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', format: opts.yCrosshairFormat || '{value:.0f}', style: { color: '#fff', fontSize: '10px' } } }
+    labels: { enabled: true, style: { fontSize: '12px', color: '#7A7A7A' }, formatter: opts.yFormatter },
+    crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash', label: { enabled: true, backgroundColor: '#333333', format: opts.yCrosshairFormat || '{value:.0f}', style: { color: '#fff', fontSize: '12px' } } }
   };
   if (opts.max === undefined) cfg.tickAmount = 3;
   return cfg;
@@ -1208,7 +1208,7 @@ function fpRenderChart(containerId, height, idPrefix) {
         borderWidth: 0, borderRadius: 2, pointPadding: 0.08, groupPadding: 0.06,
         dataLabels: isMonthly ? {
           enabled: true, formatter: function () { return '$' + this.y; },
-          style: { fontSize: '9px', fontWeight: '700', color: 'var(--pl-text)', textOutline: 'none' }
+          style: { fontSize: '12px', fontWeight: '600', color: '#333333', textOutline: 'none' }
         } : { enabled: false }
       }
     },
@@ -1577,7 +1577,7 @@ function occRenderChart(containerId, height, idPrefix) {
         pointPadding: 0.08, groupPadding: 0.1, borderWidth: 0, borderRadius: 2,
         dataLabels: isMonthly ? {
           enabled: true, formatter: function () { return this.y + '%'; },
-          style: { fontSize: '9px', fontWeight: '700', color: 'var(--pl-text)', textOutline: 'none' }
+          style: { fontSize: '12px', fontWeight: '600', color: '#333333', textOutline: 'none' }
         } : { enabled: false }
       },
       series: { marker: { enabled: false }, states: { hover: { enabled: false } } }
@@ -1719,26 +1719,26 @@ function histInitChart(key) {
   el.style.height = '220px';
   histChart = Highcharts.chart('hist-hc-chart', {
     chart: {
-      height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT + 14, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent',
+      height: 220, spacing: [12, 0, 22, 0], marginLeft: 44, marginRight: 0, backgroundColor: 'transparent',
       events: { load: function () { ndShowInfoCardEmptyState('hist'); } }
     },
     xAxis: {
       categories: histMonths, lineWidth: 1, lineColor: '#E0E0E0', tickLength: 0,
-      labels: { style: { fontSize: '10px', color: '#7A7A7A' } },
+      labels: { style: { fontSize: '12px', color: '#7A7A7A' } },
       crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
     },
     yAxis: Object.assign(ndYAxisConfig({
       yFormatter: function () { return this.value; }
     }), {
       maxPadding: 0.18,
-      title: { text: HIST_AXIS_TITLES[histCurrentKey], margin: 6, style: { fontSize: '10px', fontWeight: '600', color: '#7A7A7A' } }
+      title: { text: HIST_AXIS_TITLES[histCurrentKey], margin: 4, x: -2, style: { fontSize: '12px', fontWeight: '400', color: '#7A7A7A' } }
     }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
       column: {
         borderWidth: 0, borderRadius: 3, pointPadding: 0.15, groupPadding: 0.08,
-        dataLabels: { enabled: histYears !== 2, formatter: function () { return this.y; }, style: { fontSize: '10px', fontWeight: '600', color: 'var(--pl-text)', textOutline: 'none' } }
+        dataLabels: { enabled: histYears !== 2, formatter: function () { return this.y; }, style: { fontSize: '12px', fontWeight: '600', color: '#333333', textOutline: 'none' } }
       },
       series: { marker: { enabled: false }, states: { hover: { enabled: false } }, animation: { duration: 250 } }
     },
@@ -2227,7 +2227,7 @@ function ndRenderMarketOverview() {
   root.innerHTML = html;
   const sel = types.find(t => t.name === moSelected) || types[1];
   const sum = document.getElementById('mo-summary');
-  if (sum) sum.innerHTML = sel.all
+  if (false && sum) sum.innerHTML = sel.all
     ? 'There are <strong>' + sel.count + '</strong> listings across all bedroom types, with a median price of <strong>$' + sel.p50 + '</strong>.'
     : 'There are <strong>' + sel.count + '</strong> listings with <strong>' + sel.name + '</strong> bedroom count and a median price of <strong>$' + sel.p50 + '</strong>.';
 }
