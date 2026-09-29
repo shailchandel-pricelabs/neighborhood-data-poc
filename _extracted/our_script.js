@@ -51,6 +51,7 @@ let ccLos = 2;
 let ccSelDay = 0;
 function ccSetPriceMode(mode) {
   ccPriceMode = mode;
+  ccSyncPickers();
   ndCloseSheet('bs-cc-price-mode');
   document.getElementById('cc-price-pill').firstChild.textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
   document.getElementById('cc-los-pill').style.display = mode === 'guest' ? '' : 'none';
@@ -62,6 +63,17 @@ function ccSetPriceMode(mode) {
       : 'Nightly rates before adding fee or taxes; base amount set by the host.';
   }
   ccRender();
+}
+/* Pickers always open showing the current state (Host Prices is the
+   default) — the radio selection is synced from ccPriceMode / ccLos on
+   every open rather than trusting whatever was last tapped. */
+function ccSyncPickers() {
+  document.querySelectorAll('#cc-price-mode-options .bs-radio').forEach(r => r.classList.toggle('selected', r.dataset.mode === ccPriceMode));
+  document.querySelectorAll('#cc-los-options .bs-radio').forEach(r => r.classList.toggle('selected', parseInt(r.dataset.los, 10) === ccLos));
+}
+function ccOpenPicker(id) {
+  ccSyncPickers();
+  ndOpenSheet(id);
 }
 function ccSetLos(n) {
   ccLos = n;
@@ -1346,8 +1358,7 @@ function fpRenderLegend() {
       (fpEventsEnabled ? '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' : '') +
       '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-fp-legend\')">+ More</div>';
   ndCapLegendRows(el, 'fp-full-legend', 2);
-  const fpNote = document.getElementById('fp-footnote');
-  if (fpNote) fpNote.style.display = fpGranularity === 'monthly' ? '' : 'none';
+  ndSyncMonthlyNotes('fp', fpGranularity === 'monthly');
 }
 
 /* ── "+ More" overlays: Upcoming Bookings / Last Year Bookings / Last
@@ -1647,8 +1658,7 @@ function occRenderLegend() {
   html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-legend\')">+ More</div>';
   el.innerHTML = html;
   ndCapLegendRows(el, 'occ-full-legend', 2);
-  const occNote = document.getElementById('occ-footnote');
-  if (occNote) occNote.style.display = isMonthly ? '' : 'none';
+  ndSyncMonthlyNotes('occ', isMonthly);
 }
 
 function occSetGranularity(el, mode) {
@@ -2223,4 +2233,15 @@ function ndRenderMarketOverview() {
   const mid = Math.round((lo + hi) / 2 / 10) * 10;
   html += '<div class="mo-axis"><span>$' + lo + '</span><span>$' + mid + '</span><span>$' + hi + '</span></div>';
   root.innerHTML = html;
+}
+
+
+/* Monthly-view notes ("Values shown are monthly averages" / "*Reflects
+   future dates only") — shown on two lines under the chart and repeated
+   at the bottom of that chart's "+ More" legend sheet. */
+function ndSyncMonthlyNotes(prefix, isMonthly) {
+  const note = document.getElementById(prefix + '-footnote');
+  if (note) note.style.display = isMonthly ? '' : 'none';
+  const sheetNote = document.getElementById(prefix + '-legend-note');
+  if (sheetNote) sheetNote.style.display = isMonthly ? '' : 'none';
 }

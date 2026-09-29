@@ -1722,3 +1722,28 @@
   .mo-note { margin-top: 8px; font-size: 14px; color: var(--pl-text); }
   .mo-note strong { font-weight: 600; }
   .mo-axis { display: flex; justify-content: space-between; padding-top: 8px; border-top: 1px solid var(--pl-border); font-size: 12px; color: var(--pl-text-secondary); }
+
+  /* ═══ Round: neutral active states, overview legend at bottom ═══ */
+  /* Market History: active KPI card uses neutral grey/black, not pink. */
+  .metric-card.selected { background: var(--pl-bg) !important; border-color: var(--pl-text) !important; box-shadow: none; }
+  .metric-card.selected .metric-label { color: var(--pl-text-secondary); }
+  .metric-card.selected .metric-value { color: var(--pl-text); }
+
+  /* Market Overview: your type is a grey chip only — no pink/red row. */
+  .mo-row.you { background: transparent; margin: 0; padding: 16px 0; border-top-color: var(--pl-border-table); }
+  .mo-row.you + .mo-row { border-top-color: var(--pl-border-table); }
+  .mo-row.you .mo-seg.typ { background: #AEB5BF; }
+  .mo-row.you .mo-seg.up { background: #DDE1E6; }
+  .mo-tag { background: var(--pl-surface-neutral); border: none; color: var(--pl-text); padding: 2px 8px; }
+  .mo-me { background: var(--pl-text); box-shadow: 0 0 0 1px var(--pl-text), 0 1px 3px rgba(0,0,0,.2); }
+  .mo-sw.me { background: var(--pl-text); box-shadow: 0 0 0 2px #fff, 0 0 0 3px var(--pl-text); }
+  .mo-legend { margin: 12px 0 0; }
+
+  /* Monthly notes: two lines, left aligned */
+  .nd-chart-footnote > div + div { margin-top: 2px; }
+  .nd-legend-note { margin-top: 16px; padding-top: 12px; border-top: 1px solid var(--pl-border-table); }
+
+  /* Competitor Calendar: price/LOS dropdowns right-aligned; roomier legend */
+  .cc-toolbar-right { margin-left: auto; }
+  .cc-legend { gap: 12px 20px; margin-top: 16px; line-height: 1.4; }
+  .cc-footnote { margin-top: 12px; }
