@@ -1681,3 +1681,8 @@
   .ccb-cal-btn { width: 100%; margin-top: 16px; }
   .mc-day.tappable { cursor: pointer; }
   .mc-day.tappable:active { background-color: var(--pl-highlight-blue); }
+  .nd-chart-footnote { margin-top: 8px; font-size: 12px; color: var(--pl-text-secondary); text-align: right; }
+  /* 11px labels need the full row width: no side padding on the bar, 2px inner gutter per tab. */
+  .phone-frame .css-18y2um2 { padding-left: 0; padding-right: 0; }
+  .phone-frame .css-18y2um2 > * { padding: 0 2px; }
+  .phone-frame .css-18y2um2 > * p { letter-spacing: -0.2px; }

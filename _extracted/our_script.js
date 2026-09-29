@@ -74,7 +74,8 @@ function ccSetView(view) {
   document.querySelectorAll('#cc-view-toggle .pill').forEach(p => p.classList.toggle('active', p.dataset.view === view));
   document.getElementById('cc-table-view').style.display = view === 'table' ? '' : 'none';
   document.getElementById('cc-date-view').style.display = view === 'date' ? '' : 'none';
-  document.getElementById('cc-table-legend').style.display = view === 'table' ? '' : 'none';
+  /* N/A · N/B · booked · min-stay legend applies to both views. */
+  document.getElementById('cc-table-legend').style.display = '';
   ccRender();
 }
 
@@ -853,8 +854,8 @@ const REAL_HIST_MONTHS = ["Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar", "Apr"
 const REAL_HIST = {
   occ: { name: 'Market Occupancy', suffix: '%', y2026: [55.0,59.0,57.0,51.0,46.0,49.0,57.0,51.0,55.0,46.0,53.0,46.0], y2025: [64.0,65.0,62.0,59.0,45.0,54.0,57.0,58.0,68.0,69.0,60.0,66.0] },
   adr: { name: 'Market ADR', prefix: '$', y2026: [116.0,120.0,132.0,130.0,110.0,106.0,114.0,129.0,154.0,188.0,150.0,134.0], y2025: [123.0,118.0,124.0,120.0,104.0,101.0,106.0,118.0,130.0,126.0,123.0,131.0] },
-  window: { name: 'Booking Window', suffix: ' days', y2026: [5.0,7.0,12.0,10.0,6.0,4.0,6.0,8.0,15.0,11.0,10.0,8.0], y2025: [21.0,16.0,17.0,15.0,8.0,6.0,8.0,15.0,27.0,15.0,9.0,12.0] },
-  los: { name: 'Length of Stay', suffix: ' nights', y2026: [2.0,2.0,2.0,2.0,2.0,3.0,3.0,3.0,2.0,2.0,3.0,2.0], y2025: [2.0,3.0,2.0,2.0,2.0,2.0,3.0,2.0,3.0,3.0,2.0,2.0] }
+  window: { name: 'Market Booking Window', suffix: ' days', y2026: [5.0,7.0,12.0,10.0,6.0,4.0,6.0,8.0,15.0,11.0,10.0,8.0], y2025: [21.0,16.0,17.0,15.0,8.0,6.0,8.0,15.0,27.0,15.0,9.0,12.0] },
+  los: { name: 'Market Length of Stay', suffix: ' nights', y2026: [2.0,2.0,2.0,2.0,2.0,3.0,3.0,3.0,2.0,2.0,3.0,2.0], y2025: [2.0,3.0,2.0,2.0,2.0,2.0,3.0,2.0,3.0,3.0,2.0,2.0] }
 };
 
 /* ── shared axis config, reused by all three charts (Classic style).
@@ -1084,8 +1085,11 @@ function fpBuildData(days, granularity) {
   const eventLabels = {};
   buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
+    /* Monthly: the first bucket is the current month, which only has
+       today-onward dates — flagged with "*" (footnote under the chart),
+       matching desktop's "*Reflects future dates only". */
     cats.push(granularity === 'monthly'
-      ? first.date.toLocaleDateString('en-US', { month: 'short' })
+      ? (i === 0 ? '*' : '') + first.date.toLocaleDateString('en-US', { month: 'short' })
       : first.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const avg = key => Math.round(rowsInBucket.reduce((s, r) => s + r[key], 0) / rowsInBucket.length);
     listing.push(avg('price'));
@@ -1342,6 +1346,8 @@ function fpRenderLegend() {
       (fpEventsEnabled ? '<div class="legend-item"><span class="legend-band-event"></span> Events</div>' : '') +
       '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-fp-legend\')">+ More</div>';
   ndCapLegendRows(el, 'fp-full-legend', 2);
+  const fpNote = document.getElementById('fp-footnote');
+  if (fpNote) fpNote.style.display = fpGranularity === 'monthly' ? '' : 'none';
 }
 
 /* ── "+ More" overlays: Upcoming Bookings / Last Year Bookings / Last
@@ -1471,8 +1477,11 @@ function occBuildData(days, granularity) {
   const events = [], eventLabels = {};
   buckets.forEach((rowsInBucket, i) => {
     const first = rowsInBucket[0];
+    /* Monthly: the first bucket is the current month, which only has
+       today-onward dates — flagged with "*" (footnote under the chart),
+       matching desktop's "*Reflects future dates only". */
     cats.push(granularity === 'monthly'
-      ? first.date.toLocaleDateString('en-US', { month: 'short' })
+      ? (i === 0 ? '*' : '') + first.date.toLocaleDateString('en-US', { month: 'short' })
       : first.date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }));
     const avg = key => Math.round(rowsInBucket.reduce((s, r) => s + r[key], 0) / rowsInBucket.length);
     market.push(Math.min(100, avg('market')));
@@ -1516,11 +1525,13 @@ function occRenderChart(containerId, height, idPrefix) {
      plotOptions.column padding now, so every bar in the group is the
      same width). */
   const bookedSeries = { type: 'column', id: 'occ-s-bookedocc', name: 'Booked Nights', data: bookedOcc, color: '#D8DCE2', zIndex: 0 };
+  /* Monthly mirrors desktop: Market Occupancy + Last Year (Today/Final)
+     columns in a red→pink ramp, plus optional pickup lines — no Booked
+     Nights (a per-day metric that doesn't aggregate meaningfully). */
   const series = isMonthly ? [
-    bookedSeries,
     { type: 'column', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', zIndex: 3 },
-    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#C9C9C9', zIndex: 2 },
-    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#E6E6E6', zIndex: 1 }
+    { type: 'column', id: 'occ-s-lytoday', name: 'Last Year (Today)', data: lyToday, color: '#FBA3A5', zIndex: 2 },
+    { type: 'column', id: 'occ-s-lyfinal', name: 'Last Year (Final)', data: lyFinal, color: '#F8C0C0', zIndex: 1 }
   ] : [
     bookedSeries,
     { type: 'line', id: 'occ-s-market', name: 'Market Occupancy', data: market, color: '#F37579', lineWidth: 2, zIndex: 5 },
@@ -1598,8 +1609,8 @@ function occUpdateInfoCard(chart, index, idPrefix) {
      rows it wasn't clear which metric "Today"/"Final" belonged to. */
   const defs = [
     ['occ-s-bookedocc', '#D8DCE2', 'Booked Nights', null],
-    ['occ-s-lytoday', '#B5B5B5', 'Market Occupancy (Last Year Today)', null],
-    ['occ-s-lyfinal', isMonthly ? '#E6E6E6' : '#B5B5B5', 'Market Occupancy (Last Year Final)', isMonthly ? null : 'Dot'],
+    ['occ-s-lytoday', isMonthly ? '#FBA3A5' : '#B5B5B5', 'Market Occupancy (Last Year Today)', null],
+    ['occ-s-lyfinal', isMonthly ? '#F8C0C0' : '#B5B5B5', 'Market Occupancy (Last Year Final)', isMonthly ? null : 'Dot'],
     ['occ-s-pickup', '#31C48D', '7-day Market Pickup', null],
     ['occ-s-pickupLY', '#31C48D', '7-day Market Pickup (Last Year Today)', 'Dot']
   ];
@@ -1625,10 +1636,10 @@ function occRenderLegend() {
   const li = (seriesId, swatchHtml, label) =>
     '<div class="legend-item togglable" onclick="ndToggleLegendSeries(this,occChart,\'' + seriesId + '\')">' + swatchHtml + ' ' + label + '</div>';
   let html =
-    li('occ-s-bookedocc', ndSwatchHTML('#D8DCE2', null, true), 'Booked Nights') +
+    (isMonthly ? '' : li('occ-s-bookedocc', ndSwatchHTML('#D8DCE2', null, true), 'Booked Nights')) +
     li('occ-s-market', ndSwatchHTML('#F37579', null, isMonthly), 'Market Occupancy') +
-    li('occ-s-lytoday', ndSwatchHTML(isMonthly ? '#C9C9C9' : '#B5B5B5', null, isMonthly), 'Last Year (Today)') +
-    li('occ-s-lyfinal', ndSwatchHTML(isMonthly ? '#E6E6E6' : '#B5B5B5', isMonthly ? null : 'Dot', isMonthly), 'Last Year (Final)');
+    li('occ-s-lytoday', ndSwatchHTML(isMonthly ? '#FBA3A5' : '#B5B5B5', null, isMonthly), 'Last Year (Today)') +
+    li('occ-s-lyfinal', ndSwatchHTML(isMonthly ? '#F8C0C0' : '#B5B5B5', isMonthly ? null : 'Dot', isMonthly), 'Last Year (Final)');
   if (occPacingEnabled) {
     html += li('occ-s-pickup', ndSwatchHTML('#31C48D', null, false), '7-day Pickup');
     html += li('occ-s-pickupLY', ndSwatchHTML('#31C48D', 'Dot', false), 'Pickup (LY)');
@@ -1636,6 +1647,8 @@ function occRenderLegend() {
   html += '<div class="legend-item legend-more" onclick="ndOpenSheet(\'bs-occ-legend\')">+ More</div>';
   el.innerHTML = html;
   ndCapLegendRows(el, 'occ-full-legend', 2);
+  const occNote = document.getElementById('occ-footnote');
+  if (occNote) occNote.style.display = isMonthly ? '' : 'none';
 }
 
 function occSetGranularity(el, mode) {
@@ -1662,31 +1675,41 @@ function occToggleEventsOption(el) {
    History widget) — "Last 1 year" shows just the current 12 months,
    "Last 2 year" shows this year alongside last year, paired per month,
    with a tap tooltip giving both years' values. ── */
-const HIST_COLOR_PREV = '#F8C6C8';
+/* Market History bars are colored by the calendar year each month
+   falls in — the trailing-12-month window (Sep → Aug) spans two years,
+   so e.g. in "Last 1 Year" Sep–Dec are 2025 and Jan–Aug are 2026, and
+   "Last 2 Years" adds the prior window (2024/2025). Same palette as
+   desktop. Values above the bars are plain numbers; the unit lives in
+   the y-axis title. */
+const HIST_YEAR_COLORS_1 = { 2025: '#F69396', 2026: '#F37579' };
+const HIST_YEAR_COLORS_2 = { 2024: '#7A7A7A', 2025: '#F69396', 2026: '#FCDCDD' };
+const HIST_COLOR_PREV = '#F69396';
 const HIST_COLOR_CURRENT = '#F37579';
+const HIST_AXIS_TITLES = { occ: 'Occupancy (%)', adr: 'ADR (USD)', window: 'Booking Window (days)', los: 'Length of Stay (nights)' };
 const histMetricData = REAL_HIST;
-const histMonths = REAL_HIST_MONTHS;
-
 let histChart = null;
 let histCurrentKey = 'occ';
 let histYears = 1;
+const histMonths = REAL_HIST_MONTHS;
+function histYearOf(windowEndYear, idx) { return idx < 4 ? windowEndYear - 1 : windowEndYear; }
+function histColor(year) { return (histYears === 2 ? HIST_YEAR_COLORS_2 : HIST_YEAR_COLORS_1)[year]; }
 function histInitChart(key) {
   const el = document.getElementById('hist-hc-chart');
   if (!el || !window.Highcharts) return;
   if (key) histCurrentKey = key;
   const m = histMetricData[histCurrentKey];
-  const fmt = v => (m.prefix || '') + v + (m.suffix || '');
   if (histChart) { histChart.destroy(); histChart = null; }
+  const pts = (arr, endYear) => arr.map((v, i) => ({ y: v, color: histColor(histYearOf(endYear, i)) }));
   const series = histYears === 2
     ? [
-        { type: 'column', id: 'hist-s-2025', name: '2025', data: m.y2025, color: HIST_COLOR_PREV },
-        { type: 'column', id: 'hist-s-2026', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }
+        { type: 'column', id: 'hist-s-2025', name: 'Prior 12 months', data: pts(m.y2025, 2025) },
+        { type: 'column', id: 'hist-s-2026', name: 'Last 12 months', data: pts(m.y2026, 2026) }
       ]
-    : [{ type: 'column', id: 'hist-s-2026', name: '2026', data: m.y2026, color: HIST_COLOR_CURRENT }];
+    : [{ type: 'column', id: 'hist-s-2026', name: 'Last 12 months', data: pts(m.y2026, 2026) }];
   el.style.height = '220px';
   histChart = Highcharts.chart('hist-hc-chart', {
     chart: {
-      height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent',
+      height: 220, spacing: ND_CHART_SPACING, marginLeft: ND_CHART_MARGIN_LEFT + 14, marginRight: ND_CHART_MARGIN_RIGHT, backgroundColor: 'transparent',
       events: { load: function () { ndShowInfoCardEmptyState('hist'); } }
     },
     xAxis: {
@@ -1695,14 +1718,17 @@ function histInitChart(key) {
       crosshair: { width: 1, color: '#CBD0D6', dashStyle: 'Dash' }
     },
     yAxis: Object.assign(ndYAxisConfig({
-      yFormatter: function () { return (m.prefix || '') + this.value + (m.suffix || ''); }
-    }), { maxPadding: 0.18 }),
+      yFormatter: function () { return this.value; }
+    }), {
+      maxPadding: 0.18,
+      title: { text: HIST_AXIS_TITLES[histCurrentKey], margin: 6, style: { fontSize: '10px', fontWeight: '600', color: '#7A7A7A' } }
+    }),
     tooltip: { enabled: false },
     legend: { enabled: false },
     plotOptions: {
       column: {
         borderWidth: 0, borderRadius: 3, pointPadding: 0.15, groupPadding: 0.08,
-        dataLabels: { enabled: histYears !== 2, formatter: function () { return fmt(this.y); }, style: { fontSize: '10px', fontWeight: '600', color: 'var(--pl-text)', textOutline: 'none' } }
+        dataLabels: { enabled: histYears !== 2, formatter: function () { return this.y; }, style: { fontSize: '10px', fontWeight: '600', color: 'var(--pl-text)', textOutline: 'none' } }
       },
       series: { marker: { enabled: false }, states: { hover: { enabled: false } }, animation: { duration: 250 } }
     },
@@ -1713,9 +1739,8 @@ function histInitChart(key) {
   attachScrub(histChart, histWrap, function (chart, idx) { histUpdateInfoCard(chart, idx); });
 }
 
-/* ── Pinned drag-tooltip for Market History, same pattern as Future
-   Prices/Occupancy — a permanently-visible card above the chart instead
-   of a floating tooltip a touch drag would cover. ── */
+/* ── Pinned drag-tooltip for Market History: one row per bar in the
+   scrubbed month, labeled with that bar's own calendar year. ── */
 function histUpdateInfoCard(chart, index) {
   const points = chart.series[0] && chart.series[0].points;
   if (!points || !points.length) return;
@@ -1728,25 +1753,20 @@ function histUpdateInfoCard(chart, index) {
   const rowsEl = document.getElementById('hist-info-rows');
   if (dateEl) dateEl.textContent = histMonths[i];
   if (!rowsEl) return;
-  /* Same row structure fp/occ use: every year gets its own dot (colored
-     to match its bar in the chart/legend) + label + value, including the
-     current year — previously 2026 was folded into the headline number
-     as plain "2026: $234" text with no swatch, while 2025 got the normal
-     dotted row, so the two years read inconsistently. */
-  rowsEl.innerHTML = ndTTRowHTML(HIST_COLOR_CURRENT, '2026', fmt(m.y2026[i])) +
-    (histYears === 2
-      ? ndTTRowHTML(HIST_COLOR_PREV, '2025', fmt(m.y2025[i]))
-      : '');
+  const yNow = histYearOf(2026, i), yPrev = histYearOf(2025, i);
+  rowsEl.innerHTML = (histYears === 2 ? ndTTRowHTML(histColor(yPrev), histMonths[i] + ' ' + yPrev, fmt(m.y2025[i])) : '') +
+    ndTTRowHTML(histColor(yNow), histMonths[i] + ' ' + yNow, fmt(m.y2026[i]));
 }
 
+/* Legend lists the calendar years present (not the two series), since
+   each series spans two years. */
 function renderHistLegend() {
   const el = document.getElementById('hist-legend');
   if (!el) return;
-  const li = (seriesId, color, label) =>
-    '<div class="legend-item togglable" onclick="ndToggleLegendSeries(this,histChart,\'' + seriesId + '\')"><div class="legend-swatch" style="background:' + color + ';height:8px;width:8px;border-radius:2px"></div> ' + label + '</div>';
-  el.innerHTML = histYears === 2
-    ? li('hist-s-2025', HIST_COLOR_PREV, '2025') + li('hist-s-2026', HIST_COLOR_CURRENT, '2026')
-    : li('hist-s-2026', HIST_COLOR_CURRENT, '2026');
+  const years = histYears === 2 ? [2024, 2025, 2026] : [2025, 2026];
+  el.innerHTML = years.map(y =>
+    '<div class="legend-item"><div class="legend-swatch" style="background:' + histColor(y) + ';height:8px;width:8px;border-radius:2px"></div> ' + y + '</div>'
+  ).join('');
 }
 
 function switchHistoryMetric(el, key) {
