@@ -53,7 +53,7 @@ function ccSetPriceMode(mode) {
   ccPriceMode = mode;
   ndCloseSheet('bs-cc-price-mode');
   document.getElementById('cc-price-pill').firstChild.textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
-  document.getElementById('cc-los-pill').style.display = mode === 'guest' ? '' : 'none';
+  document.getElementById('cc-los-row').style.display = mode === 'guest' ? '' : 'none';
   document.getElementById('cc-guest-info').style.display = mode === 'guest' ? '' : 'none';
   const note = document.getElementById('cc-price-footnote');
   if (note) {
@@ -155,54 +155,65 @@ function ccRender() {
   const names = ccAddedNames();
   if (!names.length) return;
   if (ccView === 'date') { ccRenderDateView(names); return; }
-  const moon = '<svg viewBox="0 0 24 24" width="8" height="8" fill="currentColor" aria-hidden="true"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>';
-  const ext = '<svg viewBox="0 0 16 16" width="11" height="11" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 2.5h4.5V7M13.5 2.5 7 9M11.5 9.5v3a1 1 0 0 1-1 1h-7a1 1 0 0 1-1-1v-7a1 1 0 0 1 1-1h3"/></svg>';
-  const thumb = '<svg viewBox="0 0 16 16" width="13" height="13" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 11l3.5-3.5 3 3 2-2L14 12"/></svg>';
+  /* Table view mirrors the mobile Multi Calendar grid: grey header
+     row with "29 Sep / Tue" date columns, a frozen listings column
+     (small grey meta line over a bold 2-line name) that can be
+     collapsed with the round chevron button on its edge, and roomy
+     cells with the price in plain numbers (no currency). */
   const DAY = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
   const MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  let html = '<div class="cc-row cc-head"><div class="cc-c cc-name">Competitor Room Types (' + names.length + ')</div><div class="cc-c cc-fee">Est.<br>Fee</div>';
+  const chevL = '<svg viewBox="0 0 16 16" width="14" height="14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 3.5 5.5 8l4.5 4.5"/></svg>';
+  const collapsed = ccTableCollapsed;
+  let html = '<div class="mc-grid' + (collapsed ? ' collapsed' : '') + '">';
+  html += '<div class="mc-row mc-head"><div class="mc-c mc-name">' + (collapsed ? '' : 'Listings (' + (names.length + 1) + ')') + '<button class="mc-collapse" aria-label="' + (collapsed ? 'Expand' : 'Collapse') + ' listings column" onclick="ccToggleTableCollapse()">' + chevL + '</button></div><div class="mc-c mc-fee">Est.<br>Fee</div>';
   for (let i = 0; i < CC_DAYS; i++) {
     const d = ndRealDay(i).date, w = d.getDay() === 5 || d.getDay() === 6;
-    html += '<div class="cc-c cc-date' + (w ? ' wknd' : '') + '"><span>' + String(d.getDate()).padStart(2, '0') + ' ' + MON[d.getMonth()] + '</span><span>' + DAY[d.getDay()] + '</span></div>';
+    html += '<div class="mc-c mc-date' + (w ? ' wknd' : '') + '"><strong>' + String(d.getDate()).padStart(2, '0') + ' ' + MON[d.getMonth()] + '</strong><span>' + DAY[d.getDay()] + '</span></div>';
   }
   html += '</div>';
+  if (ccPriceMode === 'guest') {
+    html += '<div class="mc-row mc-stay"><div class="mc-c mc-name">' + (collapsed ? 'Stay' : 'Stay dates (LOS)') + '</div><div class="mc-c mc-fee">–</div>';
+    for (let i = 0; i < CC_DAYS; i++) {
+      const w = [5, 6].indexOf(ndRealDay(i).date.getDay()) >= 0;
+      html += '<div class="mc-c' + (w ? ' wknd' : '') + '">' + ccStayLabel(i).replace(' – ', ' –<br>') + '</div>';
+    }
+    html += '</div>';
+  }
   const rowHtml = function (name) {
     const yours = name === '__yours__';
     const c = CC_COMPS[name] || {};
-    let h = '<div class="cc-row' + (yours ? ' cc-yours' : '') + '"' + (yours ? '' : ' onclick="ccOpenCompetitor(\'' + name.replace(/'/g, "\\'") + '\')"') + '>';
+    let h = '<div class="mc-row' + (yours ? ' mc-yours' : '') + '"' + (yours ? '' : ' onclick="ccOpenCompetitor(\'' + name.replace(/'/g, "\\'") + '\')"') + '>';
     if (yours) {
-      h += '<div class="cc-c cc-name"><div class="cc-name-text"><div class="cc-title"><strong>Your Room Type</strong></div><a class="cc-link" href="#" onclick="event.preventDefault();event.stopPropagation();ndOpenSheet(\'bs-comp-set-edit\')">Edit Markup, Fee Details</a></div></div>';
-      h += '<div class="cc-c cc-fee">$' + ccPrice(CC_YOUR_FEE) + '</div>';
+      h += '<div class="mc-c mc-name">' + (collapsed ? '<span class="mc-you">You</span>' : '<span class="mc-title">Your Listing</span><a class="mc-link" href="#" onclick="event.preventDefault();event.stopPropagation();ndOpenSheet(\'bs-comp-set-edit\')">Edit Markup, Fees</a>') + '</div>';
+      h += '<div class="mc-c mc-fee">' + ccPrice(CC_YOUR_FEE) + '</div>';
     } else {
-      const rating = c.rating ? c.rating + ' ' + ND_STAR_ICON + ' (' + c.reviews + ')' : '— ' + ND_STAR_ICON + ' (NA)';
-      h += '<div class="cc-c cc-name"><div class="cc-thumb">' + thumb + '</div><div class="cc-name-text"><div class="cc-title">' + name + '</div><div class="cc-meta">' + c.br + ' | ' + rating + '</div></div><span class="cc-ext">' + ext + '</span></div>';
-      h += '<div class="cc-c cc-fee">$' + ccPrice(c.fee) + '</div>';
+      const rating = c.rating ? c.rating + ' ' + ND_STAR_ICON : 'New';
+      h += '<div class="mc-c mc-name">' + (collapsed ? '<span class="mc-title mc-title-short">' + name + '</span>' : '<span class="mc-meta">' + c.br + ' · ' + rating + '</span><span class="mc-title">' + name + '</span>') + '</div>';
+      h += '<div class="mc-c mc-fee">' + ccPrice(c.fee) + '</div>';
     }
     for (let i = 0; i < CC_DAYS; i++) {
       const cell = ccView_cell(name, i);
-      let cls = 'cc-c cc-day' + (cell.weekend ? ' wknd' : '');
+      let cls = 'mc-c mc-day' + (cell.weekend ? ' wknd' : '');
       let inner;
-      if (cell.na) { inner = '<span class="cc-p">N/A</span>'; cls += ' muted'; }
-      else if (cell.nb) { inner = '<span class="cc-p">N/B</span>'; cls += ' muted'; }
+      if (cell.na) { inner = '<span class="mc-p">N/A</span>'; cls += ' muted'; }
+      else if (cell.nb) { inner = '<span class="mc-p">N/B</span>'; cls += ' muted'; }
       else {
         if (cell.booked) cls += ' booked';
-        inner = '<span class="cc-p">' + ccShown(cell) + '</span><span class="cc-ms">' + cell.minStay + moon + '</span>';
+        inner = '<span class="mc-p">' + ccShown(cell) + '</span><span class="mc-ms">' + cell.minStay + 'n</span>';
       }
       h += '<div class="' + cls + '">' + inner + '</div>';
     }
     return h + '</div>';
   };
-  if (ccPriceMode === 'guest') {
-    html += '<div class="cc-row cc-stay"><div class="cc-c cc-name">Stay Dates <span>(based on selected LOS)</span></div><div class="cc-c cc-fee">—</div>';
-    for (let i = 0; i < CC_DAYS; i++) {
-      const w = [5, 6].indexOf(ndRealDay(i).date.getDay()) >= 0;
-      html += '<div class="cc-c' + (w ? ' wknd' : '') + '">' + ccStayLabel(i).replace(' – ', ' –<br>') + '</div>';
-    }
-    html += '</div>';
-  }
   html += rowHtml('__yours__');
   names.forEach(n => { html += rowHtml(n); });
+  html += '</div>';
   document.getElementById('cc-table').innerHTML = html;
+}
+let ccTableCollapsed = false;
+function ccToggleTableCollapse() {
+  ccTableCollapsed = !ccTableCollapsed;
+  ccRender();
 }
 /* ── "By Date" view: the app-friendly alternative to the dense grid.
    Modeled on how Apple Weather / Google Flights handle data-heavy
@@ -234,50 +245,35 @@ function ccRenderDateView(names) {
   summary += '<div class="ccd-sum-head"><button class="ccd-nav" aria-label="Previous day" onclick="ccSelectDay(' + (i - 1) + ')"' + (i === 0 ? ' disabled' : '') + '>‹</button><div class="ccd-sum-date"><div class="ccd-sum-day">' + DAYL[d.getDay()] + ', ' + d.getDate() + ' ' + MON[d.getMonth()] + '</div>' +
     (ccPriceMode === 'guest' ? '<div class="ccd-sum-sub">' + ccLos + '-night stay · ' + ccStayLabel(i) + '</div>' : '<div class="ccd-sum-sub">Host nightly rate</div>') +
     '</div><button class="ccd-nav" aria-label="Next day" onclick="ccSelectDay(' + (i + 1) + ')"' + (i === CC_DAYS - 1 ? ' disabled' : '') + '>›</button></div>';
-  if (yours.booked) {
-    summary += '<div class="ccd-verdict"><span class="ccd-big">Booked</span><span class="ccd-verdict-sub">Your listing is booked for this date</span></div>';
-  } else if (med === null) {
-    summary += '<div class="ccd-verdict"><span class="ccd-big">$' + you + '</span><span class="ccd-verdict-sub">No competitors available to compare</span></div>';
-  } else {
-    const diff = you - med;
-    const tone = Math.abs(diff) <= Math.max(3, med * 0.03) ? 'even' : (diff < 0 ? 'below' : 'above');
-    const txt = tone === 'even' ? 'In line with the competitor median' : '$' + Math.abs(diff) + (diff < 0 ? ' below' : ' above') + ' the competitor median';
-    summary += '<div class="ccd-verdict"><span class="ccd-big">$' + you + '</span><span class="ccd-label">Your price</span></div><div class="ccd-delta ' + tone + '">' + txt + '</div>';
-    const lo = Math.min(prices[0], you), hi = Math.max(prices[prices.length - 1], you);
-    const pos = v => hi === lo ? 50 : ((v - lo) / (hi - lo)) * 100;
-    summary += '<div class="ccd-range"><div class="ccd-track"><div class="ccd-band" style="left:' + pos(prices[0]) + '%;right:' + (100 - pos(prices[prices.length - 1])) + '%"></div>' +
-      prices.map(v => '<i class="ccd-dot" style="left:' + pos(v) + '%"></i>').join('') +
-      '<i class="ccd-med" style="left:' + pos(med) + '%"></i><i class="ccd-you" style="left:' + pos(you) + '%"></i></div>' +
-      '<div class="ccd-range-labels"><span>Low <strong>$' + prices[0] + '</strong></span><span>Median <strong>$' + med + '</strong></span><span>High <strong>$' + prices[prices.length - 1] + '</strong></span></div></div>';
-  }
+  summary += yours.booked
+    ? '<div class="ccd-verdict"><span class="ccd-label">Your price</span><span class="ccd-big">Booked</span></div>'
+    : '<div class="ccd-verdict"><span class="ccd-label">Your price</span><span class="ccd-big">' + you + '</span>' + (med !== null ? '<span class="ccd-label">Competitors ' + prices[0] + (prices.length > 1 ? '–' + prices[prices.length - 1] : '') + '</span>' : '') + '</div>';
   summary += '<div class="ccd-stats"><span><strong>' + avail.length + '</strong> of ' + rows.length + ' available</span><span><strong>' + rows.filter(r => r.cell.booked).length + '</strong> booked</span>' + (ccPriceMode === 'guest' ? '<span><strong>' + rows.filter(r => r.cell.nb).length + '</strong> not bookable</span>' : '') + '</div>';
   summary += '</div>';
 
-  const all = rows.concat([{ name: '__yours__', you: true, cell: yours }]);
-  const rank = r => (r.cell.na ? 3 : r.cell.nb ? 2 : r.cell.booked ? 1 : 0);
-  all.sort((a, b) => rank(a) - rank(b) || ccShown(a.cell) - ccShown(b.cell));
+  const all = [{ name: '__yours__', you: true, cell: yours }].concat(rows);
   const thumb = '<svg viewBox="0 0 16 16" width="16" height="16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="3" width="12" height="10" rx="1.5"/><path d="M2 11l3.5-3.5 3 3 2-2L14 12"/></svg>';
-  let list = '<div class="ccd-list-head"><span>Sorted by price</span><span>' + (ccPriceMode === 'guest' ? 'Avg / night' : 'Per night') + '</span></div><div class="ccd-list" id="ccd-list">';
+  let list = '<div class="ccd-list-head"><span>Competitors (' + rows.length + ')</span><span>' + (ccPriceMode === 'guest' ? 'Avg / night' : 'Per night') + '</span></div><div class="ccd-list" id="ccd-list">';
   all.forEach(r => {
     const cell = r.cell;
     let right;
     if (cell.na) right = '<span class="ccd-chip-status">N/A</span>';
     else if (cell.nb) right = '<span class="ccd-chip-status">N/B</span>';
-    else if (cell.booked) right = '<span class="ccd-price booked">$' + ccShown(cell) + '</span><span class="ccd-chip-status">Booked</span>';
+    else if (cell.booked) right = '<span class="ccd-price booked">' + ccShown(cell) + '</span><span class="ccd-chip-status">Booked</span>';
     else {
       const v = ccShown(cell);
-      right = '<span class="ccd-price">$' + v + '</span>';
+      right = '<span class="ccd-price">' + v + '</span>';
       if (!r.you && !yours.booked) {
         const dv = v - you;
-        right += '<span class="ccd-vs ' + (dv > 0 ? 'up' : dv < 0 ? 'down' : '') + '">' + (dv === 0 ? 'Same as you' : (dv > 0 ? '+$' : '−$') + Math.abs(dv) + ' vs you') + '</span>';
+        right += '<span class="ccd-vs ' + (dv > 0 ? 'up' : dv < 0 ? 'down' : '') + '">' + (dv === 0 ? 'Same as you' : (dv > 0 ? '+' : '−') + Math.abs(dv) + ' vs you') + '</span>';
       }
     }
     if (r.you) {
-      list += '<div class="ccd-row you"><div class="ccd-thumb you">You</div><div class="ccd-body"><div class="ccd-name">Your Room Type</div><div class="ccd-meta">' + cell.minStay + '-night min · Fee $' + ccPrice(CC_YOUR_FEE) + ' · <a href="#" onclick="event.preventDefault();ndOpenSheet(\'bs-comp-set-edit\')">Edit markup &amp; fees</a></div></div><div class="ccd-right">' + right + '</div></div>';
+      list += '<div class="ccd-row you"><div class="ccd-thumb you">You</div><div class="ccd-body"><div class="ccd-name">Your Room Type</div><div class="ccd-meta">' + cell.minStay + '-night min · Fee ' + ccPrice(CC_YOUR_FEE) + ' · <a href="#" onclick="event.preventDefault();ndOpenSheet(\'bs-comp-set-edit\')">Edit markup &amp; fees</a></div></div><div class="ccd-right">' + right + '</div></div>';
     } else {
       const c = r.c;
       const rating = c.rating ? ND_STAR_ICON + ' ' + c.rating + ' (' + c.reviews + ')' : ND_STAR_ICON + ' New';
-      list += '<div class="ccd-row" onclick="ccOpenCompetitor(\'' + r.name.replace(/'/g, "\\'") + '\')"><div class="ccd-thumb">' + thumb + '</div><div class="ccd-body"><div class="ccd-name">' + r.name + '</div><div class="ccd-meta">' + c.br + ' · ' + rating + ' · ' + c.dist + '</div><div class="ccd-meta">' + c.minStay + '-night min · Fee $' + ccPrice(c.fee) + '</div></div><div class="ccd-right">' + right + '</div><span class="ccd-chev">›</span></div>';
+      list += '<div class="ccd-row" onclick="ccOpenCompetitor(\'' + r.name.replace(/'/g, "\\'") + '\')"><div class="ccd-thumb">' + thumb + '</div><div class="ccd-body"><div class="ccd-name">' + r.name + '</div><div class="ccd-meta">' + c.br + ' · ' + rating + ' · ' + c.dist + '</div><div class="ccd-meta">' + c.minStay + '-night min · Fee ' + ccPrice(c.fee) + '</div></div><div class="ccd-right">' + right + '</div><span class="ccd-chev">›</span></div>';
     }
   });
   list += '</div>';
@@ -310,8 +306,7 @@ function ccAttachDaySwipe(el) {
 }
 function ccOpenCompetitor(name) {
   const c = CC_COMPS[name] || {};
-  const base = ccCell(name, 0).price;
-  openCompCalendar(name, c.rating || '—', c.br || '', '$' + base, '', '');
+  openCompCalendar(name, c.rating || '—', c.br || '');
 }
 
 /* ── Competitor Calendar: add / remove flow (search + suggested list) ── */
@@ -346,6 +341,8 @@ function ccUpdateEmptyState() {
   if (!empty || !populated) return;
   const hasCompetitors = document.querySelectorAll('#add-comp-current-list .comp-row').length > 0;
   empty.style.display = hasCompetitors ? 'none' : '';
+  const manage = document.getElementById('cc-manage-btn');
+  if (manage) manage.style.display = hasCompetitors ? '' : 'none';
   populated.style.display = hasCompetitors ? '' : 'none';
 }
 function ccInitEmptyState() {
@@ -1888,40 +1885,51 @@ if (document.readyState === 'loading') {
 /* ── Competitor Calendar detail view: builds the day-grid + fees from
    THIS competitor's own price (previously always showed the first
    competitor's static hardcoded data, regardless of which tile was tapped) ── */
-function ndBuildCompCalendar(basePrice, seed) {
-  const rand = ndSeededRand(seed);
-  const days = [18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30];
+/* Month calendar for one competitor, built from the same ccCell data
+   as the table/By Date views so the numbers always agree. Days before
+   today or beyond the data range render as plain muted dates. */
+let ccCalName = null, ccCalOffset = 0;
+function ndBuildCompCalendar() {
+  const MONTHS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  const start = new Date(REAL_DAILY_START + 'T00:00:00');
+  const first = new Date(start.getFullYear(), start.getMonth() + ccCalOffset, 1);
+  const dim = new Date(first.getFullYear(), first.getMonth() + 1, 0).getDate();
+  document.getElementById('cc-cal-month').textContent = MONTHS[first.getMonth()] + ' ' + first.getFullYear();
+  document.getElementById('cc-cal-prev').disabled = ccCalOffset <= 0;
+  document.getElementById('cc-cal-next').disabled = ccCalOffset >= 2;
   let html = '';
-  for (let i = 0; i < 5; i++) html += '<div style="padding:4px 1px"></div>';
-  days.forEach(d => {
-    const isToday = d === 18;
-    const unavailable = !isToday && rand() < 0.15;
-    const minstay = rand() < 0.5 ? '2n' : '3n';
-    if (unavailable) {
-      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-surface-neutral);color:var(--pl-text-disabled)"><div>' + d + '</div><div style="font-size:8px">—</div><div style="font-size:7px">—</div></div>';
-      return;
-    }
-    const wobble = Math.round((rand() - 0.5) * 24);
-    const price = Math.max(20, basePrice + wobble);
-    if (isToday) {
-      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:var(--pl-primary-light);color:var(--pl-primary);font-weight:600;border:1.5px solid var(--pl-primary)"><div>' + d + '</div><div style="font-size:8px;font-weight:700">$' + price + '</div><div style="font-size:7px;font-weight:400;opacity:0.8">' + minstay + '</div></div>';
-    } else {
-      html += '<div style="padding:4px 1px;border-radius:var(--radius-base);background:#2CAFFE;color:#fff;font-weight:600"><div>' + d + '</div><div style="font-size:8px;font-weight:700">$' + price + '</div><div style="font-size:7px;font-weight:400;opacity:0.85">' + minstay + '</div></div>';
-    }
-  });
+  for (let k = 0; k < first.getDay(); k++) html += '<div></div>';
+  for (let d = 1; d <= dim; d++) {
+    const date = new Date(first.getFullYear(), first.getMonth(), d);
+    const i = Math.round((date - start) / 86400000);
+    if (i < 0 || i >= REAL_DAILY.length) { html += '<div class="ccm-day past"><span class="ccm-num">' + d + '</span></div>'; continue; }
+    const cell = ccView_cell(ccCalName, i);
+    let cls = 'ccm-day' + (i === 0 ? ' today' : '');
+    let body;
+    if (cell.na) { cls += ' off'; body = '<span class="ccm-p">N/A</span>'; }
+    else if (cell.nb) { cls += ' off'; body = '<span class="ccm-p">N/B</span>'; }
+    else if (cell.booked) { cls += ' off'; body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">Booked</span>'; }
+    else body = '<span class="ccm-p">' + ccShown(cell) + '</span><span class="ccm-ms">' + cell.minStay + 'n</span>';
+    html += '<div class="' + cls + '"><span class="ccm-num">' + d + '</span>' + body + '</div>';
+  }
   document.getElementById('cc-grid').innerHTML = html;
-  document.getElementById('cc-fee-cleaning').textContent = '$' + (Math.round(basePrice * 0.42 / 5) * 5);
-  document.getElementById('cc-fee-guest').textContent = '$' + (Math.round(basePrice * 0.13 / 5) * 5);
-  document.getElementById('cc-fee-pet').textContent = '$' + (Math.round(basePrice * 0.25 / 5) * 5);
+  const c = CC_COMPS[ccCalName] || {};
+  const fee = c.fee || 40;
+  document.getElementById('cc-fee-cleaning').textContent = '$' + fee;
+  document.getElementById('cc-fee-guest').textContent = '$' + (Math.round(fee * 0.3 / 5) * 5 || 5);
+  document.getElementById('cc-fee-pet').textContent = '$' + (Math.round(fee * 0.6 / 5) * 5 || 10);
+}
+function ccCalMonth(step) {
+  ccCalOffset = Math.max(0, Math.min(2, ccCalOffset + step));
+  ndBuildCompCalendar();
 }
 
-function openCompCalendar(name, rating, type, price, min, max) {
+function openCompCalendar(name, rating, type) {
   document.getElementById('cc-title').textContent = name;
   document.getElementById('cc-meta').innerHTML = ND_STAR_ICON + ' ' + rating + ' · ' + type;
-  const basePrice = parseInt(String(price).replace(/[^0-9]/g, ''), 10) || 150;
-  let seed = 1;
-  for (let i = 0; i < name.length; i++) seed += name.charCodeAt(i) * (i + 7);
-  ndBuildCompCalendar(basePrice, seed);
+  ccCalName = name;
+  ccCalOffset = 0;
+  ndBuildCompCalendar();
   ndOpenSheet('bs-comp-calendar');
 }
 
