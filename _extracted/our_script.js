@@ -53,7 +53,7 @@ function ccSetPriceMode(mode) {
   ccPriceMode = mode;
   ndCloseSheet('bs-cc-price-mode');
   document.getElementById('cc-price-pill').firstChild.textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
-  document.getElementById('cc-los-row').style.display = mode === 'guest' ? '' : 'none';
+  document.getElementById('cc-los-pill').style.display = mode === 'guest' ? '' : 'none';
   document.getElementById('cc-guest-info').style.display = mode === 'guest' ? '' : 'none';
   const note = document.getElementById('cc-price-footnote');
   if (note) {
@@ -66,7 +66,7 @@ function ccSetPriceMode(mode) {
 function ccSetLos(n) {
   ccLos = n;
   ndCloseSheet('bs-cc-los');
-  document.getElementById('cc-los-pill').firstChild.textContent = 'LOS: ' + n + ' Night' + (n > 1 ? 's' : '');
+  document.getElementById('cc-los-pill').firstChild.textContent = n + ' Night' + (n > 1 ? 's' : '');
   ccRender();
 }
 function ccSetView(view) {
@@ -280,7 +280,7 @@ function ccRenderDateView(names) {
 
   const root = document.getElementById('cc-date-view');
   const prevScroll = document.getElementById('ccd-strip') ? document.getElementById('ccd-strip').scrollLeft : null;
-  root.innerHTML = strip + summary + list;
+  root.innerHTML = strip + list;
   const st = document.getElementById('ccd-strip');
   const chip = st.children[i];
   if (prevScroll !== null) st.scrollLeft = prevScroll;

@@ -1433,3 +1433,20 @@
   .mc-head .mc-name { padding-right: 22px; white-space: nowrap; }
   .ccm-day.past { min-height: 36px; }
   .mc-grid.collapsed .mc-head .mc-fee { padding-left: 14px; }
+
+  /* ═══ Competitor Calendar v4 ═══ */
+  .cc-toolbar { flex-wrap: wrap; row-gap: 8px; }
+  .cc-toolbar-right { display: flex; gap: 6px; margin-left: auto; }
+  .cc-toolbar-right .range-pill { padding: 0 10px 0 12px; }
+  .cc-toolbar .cc-view-toggle { border-radius: var(--radius-full); }
+  .cc-toolbar .cc-view-toggle .pill { padding: 0 12px; }
+  .cc-info { border-radius: 20px; }
+  .cc-info-head { padding: 10px 14px; }
+  .cc-info-body { padding: 0 16px 14px 36px; }
+  /* Month calendar sheet: regular weight, 16/14/12 scale */
+  .ccm-num { font-size: 12px; font-weight: 400; }
+  .ccm-p { font-size: 16px; font-weight: 400; }
+  .ccm-ms { font-size: 12px; font-weight: 400; }
+  .ccm-day.past .ccm-num { font-size: 14px; }
+  #bs-comp-calendar .bs-title { font-size: 16px; }
+  #bs-comp-calendar #cc-meta { font-size: 12px !important; }

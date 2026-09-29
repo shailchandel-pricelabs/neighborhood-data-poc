@@ -2672,6 +2672,23 @@ svg.svg-inline--fa:not(:host), svg.svg-inline--fa:not(:root) { overflow: visible
   .ccm-day.past { min-height: 36px; }
   .mc-grid.collapsed .mc-head .mc-fee { padding-left: 14px; }
 
+  /* ═══ Competitor Calendar v4 ═══ */
+  .cc-toolbar { flex-wrap: wrap; row-gap: 8px; }
+  .cc-toolbar-right { display: flex; gap: 6px; margin-left: auto; }
+  .cc-toolbar-right .range-pill { padding: 0 10px 0 12px; }
+  .cc-toolbar .cc-view-toggle { border-radius: var(--radius-full); }
+  .cc-toolbar .cc-view-toggle .pill { padding: 0 12px; }
+  .cc-info { border-radius: 20px; }
+  .cc-info-head { padding: 10px 14px; }
+  .cc-info-body { padding: 0 16px 14px 36px; }
+  /* Month calendar sheet: regular weight, 16/14/12 scale */
+  .ccm-num { font-size: 12px; font-weight: 400; }
+  .ccm-p { font-size: 16px; font-weight: 400; }
+  .ccm-ms { font-size: 12px; font-weight: 400; }
+  .ccm-day.past .ccm-num { font-size: 14px; }
+  #bs-comp-calendar .bs-title { font-size: 16px; }
+  #bs-comp-calendar #cc-meta { font-size: 12px !important; }
+
 body { background: #d9dbe0; }
 .phone-frame { scrollbar-width: none; -ms-overflow-style: none; }
 .phone-frame::-webkit-scrollbar { display: none; width: 0; height: 0; }
@@ -2973,10 +2990,10 @@ body { background: #d9dbe0; }
             <div class="pill active" data-view="date" onclick="ccSetView('date')">By Date</div>
             <div class="pill" data-view="table" onclick="ccSetView('table')">Table</div>
           </div>
-          <div class="pill has-menu range-pill" id="cc-price-pill" onclick="ndOpenSheet('bs-cc-price-mode')">Host Prices</div>
-        </div>
-        <div class="cc-toolbar cc-toolbar-los" id="cc-los-row" style="display:none">
-          <div class="pill has-menu range-pill" id="cc-los-pill" onclick="ndOpenSheet('bs-cc-los')">LOS: 2 Nights</div>
+          <div class="cc-toolbar-right">
+            <div class="pill has-menu range-pill" id="cc-price-pill" onclick="ndOpenSheet('bs-cc-price-mode')">Host Prices</div>
+            <div class="pill has-menu range-pill" id="cc-los-pill" style="display:none" onclick="ndOpenSheet('bs-cc-los')">2 Nights</div>
+          </div>
         </div>
 
         <!-- Guest Prices explainer, matching desktop's "Understanding the
@@ -3279,17 +3296,17 @@ body { background: #d9dbe0; }
       <!-- Month navigation -->
       <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
         <button onclick="ccCalMonth(-1)" id="cc-cal-prev" style="border:1px solid var(--pl-border);background:var(--pl-card);border-radius:var(--radius-base);width:32px;height:32px;font-size:16px;color:var(--pl-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.7em;height:0.7em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M9.4 278.6c-12.5-12.5-12.5-32.8 0-45.3l192-192c12.5-12.5 32.8-12.5 45.3 0s12.5 32.8 0 45.3L77.3 256l169.4 169.4c12.5 12.5 12.5 32.8 0 45.3s-32.8 12.5-45.3 0l-192-192z"></path></svg></button>
-        <span style="font-size:15px;font-weight:600;color:var(--pl-text)" id="cc-cal-month">September 2026</span>
+        <span style="font-size:16px;font-weight:400;color:var(--pl-text)" id="cc-cal-month">September 2026</span>
         <button onclick="ccCalMonth(1)" id="cc-cal-next" style="border:1px solid var(--pl-border);background:var(--pl-card);border-radius:var(--radius-base);width:32px;height:32px;font-size:16px;color:var(--pl-text-secondary);cursor:pointer;display:flex;align-items:center;justify-content:center"><svg viewBox="0 0 320 512" xmlns="http://www.w3.org/2000/svg" style="width:0.7em;height:0.7em;display:inline-block;vertical-align:-0.125em" fill="currentColor"><path d="M310.6 233.4c12.5 12.5 12.5 32.8 0 45.3l-192 192c-12.5 12.5-32.8 12.5-45.3 0s-12.5-32.8 0-45.3L242.7 256 73.4 86.6c-12.5-12.5-12.5-32.8 0-45.3s32.8-12.5 45.3 0l192 192z"></path></svg></button>
       </div>
       <!-- Calendar weekday headers -->
-      <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:11px;font-weight:600;color:var(--pl-text-disabled);margin-bottom:4px">
+      <div style="display:grid;grid-template-columns:repeat(7,1fr);text-align:center;font-size:12px;font-weight:400;color:var(--pl-text-secondary);margin-bottom:4px">
         <span>S</span><span>M</span><span>T</span><span>W</span><span>T</span><span>F</span><span>S</span>
       </div>
       <!-- Calendar days grid — populated per-competitor by ndBuildCompCalendar() -->
       <div class="ccm-grid" id="cc-grid"></div>
       <!-- Legend for calendar -->
-      <div style="display:flex;gap:12px;margin-top:12px;font-size:11px;font-weight:400;color:var(--pl-text-secondary);align-items:center;flex-wrap:wrap">
+      <div style="display:flex;gap:12px;margin-top:12px;font-size:12px;font-weight:400;color:var(--pl-text-secondary);align-items:center;flex-wrap:wrap">
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);background:#2CAFFE"></span> Available</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);background:var(--pl-surface-neutral)"></span> Booked / Unavailable</span>
         <span style="display:flex;align-items:center;gap:4px"><span style="display:inline-block;width:12px;height:12px;border-radius:var(--radius-base);border:1.5px solid var(--pl-primary);background:var(--pl-primary-light)"></span> Today</span>
@@ -3297,15 +3314,15 @@ body { background: #d9dbe0; }
       </div>
       <!-- Estimated Fixed Fees -->
       <div style="margin-top:14px;padding-top:12px;border-top:1px solid var(--pl-border-table)">
-        <div style="font-size:12px;font-weight:600;color:var(--pl-text);margin-bottom:6px">Estimated Fixed Fees</div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Cleaning Fee</span><strong style="color:var(--pl-text)" id="cc-fee-cleaning">$85</strong>
+        <div style="font-size:14px;font-weight:400;color:var(--pl-text);margin-bottom:6px">Estimated Fixed Fees</div>
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:400;color:var(--pl-text-secondary);padding:6px 0;border-bottom:1px solid var(--pl-border-table)">
+          <span>Cleaning Fee</span><strong style="color:var(--pl-text);font-weight:400" id="cc-fee-cleaning">$85</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0;border-bottom:1px solid var(--pl-border-table)">
-          <span>Extra Guest Fee</span><strong style="color:var(--pl-text)" id="cc-fee-guest">$25</strong>
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:400;color:var(--pl-text-secondary);padding:6px 0;border-bottom:1px solid var(--pl-border-table)">
+          <span>Extra Guest Fee</span><strong style="color:var(--pl-text);font-weight:400" id="cc-fee-guest">$25</strong>
         </div>
-        <div style="display:flex;justify-content:space-between;font-size:13px;font-weight:400;color:var(--pl-text-secondary);padding:4px 0">
-          <span>Pet Fee</span><strong style="color:var(--pl-text)" id="cc-fee-pet">$50</strong>
+        <div style="display:flex;justify-content:space-between;font-size:14px;font-weight:400;color:var(--pl-text-secondary);padding:6px 0">
+          <span>Pet Fee</span><strong style="color:var(--pl-text);font-weight:400" id="cc-fee-pet">$50</strong>
         </div>
       </div>
     </div>
@@ -3579,7 +3596,7 @@ function ccSetPriceMode(mode) {
   ccPriceMode = mode;
   ndCloseSheet('bs-cc-price-mode');
   document.getElementById('cc-price-pill').firstChild.textContent = mode === 'guest' ? 'Guest Prices' : 'Host Prices';
-  document.getElementById('cc-los-row').style.display = mode === 'guest' ? '' : 'none';
+  document.getElementById('cc-los-pill').style.display = mode === 'guest' ? '' : 'none';
   document.getElementById('cc-guest-info').style.display = mode === 'guest' ? '' : 'none';
   const note = document.getElementById('cc-price-footnote');
   if (note) {
@@ -3592,7 +3609,7 @@ function ccSetPriceMode(mode) {
 function ccSetLos(n) {
   ccLos = n;
   ndCloseSheet('bs-cc-los');
-  document.getElementById('cc-los-pill').firstChild.textContent = 'LOS: ' + n + ' Night' + (n > 1 ? 's' : '');
+  document.getElementById('cc-los-pill').firstChild.textContent = n + ' Night' + (n > 1 ? 's' : '');
   ccRender();
 }
 function ccSetView(view) {
@@ -3806,7 +3823,7 @@ function ccRenderDateView(names) {
 
   const root = document.getElementById('cc-date-view');
   const prevScroll = document.getElementById('ccd-strip') ? document.getElementById('ccd-strip').scrollLeft : null;
-  root.innerHTML = strip + summary + list;
+  root.innerHTML = strip + list;
   const st = document.getElementById('ccd-strip');
   const chip = st.children[i];
   if (prevScroll !== null) st.scrollLeft = prevScroll;

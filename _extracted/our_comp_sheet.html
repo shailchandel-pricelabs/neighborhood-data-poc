@@ -42,10 +42,10 @@
             <div class="pill active" data-view="date" onclick="ccSetView('date')">By Date</div>
             <div class="pill" data-view="table" onclick="ccSetView('table')">Table</div>
           </div>
-          <div class="pill has-menu range-pill" id="cc-price-pill" onclick="ndOpenSheet('bs-cc-price-mode')">Host Prices</div>
-        </div>
-        <div class="cc-toolbar cc-toolbar-los" id="cc-los-row" style="display:none">
-          <div class="pill has-menu range-pill" id="cc-los-pill" onclick="ndOpenSheet('bs-cc-los')">LOS: 2 Nights</div>
+          <div class="cc-toolbar-right">
+            <div class="pill has-menu range-pill" id="cc-price-pill" onclick="ndOpenSheet('bs-cc-price-mode')">Host Prices</div>
+            <div class="pill has-menu range-pill" id="cc-los-pill" style="display:none" onclick="ndOpenSheet('bs-cc-los')">2 Nights</div>
+          </div>
         </div>
 
         <!-- Guest Prices explainer, matching desktop's "Understanding the
