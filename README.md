@@ -5,17 +5,20 @@ existing (currently "Coming Soon") slot for that feature.
 
 ## Pages
 
-- **pricing-dashboard.html** — the real Pricing Dashboard (listing list) entry screen
-- **calendar.html** — a single listing's real Calendar screen shell (header, price card,
-  calendar grid, bottom nav, "Select View" sheet) — tap **More → Neighbourhood Data**
-  to open our POC content in the same real bottom-sheet pattern the app already uses
-  for that destination.
-- **index.html** — the standalone Neighbourhood Data mock in a plain phone-frame
-  (earlier iteration, kept for reference)
+- **calendar.html** — opens on the **Neighborhood** tab (footer nav). Sections:
+  Future Prices, Occupancy, Market History, Prices by Bedroom Type and the
+  Competitor Calendar (Change Compset sheet with Selected / Nearby tabs,
+  365-day table, per-competitor calendar sheet). Charts open in a landscape
+  full-screen view. The **Calendar** tab is the single-listing Pricing
+  Calendar ported from the mobile-app-onboarding project.
+- **assets/comps/** — sample listing photos (Unsplash) used in the
+  competitor calendar sheet.
+- **ia-options.html** — IA exploration: options for where Neighbourhood Data lives
+- **index.html** — redirects to calendar.html
 
 ## How this was built
 
-`pricing-dashboard.html` and `calendar.html` are assembled from markup and CSS
+`calendar.html` is assembled from markup and CSS
 extracted **live** from `sagar.app.pricelabs.co` (real DOM, real Chakra/Emotion
 classes, real computed design-token values) — see `_extracted/` for the raw
 fragments and `_extracted/README.md` for what each file is. This isn't a
